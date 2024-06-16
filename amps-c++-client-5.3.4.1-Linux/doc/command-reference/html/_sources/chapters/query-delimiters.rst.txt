@@ -1,0 +1,9 @@
+
+9. Query Delimiters
+===================
+
+AMPS provides a pair of delimiters, ``group_begin`` and ``group_end``,
+that indicate when a query batch begins and ends.
+
+.. include:: ./group_begin.inc
+.. include:: ./group_end.inc

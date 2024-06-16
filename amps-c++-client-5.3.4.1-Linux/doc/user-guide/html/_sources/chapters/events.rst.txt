@@ -1,0 +1,34 @@
+.. index:: Events, AMPS; events, Client events, SOW events, State of the
+   World (SOW); events, AMPS; internal topics, Event topics, Internal event
+   topics, AMPS; topics,
+
+.. include:: ./macros.inc
+.. _#ug-event-topics:
+
+21. Event Topics
+================
+
+AMPS publishes specific events to internal topics that begin with the
+``/AMPS/`` prefix, which is reserved for AMPS only. For example, all
+client connectivity events are published to the internal
+``/AMPS/ClientStatus`` topic. This allows all clients to monitor for
+events that may be of interest.
+
+.. tip::
+
+   You can subscribe to an event topic using a content filter,
+   just like any other topic within AMPS.
+
+
+A client may subscribe to event topics on any connection with a message
+type that supports views. This includes all of the default message types
+and ``bson``, but does not include the ``binary`` message type.
+
+Messages are delivered as the message type for the connection. For
+example, if the connection uses JSON messages, the event topic messages
+will be JSON. A connection that uses FIX will receive FIX messages from
+an event topic.
+
+.. include:: ./client_status.inc
+.. include:: ./sow_stats.inc
+.. include:: ./persisting.inc

@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Getting Started &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Publish and Subscribe" href="pub_sub.html" />
+    <link rel="prev" title="1. Introduction to 60East Technologies AMPS" href="intro.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Getting Started</a><ul>
+<li><a class="reference internal" href="#installing-amps">Installing AMPS</a></li>
+<li><a class="reference internal" href="#starting-amps">Starting AMPS</a><ul>
+<li><a class="reference internal" href="#command-line-options">Command Line Options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#admin-view-of-the-amps-server">Admin View of the AMPS Server</a></li>
+<li><a class="reference internal" href="#interacting-with-amps-using-spark">Interacting with AMPS Using Spark</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="intro.html" title="previous chapter">1. Introduction to 60East Technologies AMPS</a></li>
+      <li>Next: <a href="pub_sub.html" title="next chapter">3. Publish and Subscribe</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="getting-started">
+<span id="ug-getting-started"></span><h1>2. Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p id="index-0">This chapter is for users who are new to AMPS and want to get up
+and running on a simple instance of AMPS. This chapter will walk new
+users through the file structure of an AMPS installation, configuring a
+simple AMPS instance and running the demonstration tools provided as
+part of the distribution to show how a simple publisher can send
+messages to AMPS.</p>
+<div class="section" id="installing-amps">
+<h2>Installing AMPS<a class="headerlink" href="#installing-amps" title="Permalink to this headline">¶</a></h2>
+<p id="index-1">To install AMPS, unpack the distribution for your platform where you
+want the binaries and libraries to be stored. For the remainder of this
+guide, the installation directory will be referred to as <code class="docutils literal"><span class="pre">$AMPSDIR</span></code> as
+if an environment variable with that name was set to the correct path.</p>
+<p>Within <code class="docutils literal"><span class="pre">$AMPSDIR</span></code> are the following sub-directories:</p>
+<table border="1" class="docutils" id="table-distribution-directories">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Directory</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>bin</td>
+<td>AMPS engine binaries and utilities</td>
+</tr>
+<tr class="row-odd"><td>docs</td>
+<td>Documentation</td>
+</tr>
+<tr class="row-even"><td>lib</td>
+<td>Library dependencies</td>
+</tr>
+<tr class="row-odd"><td>sdk</td>
+<td>Include files for the AMPS extension API</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2.1:</strong> <em>AMPS Distribution Directories</em></p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">AMPS client libraries are available as a separate download from
+the AMPS website. See the AMPS developer page at
+<a class="reference external" href="http://www.crankuptheamps.com/developer">http://www.crankuptheamps.com/developer</a>
+to download the latest libraries.</p>
+</div>
+</div>
+<div class="section" id="starting-amps">
+<h2>Starting AMPS<a class="headerlink" href="#starting-amps" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS Engine binary is named <code class="docutils literal"><span class="pre">ampServer</span></code> and is found in
+<code class="docutils literal"><span class="pre">$AMPSDIR/bin</span></code>. Start the AMPS engine with a single command line
+argument that includes a valid path to an AMPS configuration file. You
+use the configuration file to enable and configure the AMPS features
+that your application will use. This guide discusses the most
+commonly-used configuration options for each feature, and the full set
+of options is described in the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>.</p>
+<p>The AMPS server can generate a minimal sample configuration file with the
+<code class="docutils literal"><span class="pre">--sample-config</span></code> option. For example, you can save the sample
+configuration file to <code class="docutils literal"><span class="pre">$AMPSDIR/amps_config.xml</span></code> with the following
+command line:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$AMPSDIR/bin/ampServer --sample-config &gt; $AMPSDIR/amps_config.xml
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>The sample configuration file generated by the server shows a minimal
+AMPS configuration. The client language distributions include
+an AMPS configuration file designed to work with the examples
+included with that client.</p>
+<p>The server sample configuration only provides configuration for
+subscribe/publish use of AMPS, and does not include any persistence
+for AMPS messages.</p>
+<p>The file enables the instance administrative interface (the &#8220;Galvanometer&#8221;),
+including the ability to subscribe to topics using a websocket connection
+from the instance administrative interface.</p>
+<p class="last">A production configuration would likely provide persistent event and
+error logging to a file to allow an operations team to troubleshoot
+the instance. A production configuration would typically persist
+monitoring statistics to a file. Such a configuration  would likely
+enable additional message delivery features for certain topics, and
+would also include configuration for high-availability and disaster recovery.
+The configuration would typically configure AMPS actions to perform
+routine maintenance.</p>
+</div>
+<p>Once you have a configuration file saved to <code class="docutils literal"><span class="pre">$AMPSDIR/amps_config.xml</span></code>
+you can start AMPS with that file as follows:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$AMPSDIR/bin/ampServer $AMPSDIR/amps_config.xml
+</pre></div>
+</div>
+<p>The sample configuration file generated by AMPS includes a very minimal
+configuration. The client language distributions include a sample configuration
+file that sets up AMPS to work with the samples provided with that client,
+and the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>  contains a full description of
+the configuration items with sample configuration snippets.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">AMPS uses the current working directory for storing files (logs
+and persistence) for any relative paths specified in the
+configuration. While this is important for real deployments, the
+demo configuration used in this chapter does not persist
+anything, so you can safely start AMPS from any working
+directory using this configuration.</p>
+</div>
+<div class="admonition tip" id="index-3">
+<p class="first admonition-title">Tip</p>
+<p>On older processor architectures, <code class="docutils literal"><span class="pre">ampServer</span></code> will start the
+<code class="docutils literal"><span class="pre">ampServer-compat</span></code> binary. The  <code class="docutils literal"><span class="pre">ampServer-compat</span></code> binary
+avoids using hardware instructions that are not available on
+these systems.</p>
+<p class="last">You can also set the
+<code class="docutils literal"><span class="pre">AMPS_PLATFORM_COMPAT</span></code> environment variable to force
+<code class="docutils literal"><span class="pre">ampServer</span></code> to start the <code class="docutils literal"><span class="pre">ampServer-compat</span></code> binary. 60East
+recommends using this option only on systems that do not support
+the hardware instructions used in the standard binary. The
+<code class="docutils literal"><span class="pre">ampServer-compat</span></code> binary will not perform as well as
+<code class="docutils literal"><span class="pre">ampServer</span></code>, since it uses fewer hardware optimizations.</p>
+</div>
+<p>If your first start-up is successful, you should see AMPS display a
+simple message similar to the following to let you know that your
+instance has started correctly.</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">AMPS</span> <span class="n">A</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">C</span><span class="o">.</span><span class="n">D</span><span class="mf">.973814</span><span class="o">.</span><span class="n">e1a57f7</span> <span class="o">-</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2006</span><span class="o">-</span><span class="mi">202</span><span class="n">X</span> <span class="mi">60</span><span class="n">East</span> <span class="n">Technologies</span> <span class="n">Inc</span><span class="o">.</span>
+<span class="p">(</span><span class="n">Built</span><span class="p">:</span> <span class="n">XXXX</span><span class="o">-</span><span class="n">YY</span><span class="o">-</span><span class="n">ZZT00</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">45</span><span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The version numbers and dates will be appropriate for the version that you&#8217;ve
+started.</p>
+<p>If you see this, congratulations! You have successfully cranked up the
+AMPS!</p>
+<div class="section" id="command-line-options">
+<h3>Command Line Options<a class="headerlink" href="#command-line-options" title="Permalink to this headline">¶</a></h3>
+<p id="index-4">The AMPS server binary supports the following command line
+options:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Effect</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--verify-config</span></code></td>
+<td>Parse and verify the specified
+configuration file, then exit.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--sample-config</span></code></td>
+<td>Produce a minimal AMPS config.xml
+file to standard output, then exit.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--dump-config</span></code></td>
+<td>Process the specified configuration
+file, resolving any Include
+directives and expanding environment
+variables. Dump the resulting file
+to standard output.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--version</span></code></td>
+<td>Print the AMPS version string, then
+exit.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--help</span></code></td>
+<td>Print usage information for the
+command line options accepted by the
+ampServer program, then exit.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--daemon</span></code></td>
+<td>Run AMPS as a daemon process.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-D&lt;variable&gt;=&lt;value&gt;</span></code></td>
+<td><p class="first">Set the specified environment
+<em>variable</em> to the specified <em>value</em>
+when running the AMPS process. AMPS
+accepts any number of <code class="docutils literal"><span class="pre">-D</span></code>
+options.</p>
+<p class="last">For example, to set the variable
+<code class="docutils literal"><span class="pre">AMPS_PATH</span></code> to <code class="docutils literal"><span class="pre">/mnt/fast/AMPS</span></code>
+use the command line option
+<code class="docutils literal"><span class="pre">-DAMPS_PATH=/mnt/fast/AMPS</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2.2:</strong> <em>ampServer command line options</em></p>
+</div>
+</div>
+<div class="section" id="admin-view-of-the-amps-server">
+<h2>Admin View of the AMPS Server<a class="headerlink" href="#admin-view-of-the-amps-server" title="Permalink to this headline">¶</a></h2>
+<p id="index-5">When the admin server is enabled in the configuration, you can get an
+indication as to whether AMPS is running or not by connecting to its
+admin port with a browser at <code class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/amps</span></code> where
+<em>&lt;host&gt;</em> is the host the AMPS instance is running on and <em>&lt;port&gt;</em> is the
+administration port configured in the configuration file.</p>
+<p>When successful, a hierarchy of information regarding the instance will
+be displayed. If you&#8217;ve started AMPS using the sample configuration
+file, try connecting to <code class="docutils literal"><span class="pre">http://localhost:8085/amps</span></code>. For more
+information on the monitoring capabilities, please see the <em>AMPS
+Monitoring Reference Guide</em>, available from the 60East documentation
+site at <a class="reference external" href="http://docs.crankuptheamps.com/">http://docs.crankuptheamps.com/</a>.</p>
+</div>
+<div class="section" id="interacting-with-amps-using-spark">
+<h2>Interacting with AMPS Using Spark<a class="headerlink" href="#interacting-with-amps-using-spark" title="Permalink to this headline">¶</a></h2>
+<p id="index-6">AMPS provides the <code class="docutils literal"><span class="pre">spark</span></code> utility as a command line interface to
+interact with an AMPS server. <code class="docutils literal"><span class="pre">spark</span></code> provides many of the
+capabilities of the AMPS client libraries through this interface. The
+utility lets you execute commands like <code class="docutils literal"><span class="pre">'subscribe'</span></code>, <code class="docutils literal"><span class="pre">'publish'</span></code>,
+<code class="docutils literal"><span class="pre">'sow'</span></code>, <code class="docutils literal"><span class="pre">'sow_and_subscribe'</span></code> and <code class="docutils literal"><span class="pre">'sow_delete'</span></code>, described
+elsewhere in this Guide.</p>
+<p><code class="docutils literal"><span class="pre">spark</span></code> is a Java application, and requires a JRE version 1.7 or later
+to run.</p>
+<p>Applications that use AMPS use one of the client libraries, available
+from <a class="reference external" href="http://www.crankuptheamps.com/develop">http://www.crankuptheamps.com/develop</a>. The <code class="docutils literal"><span class="pre">spark</span></code> utility
+supports a subset of AMPS functionality, and is most often used for
+troubleshooting, ad hoc testing, or light scripting.</p>
+<p>For example, to simply test connectivity to an AMPS server, <code class="docutils literal"><span class="pre">spark</span></code>
+provides a <code class="docutils literal"><span class="pre">ping</span></code> command. This command simply makes a connection to
+the server using the specified parameters, and reports whether that
+connection succeeded or failed. You can run the command as follows,
+where the <code class="docutils literal"><span class="pre">server</span></code> parameter is the address and port of the AMPS
+server, and the <code class="docutils literal"><span class="pre">type</span></code> parameter is the message type to use for this
+connection:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ ./spark ping -server localhost:9007 -type json
+Successfully connected to tcp://user@localhost:9007/amps/json
+</pre></div>
+</div>
+<p>If <code class="docutils literal"><span class="pre">spark</span></code> encounters an error while connecting to AMPS, <code class="docutils literal"><span class="pre">spark</span></code>
+reports that error on the command line.</p>
+<p>You can read more about <code class="docutils literal"><span class="pre">spark</span></code> in the Spark Section
+of the AMPS User Guide appendix. Other useful tools for troubleshooting AMPS
+are described in the <em>AMPS Utilities Guide</em>, available from the 60East
+documentation site at <a class="reference external" href="http://docs.crankuptheamps.com/">http://docs.crankuptheamps.com/</a>.</p>
+</div>
+<div class="section" id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>The next step is to configure your own instance of AMPS to meet your
+messaging needs. The AMPS configuration is covered in more detail in
+<em>AMPS Configuration Reference Guide</em></p>
+<p>After you have successfully configured your own instance, there are two
+paths where you can go next:</p>
+<ul class="simple">
+<li>One path is to continue using this guide and learn how to configure,
+administer and customize AMPS in depth so that it may meet the needs of
+your deployment. If you are a system administrator who is responsible
+for the deployment, availability and management of data to other users,
+then you may want to focus on this User Guide first.</li>
+<li>The other path introduces the AMPS Client APIs. This path is targeted at
+software developers looking to integrate AMPS into their own solutions.
+60East provides client libraries for C, C++, C#, Java and Python. These
+libraries are available for download from the 60East website. The
+website also includes evaluation kits designed to help programmers
+quickly get started with AMPS. For developers, the basic functionality
+of the AMPS server is explained in this User Guide. The Developer Guides
+and API documentation explain how to use that particular client library
+to create applications that use AMPS functionality.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

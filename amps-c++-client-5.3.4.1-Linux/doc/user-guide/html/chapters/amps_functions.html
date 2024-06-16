@@ -1,0 +1,1619 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>5. AMPS Functions &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="6. Regular Expressions" href="regular_expressions.html" />
+    <link rel="prev" title="4. AMPS Expressions" href="amps_expressions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">5. AMPS Functions</a><ul>
+<li><a class="reference internal" href="#amps-function-overview">AMPS Function Overview</a><ul>
+<li><a class="reference internal" href="#deterministic-and-non-deterministic-functions">Deterministic and Non-Deterministic Functions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#string-comparison-functions">String Comparison Functions</a></li>
+<li><a class="reference internal" href="#concatenating-strings">Concatenating Strings</a></li>
+<li><a class="reference internal" href="#managing-string-case">Managing String Case</a></li>
+<li><a class="reference internal" href="#replacing-text-in-strings">Replacing Text in Strings</a></li>
+<li><a class="reference internal" href="#string-manipulation-functions">String Manipulation Functions</a></li>
+<li><a class="reference internal" href="#date-and-time-functions">Date and Time Functions</a></li>
+<li><a class="reference internal" href="#array-reduce-functions">Array Reduce Functions</a></li>
+<li><a class="reference internal" href="#geospatial-functions">Geospatial Functions</a></li>
+<li><a class="reference internal" href="#numeric-functions">Numeric Functions</a></li>
+<li><a class="reference internal" href="#crc-functions">CRC Functions</a></li>
+<li><a class="reference internal" href="#message-functions">Message Functions</a></li>
+<li><a class="reference internal" href="#client-functions">Client Functions</a></li>
+<li><a class="reference internal" href="#coalesce-function">Coalesce Function</a></li>
+<li><a class="reference internal" href="#amps-information-functions">AMPS Information Functions</a></li>
+<li><a class="reference internal" href="#typed-value-construction-functions">Typed Value Construction Functions</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="amps_expressions.html" title="previous chapter">4. AMPS Expressions</a></li>
+      <li>Next: <a href="regular_expressions.html" title="next chapter">6. Regular Expressions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="amps-functions">
+<span id="ug-amps-functions"></span><span id="index-0"></span><h1>5. AMPS Functions<a class="headerlink" href="#amps-functions" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the functions installed by default in the AMPS
+server. Additional functions that ship with the AMPS server are
+provided in auxiliary modules, as described in the
+<a class="reference internal" href="auxiliary_modules.html#ug-appendix-auxilliary-modules"><span class="std std-ref">Auxiliary Modules Appendix</span></a>.</p>
+<div class="section" id="amps-function-overview">
+<h2>AMPS Function Overview<a class="headerlink" href="#amps-function-overview" title="Permalink to this headline">¶</a></h2>
+<p>In the AMPS expression language, a function can be used in any
+place an <em>identifier</em> or <em>literal value</em> can be used.</p>
+<p>All AMPS functions return a single value. During evaluation
+of an AMPS expression, AMPS calls the functions in the
+expression and uses the results to evaluate the expression.
+A function may perform type conversion as needed to evaluate
+the expression.</p>
+<p>The results of a call to an AMPS function can be used as the parameter to an
+AMPS function. For example, the following is a valid expression:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">REVERSE</span><span class="p">(</span><span class="n">SUBSTR</span><span class="p">(</span><span class="s1">&#39;fandango&#39;</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span> <span class="o">==</span> <span class="s1">&#39;ogna&#39;</span>
+</pre></div>
+</div>
+<p>In this case, AMPS first evaluates the <code class="docutils literal"><span class="pre">SUBSTR</span></code> function, which requests
+the subset of the string <code class="docutils literal"><span class="pre">fandango</span></code>, starting at position <code class="docutils literal"><span class="pre">5</span></code>. That
+function returns <code class="docutils literal"><span class="pre">ango</span></code>. AMPS then uses the string <code class="docutils literal"><span class="pre">ango</span></code> as the
+input to the <code class="docutils literal"><span class="pre">REVERSE</span></code> function, which  returns the result <code class="docutils literal"><span class="pre">ogna</span></code>.</p>
+<p>The following table lists the available functions by category:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Category</th>
+<th class="head">Function Types Provided</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td rowspan="6">String</td>
+<td><a class="reference internal" href="#ug-string-comparison-functions"><span class="std std-ref">String Comparison Functions</span></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#ug-string-to-array-functions"><span class="std std-ref">Converting Arrays to Strings</span></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#ug-string-concatenation-functions"><span class="std std-ref">Concatenating Strings</span></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#ug-string-case-management-functions"><span class="std std-ref">Managing String Case</span></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#ug-string-replace-functions"><span class="std std-ref">Replacing Text in Strings</span></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#ug-string-manipulation-functions"><span class="std std-ref">String Manipulation Functions</span></a></td>
+</tr>
+<tr class="row-even"><td>Date and
+Time</td>
+<td><p class="first"><a class="reference internal" href="#ug-date-and-time-functions"><span class="std std-ref">Date and Time Manipulation</span></a></p>
+<p class="last"><em>see also</em> <a class="reference internal" href="auxiliary_modules.html#ug-legacy-messaging-compatibility"><span class="std std-ref">Legacy Messaging Compatibility Functions</span></a></p>
+</td>
+</tr>
+<tr class="row-odd"><td>Array
+Reduce</td>
+<td><a class="reference internal" href="#ug-string-to-array-functions"><span class="std std-ref">Converting Arrays to Strings</span></a>
+<a class="reference internal" href="#ug-array-reduce-functions"><span class="std std-ref">Array to Scalar Functions</span></a></td>
+</tr>
+<tr class="row-even"><td>Geospatial</td>
+<td><a class="reference internal" href="#ug-geospatial-functions"><span class="std std-ref">Geospatial Functions</span></a></td>
+</tr>
+<tr class="row-odd"><td>Numeric</td>
+<td><a class="reference internal" href="#ug-numeric-functions"><span class="std std-ref">Numeric Functions</span></a></td>
+</tr>
+<tr class="row-even"><td>Checksum</td>
+<td><a class="reference internal" href="#ug-checksum-functions"><span class="std std-ref">CRC Function</span></a></td>
+</tr>
+<tr class="row-odd"><td>Message</td>
+<td><a class="reference internal" href="#ug-message-functions"><span class="std std-ref">Current Message Functions</span></a></td>
+</tr>
+<tr class="row-even"><td>Client</td>
+<td><a class="reference internal" href="#ug-client-functions"><span class="std std-ref">Client Information Functions</span></a></td>
+</tr>
+<tr class="row-odd"><td>Working
+with NULL
+values</td>
+<td><a class="reference internal" href="#ug-coalesce-function"><span class="std std-ref">Finding Non-NULL Values</span></a></td>
+</tr>
+<tr class="row-even"><td>AMPS
+Information</td>
+<td><a class="reference internal" href="#ug-amps-information-functions"><span class="std std-ref">AMPS Information Functions</span></a></td>
+</tr>
+<tr class="row-odd"><td>Typed
+Value
+Creation</td>
+<td><a class="reference internal" href="#ug-value-construction-functions"><span class="std std-ref">Typed Value Construction Shortcuts</span></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.1:</strong> <em>AMPS function categories</em></p>
+<div class="section" id="deterministic-and-non-deterministic-functions">
+<span id="ug-ndf-behavior"></span><h3>Deterministic and Non-Deterministic Functions<a class="headerlink" href="#deterministic-and-non-deterministic-functions" title="Permalink to this headline">¶</a></h3>
+<p>The AMPS server distiguishes between functions that produce a consistent
+value for the same message (<em>deterministic</em> functions) and functions that may
+produce a different value each time it is called, even if the function has the
+same input and is called for the update to the same message (<em>non-deterministic</em>
+functions).</p>
+<p>There are no restrictions on the use of deterministic functions, since each
+time that they are called for a given message (or a given update to a message),
+they will return a consistent result.</p>
+<p>Some features of AMPS rely on being able to evaluate an expression
+in a consistent way for a given message. A function that can produce a
+different value each time that it is called cannot be used in those situations:
+otherwise, AMPS could produce incorrect (or meaningless) results.</p>
+<p>In practice, this means that a non-deterministic function:</p>
+<ul class="simple">
+<li>Cannot be used in the filter of a subscription that requests out of
+focus (oof) notifications.</li>
+<li>Cannot be used in the filter of an aggregated subscription (although
+a non-deterministic function is allowed in the filter of an
+aggregated <em>query</em>, since the filter will only be evaluated once per
+message).</li>
+<li>Cannot be used in an aggregate function (aggregate functions are available
+in views, aggregated subscriptions, and aggregated queries).</li>
+<li>Cannot be used in the filter for a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>
+command that uses pagination (that is, a command that specifies
+<code class="docutils literal"><span class="pre">top_n</span></code>/<code class="docutils literal"><span class="pre">skip_n</span></code>/<code class="docutils literal"><span class="pre">OrderBy</span></code>).</li>
+<li>Cannot be used in the filter for a queue or the barrier expression
+for a queue.</li>
+<li>Cannot be used in the filter for a view or conflated topic.</li>
+<li>Cannot be used in a replication filter.</li>
+</ul>
+<p>In this release, <code class="docutils literal"><span class="pre">LAST_READ</span></code>, <code class="docutils literal"><span class="pre">UNIX_TIMESTAMP</span></code> and <code class="docutils literal"><span class="pre">VALUE_LOOKUP</span></code>
+are non-deterministic.  The other functions provided with AMPS (both
+built in and provided through auxilliary modules) are deterministic.</p>
+</div>
+</div>
+<div class="section" id="string-comparison-functions">
+<span id="ug-string-comparison-functions"></span><h2>String Comparison Functions<a class="headerlink" href="#string-comparison-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes several types of string comparison operators.</p>
+<ul class="simple">
+<li><strong>Case-sensitive exact matches</strong>. The <code class="docutils literal"><span class="pre">IN</span></code>, <code class="docutils literal"><span class="pre">=</span></code>, <code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH</span></code>,
+<code class="docutils literal"><span class="pre">ENDS</span> <span class="pre">WITH</span></code>, and <code class="docutils literal"><span class="pre">INSTR</span></code> operators do literal matching on the
+contents of a string. These operators are case-sensitive.</li>
+<li><strong>Case-insensitive exact matches</strong>. AMPS also provides two
+case-insensitive operators: <code class="docutils literal"><span class="pre">INSTR_I</span></code>, a case-insensitive version
+of <code class="docutils literal"><span class="pre">INSTR</span></code>, and a case-insensitive equality operator,
+<code class="docutils literal"><span class="pre">STREQUAL_I</span></code>.</li>
+<li><strong>Regular expression matches</strong>. AMPS also provides full regular
+expression matching using the <code class="docutils literal"><span class="pre">LIKE</span></code> operator, described in
+<a class="reference internal" href="amps_expressions.html#ug-filter-syntax-regular-expression"><span class="std std-ref">regex matching</span></a> and
+<a class="reference internal" href="regular_expressions.html#ug-regular-expressions"><span class="std std-ref">Chapter 5</span></a>.</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">=</span></code> operator tests whether a field exactly matches the literal
+string provided.</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;available&#39;</span>
+
+<span class="o">/</span><span class="n">orderId</span> <span class="o">=</span> <span class="s1">&#39;F327AC&#39;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH</span></code> and <code class="docutils literal"><span class="pre">ENDS</span> <span class="pre">WITH</span></code> test whether a field begins or ends
+with the literal string provided. The operators return <code class="docutils literal"><span class="pre">TRUE</span></code> or
+<code class="docutils literal"><span class="pre">FALSE</span></code>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Department</span> <span class="n">BEGINS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;Engineering&#39;</span><span class="p">)</span>
+
+<span class="o">/</span><span class="n">path</span> <span class="n">NOT</span> <span class="n">BEGINS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;/public/dropbox&#39;</span><span class="p">)</span>
+
+<span class="o">/</span><span class="n">filename</span> <span class="n">ENDS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;txt&#39;</span><span class="p">)</span>
+
+<span class="o">/</span><span class="n">price</span> <span class="n">NOT</span> <span class="n">ENDS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;99&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>AMPS allows you to use set comparisons with <code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH</span></code> and
+<code class="docutils literal"><span class="pre">ENDS</span> <span class="pre">WITH</span></code>. In this case, the filter matches if the string in the
+field <code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH</span></code> or <code class="docutils literal"><span class="pre">ENDS</span> <span class="pre">WITH</span></code> any of the strings in the set:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Department</span> <span class="n">BEGINS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;Engineering&#39;</span><span class="p">,</span> <span class="s1">&#39;Research&#39;</span><span class="p">,</span> <span class="s1">&#39;Technical&#39;</span><span class="p">)</span>
+
+<span class="o">/</span><span class="n">filename</span> <span class="n">ENDS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;gif&#39;</span><span class="p">,</span> <span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;jpg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">INSTR</span></code> operator allows you to check to see if one string occurs
+within another string. For this operator, you provide two string values.
+If the second string occurs within the first string, <code class="docutils literal"><span class="pre">INSTR</span></code> returns
+the position at which the second string starts, or 0 if the second
+string does not occur within the first string. Notice that the first
+character of the string is 1 (not 0). For example, the expression below
+tests whether the string <code class="docutils literal"><span class="pre">critical</span></code> occurs within the <code class="docutils literal"><span class="pre">/eventLevels</span></code>
+field.</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTR</span><span class="p">(</span><span class="o">/</span><span class="n">eventLevels</span><span class="p">,</span> <span class="s2">&quot;critical&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>AMPS also provides <code class="docutils literal"><span class="pre">INSTR_I</span></code> and <code class="docutils literal"><span class="pre">STREQUAL_I</span></code> functions for performing
+case-insensitive comparisons:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">STREQUAL_I</span><span class="p">(</span><span class="o">/</span><span class="n">couponCode</span><span class="p">,</span> <span class="s1">&#39;QED&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="n">INSTR_I</span><span class="p">(</span><span class="o">/</span><span class="n">symbolList</span><span class="p">,</span> <span class="s1">&#39;MSFT&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="28%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function or Operator</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">=</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">The string to compare</p>
+</td>
+<td><p class="first"><em>Case-sensitive</em></p>
+<p>Returns true if the string to be compared is
+identical to the string to compare.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">state</span> <span class="o">=</span> <span class="s1">&#39;Ohio&#39;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">A list of strings to
+compare</p>
+</td>
+<td><p class="first"><em>Case-sensitive</em></p>
+<p>Returns true if the string to be compared
+begins with any of the strings in the list.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">state</span>
+  <span class="n">BEGINS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;North&#39;</span><span class="p">,</span> <span class="s1">&#39;South&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ENDS</span> <span class="pre">WITH</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">A list of strings to
+compare</p>
+</td>
+<td><p class="first"><em>Case-sensitive</em></p>
+<p>Returns true if the string to be compared
+ends with any of the strings in the list.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">state</span>
+  <span class="n">ENDS</span> <span class="n">WITH</span> <span class="p">(</span><span class="s1">&#39;Dakota&#39;</span><span class="p">,</span> <span class="s1">&#39;Carolina&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">INSTR</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">The string to compare</p>
+</td>
+<td><p class="first"><em>Case-sensitive</em></p>
+<p>Returns the position at which the second string
+starts, or 0 if the second string does not
+occur within the first string. This function is
+not unicode-aware.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTR</span><span class="p">(</span><span class="o">/</span><span class="n">state</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">INSTR_I</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">The string to compare</p>
+</td>
+<td><p class="first"><em>Case-insensitive</em></p>
+<p>Returns the position at which the second string
+starts, or 0 if the second string does not
+occur within the first string. This function is
+not unicode-aware.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTR_I</span><span class="p">(</span><span class="o">/</span><span class="n">state</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">STREQUAL_I</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">The string to compare</p>
+</td>
+<td><p class="first"><em>Case-insensitive</em></p>
+<p>Returns true if, when both strings are
+transformed to the same case, the string to be
+compared is identical to the string to compare.
+This function is not unicode-aware.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">STREQUAL_I</span><span class="p">(</span><span class="o">/</span><span class="n">state</span><span class="p">,</span> <span class="s1">&#39;oHIO&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LENGTH</span></code></td>
+<td>The string to be counted</td>
+<td><p class="first">Returns the length of the provided string</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">LENGTH</span><span class="p">(</span><span class="o">/</span><span class="n">streetAddress</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.2:</strong> <em>AMPS string comparison</em></p>
+</div>
+<div class="section" id="concatenating-strings">
+<span id="ug-string-concatenation-functions"></span><h2>Concatenating Strings<a class="headerlink" href="#concatenating-strings" title="Permalink to this headline">¶</a></h2>
+<p id="index-1">AMPS provides a function, <code class="docutils literal"><span class="pre">CONCAT</span></code> that can be used for
+constructing strings. The <code class="docutils literal"><span class="pre">CONCAT</span></code> function takes any number of
+parameters and returns a string constructed from those parameters. The
+function can accept both XPath identifiers and literal values.</p>
+<p>The <code class="docutils literal"><span class="pre">CONCAT</span></code> function can be used in any AMPS expression that uses a
+string. For example, you could CONCAT in a filter as follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">CONCAT</span><span class="p">(</span><span class="o">/</span><span class="n">firstName</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="o">/</span><span class="n">lastName</span><span class="p">)</span> <span class="o">=</span> <span class="s1">&#39;George Orwell&#39;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">CONCAT</span></code> can be combined with other expressions, including conditional
+expressions. A <code class="docutils literal"><span class="pre">mailingAddressName</span></code> field in a view could be
+constructed as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>CONCAT(/firstName, &quot; &quot;, /lastName,
+    IF(/suffix NOT NULL, CONCAT(&quot;, &quot;, /suffix), &quot;&quot;) )
+    AS /mailingAddressName<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="managing-string-case">
+<span id="ug-string-case-management-functions"></span><span id="index-2"></span><h2>Managing String Case<a class="headerlink" href="#managing-string-case" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides the <code class="docutils literal"><span class="pre">UPPER</span></code> and <code class="docutils literal"><span class="pre">LOWER</span></code> functions to produce a string
+in a specific case. This can be useful when constructing fields, or when
+an expression needs case-insensitive comparisons against a group of
+values using the <code class="docutils literal"><span class="pre">IN</span></code> clause.</p>
+<p>As described above in
+<a class="reference internal" href="#ug-string-comparison-functions"><span class="std std-ref">String Comparison Functions</span></a>, AMPS provides <code class="docutils literal"><span class="pre">INSTR_I</span></code> and
+<code class="docutils literal"><span class="pre">STREQUAL_I</span></code> functions for performing case-insensitive
+comparisons. In some cases, particularly when using strings with the IN
+clause, it is more efficient to simply convert the string to a known
+case.</p>
+<p>The <code class="docutils literal"><span class="pre">UPPER</span></code> and <code class="docutils literal"><span class="pre">LOWER</span></code> functions are not unicode-aware; these
+functions will not produce the correct data when used with multibyte
+characters. For example, you might compare an incoming field of unknown
+case to a set of known values as follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">UPPER</span><span class="p">(</span><span class="o">/</span><span class="n">ticker</span><span class="p">)</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;MSFT&#39;</span><span class="p">,</span> <span class="s1">&#39;IBM&#39;</span><span class="p">,</span> <span class="s1">&#39;RHAT&#39;</span><span class="p">,</span> <span class="s1">&#39;DIS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="27%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">UPPER</span></code></td>
+<td>The string to transform</td>
+<td>Returns the input string, transformed to
+upper case. This function is not unicode
+aware.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">LOWER</span></code></td>
+<td>The string to transform</td>
+<td>Returns the input string, transformed to
+lower case. This function is not unicode
+aware.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.3:</strong> <em>AMPS string manipulation functions</em></p>
+</div>
+<div class="section" id="replacing-text-in-strings">
+<span id="ug-string-replace-functions"></span><h2>Replacing Text in Strings<a class="headerlink" href="#replacing-text-in-strings" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides a pair of functions, <code class="docutils literal"><span class="pre">REPLACE</span></code> and <code class="docutils literal"><span class="pre">REGEXP_REPLACE</span></code>, that replace text within strings.
+The <code class="docutils literal"><span class="pre">REPLACE</span></code> function does a literal match of the string to be replaced, while <code class="docutils literal"><span class="pre">REGEXP_REPLACE</span></code>
+uses a PCRE pattern to find the string to be replaced.</p>
+<p>The following expressions all evaluate as true:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">REPLACE</span><span class="p">(</span><span class="s1">&#39;fandango&#39;</span><span class="p">,</span> <span class="s1">&#39;dan&#39;</span><span class="p">,</span> <span class="s1">&#39;din&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;fandingo&#39;</span>
+
+<span class="n">REGEXP_REPLACE</span><span class="p">(</span><span class="s1">&#39;fandango&#39;</span><span class="p">,</span><span class="s1">&#39;n.*n&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;fargo&#39;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="21%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">REPLACE</span></code></td>
+<td><em>string to transform,</em>
+<em>string to match,</em>
+<em>replacement text</em></td>
+<td>Returns the input string, with all occurrences of the <em>string to match</em>
+replaced with the <em>replacement text</em></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">REGEXP_REPLACE</span></code></td>
+<td><em>string to transform,</em>
+<em>pattern to match,</em>
+<em>replacement text</em></td>
+<td>Returns the input string, with all occurrences of the
+<em>pattern to match</em> replaced with the <em>replacement text</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.4:</strong> <em>AMPS string replacement functions</em></p>
+</div>
+<div class="section" id="string-manipulation-functions">
+<span id="ug-string-manipulation-functions"></span><h2>String Manipulation Functions<a class="headerlink" href="#string-manipulation-functions" title="Permalink to this headline">¶</a></h2>
+<p id="index-3">AMPS provides a function, <code class="docutils literal"><span class="pre">SUBSTR</span></code>, that can be used
+for returning a subset of a string. There are two forms of this
+function.</p>
+<p>The first form takes the source string and the position at which to
+begin the substring. You can use a negative number to count backward
+from the end of the string. AMPS starts at the position specified, and
+returns a string that starts at the specified position and goes to the
+end of the string. If the provided position is before the beginning of
+the string, AMPS starts at the beginning of the string, returning the
+full string. If the provided position is past the end of the string,
+AMPS returns a zero-length string, which evaluates to <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>For example, the following expressions are all <code class="docutils literal"><span class="pre">TRUE</span></code>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;dango&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fandango&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;go&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">99</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fandango&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span> <span class="n">IS</span> <span class="n">NULL</span>
+</pre></div>
+</div>
+<p>The second form of <code class="docutils literal"><span class="pre">SUBSTR</span></code> takes the source string, the position at
+which to begin the substring, and the length of the substring. Notice
+that <code class="docutils literal"><span class="pre">SUBSTR</span></code> considers the first character in the string to be
+position <code class="docutils literal"><span class="pre">1</span></code> (rather than position <code class="docutils literal"><span class="pre">0</span></code>), as demonstrated below. AMPS
+will not return a string larger than the source string. As with the
+two-argument form, if the starting position is before the beginning of
+the string, AMPS starts at the beginning of the string. If the starting
+position is after the end of the source string, AMPS returns an empty
+string which evaluates to <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>For example, the following expressions are all true:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fan&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;an&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fandango&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">23</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fan&quot;</span>
+
+<span class="n">SUBSTR</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="n">IS</span> <span class="n">NULL</span>
+</pre></div>
+</div>
+<p>AMPS also provides simplified forms of <code class="docutils literal"><span class="pre">SUBSTR</span></code>,
+which simply take the leftmost or rightmost
+characters from a string.  For example, the
+following expressions all evaluate as true:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">LEFT</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="o">==</span> <span class="s2">&quot;fan&quot;</span>
+
+<span class="n">RIGHT</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;go&quot;</span>
+</pre></div>
+</div>
+<p>AMPS provides a set of functions that work with whitespace or
+other delimiter characters. For example, the following
+expressions are all true:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">TRIM</span><span class="p">(</span><span class="s2">&quot; Lancelot &quot;</span><span class="p">)</span>  <span class="o">==</span> <span class="s2">&quot;Lancelot&quot;</span>
+
+<span class="n">LTRIM</span><span class="p">(</span><span class="s2">&quot; Lancelot &quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Lancelot &quot;</span>
+
+<span class="n">RTRIM</span><span class="p">(</span><span class="s2">&quot; Lancelot &quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot; Lancelot&quot;</span>
+</pre></div>
+</div>
+<p>These functions accept an optional second parameter that
+specifies the delimiters to remove:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">TRIM</span><span class="p">(</span><span class="s2">&quot;=@=Lancelot=@=&quot;</span><span class="p">,</span> <span class="s2">&quot;=@&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Lancelot&quot;</span>
+</pre></div>
+</div>
+<p>The REVERSE function simply reverses the input string:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">REVERSE</span><span class="p">(</span><span class="s2">&quot;fandango&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ognadnaf&quot;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="22%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SUBSTR</span></code></td>
+<td><em>string to process</em>,
+<em>starting position</em>,
+[<em>length</em>]</td>
+<td>Returns a portion of the input string, starting at the <em>starting
+position</em> and ending after the specified <em>length</em>. If the <em>length</em>
+is not provided, returns the portion of the string from the <em>starting
+position</em> to the end of the string.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TRIM</span></code></td>
+<td><em>string to transform,</em>
+[<em>characters to trim</em>]</td>
+<td><p class="first">Returns the input string, with all leading and trailing characters in
+the set of <em>characters to trim</em> removed.</p>
+<p class="last">The <em>characters to trim</em> parameter is optional. When not provided, the
+parameter defaults to <code class="docutils literal"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code> (that is, a space character).</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LTRIM</span></code></td>
+<td><em>string to transform</em>,
+[<em>characters to trim</em>]</td>
+<td><p class="first">Returns the input string, with all leading characters in
+the set of <em>characters to trim</em> removed.</p>
+<p class="last">The <em>characters to trim</em> parameter is optional. When not provided, the
+parameter defaults to <code class="docutils literal"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code> (that is, a space character).</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">RTRIM</span></code></td>
+<td><em>string to process</em>,
+[<em>characters to trim</em>]</td>
+<td><p class="first">Returns the input string, with all trailing characters in
+the set of <em>characters to trim</em> removed.</p>
+<p class="last">The <em>characters to trim</em> parameter is optional. When not provided, the
+parameter defaults to <code class="docutils literal"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code> (that is, a space character).</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LEFT</span></code></td>
+<td><em>string to process</em>,
+<em>number of characters</em></td>
+<td>Returns the leftmost <em>number of characters</em> from the provided string.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">RIGHT</span></code></td>
+<td><em>string to process</em>,
+<em>number of characters</em></td>
+<td>Returns the rightmost <em>number of characters</em> from the provided string.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">REVERSE</span></code></td>
+<td><em>string to process</em>,</td>
+<td>Returns the provided string in reverse.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.5:</strong> <em>AMPS string manipulation functions</em></p>
+</div>
+<div class="section" id="date-and-time-functions">
+<span id="ug-date-and-time-functions"></span><h2>Date and Time Functions<a class="headerlink" href="#date-and-time-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes functions for working with date and time values. This section
+covers functions loaded into AMPS by default. AMPS also includes functions
+for working with date and time in the Legacy Messaging Compatibility layer.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="31%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">STRFTIME</span></code></td>
+<td><em>format string</em>,
+<em>timestamp</em></td>
+<td><p class="first">Produces a string that
+contains a
+representation of the
+provided <code class="docutils literal"><span class="pre">timestamp</span></code>,
+formatted as specified
+in the provided
+<code class="docutils literal"><span class="pre">format</span> <span class="pre">string</span></code>. The
+format string uses the
+same format specifiers
+as the standard
+<code class="docutils literal"><span class="pre">strftime(3)</span></code>
+function.</p>
+<p>This function also
+supports the additional
+format specifier <code class="docutils literal"><span class="pre">%f</span></code>
+to format microseconds,
+and the format specifier
+<code class="docutils literal"><span class="pre">%03f</span></code> to format
+milliseconds.</p>
+<p class="last">The length of the string
+produced for the time is
+limited to 128 bytes.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">STRPTIME</span></code></td>
+<td><em>time string</em>,
+<em>format string</em></td>
+<td><p class="first">This function interprets
+the <code class="docutils literal"><span class="pre">time</span> <span class="pre">string</span></code>
+provided as a timestamp,
+with the <code class="docutils literal"><span class="pre">format</span>
+<span class="pre">string</span></code> specifying how
+to interpret the
+<code class="docutils literal"><span class="pre">time</span> <span class="pre">string</span></code>.</p>
+<p>This function returns a
+double.</p>
+<p>The format string uses
+the same format
+specifiers as the
+standard <code class="docutils literal"><span class="pre">strptime(3)</span></code>
+function.</p>
+<p class="last">This function also
+supports the additional
+format specifier <code class="docutils literal"><span class="pre">%f</span></code>
+to parse microseconds,
+and the format specifier
+<code class="docutils literal"><span class="pre">%03f</span></code> to parse
+milliseconds.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">UNIX_TIMESTAMP</span></code></td>
+<td>none</td>
+<td><p class="first">Returns the current
+timestamp as a double,
+represented in seconds
+(including parts of a
+second as a decimal).</p>
+<p>Notice that a UNIX
+timestamp is seconds
+elapsed since 00:00 on
+January 1, 1970 in UTC
+and is independent of
+the timezone of the local
+system.</p>
+<p>The underlying system
+call used for this
+function has microsecond
+resolution, subject to
+any hardware or
+host limitations.</p>
+<p class="last"><em>This function is
+non-deterministic, and
+cannot be used in
+contexts that require a
+deterministic function</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.6:</strong> <em>AMPS Date and Time functions</em></p>
+</div>
+<div class="section" id="array-reduce-functions">
+<span id="ug-array-reduce-functions"></span><h2>Array Reduce Functions<a class="headerlink" href="#array-reduce-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a set of functions designed to operate over an array element in a
+message and produce a value. These functions take an array within a single
+message as input, and reduce that array to a single value as output.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="26%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ARRAY_COUNT</span></code></td>
+<td><em>array</em></td>
+<td>Returns the number of elements in the array.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ARRAY_MAX</span></code></td>
+<td><em>array</em></td>
+<td>Returns the largest value in the array, using
+the standard AMPS <code class="docutils literal"><span class="pre">&gt;</span></code> comparison.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ARRAY_MIN</span></code></td>
+<td><em>array</em></td>
+<td>Returns the minimum value in the array, using
+the standard AMPS <code class="docutils literal"><span class="pre">&lt;</span></code> comparison.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ARRAY_SUM</span></code></td>
+<td><em>array</em></td>
+<td>Returns a number produced by adding all of the
+elements in the array. <code class="docutils literal"><span class="pre">NULL</span></code> values in the
+array are ignored.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ARRAY_TO_STRING</span></code></td>
+<td><em>array</em>, <em>delimiter</em>,
+<em>null_replacement</em></td>
+<td><p class="first last" id="ug-string-to-array-functions">Returns a string comprised of the elements
+of the array, separated by the provided
+delimiter. <code class="docutils literal"><span class="pre">NULL</span></code> values in the array are
+replaced with the provided <em>null_replacement</em>
+value.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.7:</strong> <em>AMPS array reduce functions</em></p>
+</div>
+<div class="section" id="geospatial-functions">
+<span id="ug-geospatial-functions"></span><h2>Geospatial Functions<a class="headerlink" href="#geospatial-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a function for calculating the distance from a signed
+latitude and longitude.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">GEO_DISTANCE</span></code></td>
+<td><em>first_latitude</em>,
+<em>first_longitude</em>,
+<em>second_latitude</em>,
+<em>second_longitude</em></td>
+<td><p class="first">Returns a double that
+contains the distance
+between the point
+identified by
+<em>first_latitude</em>,
+<em>first_longitude</em> and
+<em>second_latitude</em>,
+<em>second_longitude</em> in
+meters.</p>
+<p>For example, given a
+home point and a message
+containing <code class="docutils literal"><span class="pre">/lat</span></code> and
+<code class="docutils literal"><span class="pre">/long</span></code> fields, you
+could use the following
+expression to calculate
+the distance from home.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">GEO_DISTANCE</span><span class="p">(</span>
+     <span class="o">/</span><span class="n">lat</span><span class="p">,</span>
+     <span class="o">/</span><span class="n">long</span><span class="p">,</span>
+     <span class="mf">40.786337</span><span class="p">,</span>
+     <span class="o">-</span><span class="mf">119.206508</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="last">AMPS uses the haversine
+formula when computing
+distances.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.8:</strong> <em>AMPS Geospatial Functions</em></p>
+</div>
+<div class="section" id="numeric-functions">
+<span id="ug-numeric-functions"></span><h2>Numeric Functions<a class="headerlink" href="#numeric-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes the following functions for working with numbers.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="29%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ABS</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the absolute
+value of a number.</p>
+<p>For example, the
+following filter will be
+TRUE when the difference
+between <code class="docutils literal"><span class="pre">/a</span></code> and
+<code class="docutils literal"><span class="pre">/b</span></code> is greater than
+5, regardless of whether
+<code class="docutils literal"><span class="pre">/a</span></code> or <code class="docutils literal"><span class="pre">/b</span></code> is
+larger.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">ABS</span><span class="p">(</span><span class="o">/</span><span class="n">a</span> <span class="o">-</span> <span class="o">/</span><span class="n">b</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">GREATEST</span></code></td>
+<td><em>list of numbers to compare</em></td>
+<td><p class="first">Returns the largest of the provided numbers,
+or <code class="docutils literal"><span class="pre">NaN</span></code> if no argument is a number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">GREATEST</span><span class="p">(</span><span class="o">/</span><span class="n">requestedQty</span><span class="p">,</span> <span class="o">/</span><span class="n">availableQty</span><span class="p">,</span> <span class="o">/</span><span class="n">reserveQty</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LEAST</span></code></td>
+<td><em>list of numbers to compare</em></td>
+<td><p class="first">Returns the smallest of the provided numbers,
+or <code class="docutils literal"><span class="pre">NaN</span></code> if no argument is a number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">LEAST</span><span class="p">(</span><span class="o">/</span><span class="n">requestedQty</span><span class="p">,</span> <span class="o">/</span><span class="n">availableQty</span><span class="p">,</span> <span class="o">/</span><span class="n">reserveQty</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CEILING</span></code></td>
+<td><em>number to round</em></td>
+<td><p class="first">Returns the value rounded upward to the next
+greatest integer. Returns an integer unchanged.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">CEILING</span><span class="p">(</span><span class="o">/</span><span class="n">estimatedDelta</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">FLOOR</span></code></td>
+<td><em>number to round</em></td>
+<td><p class="first">Returns the value rounded downward to the next
+lower integer. Returns an integer unchanged.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">FLOOR</span><span class="p">(</span><span class="o">/</span><span class="n">estimatedReturn</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">EXP</span></code></td>
+<td><em>exponent to use</em></td>
+<td><p class="first">Returns <em>e</em> raised to the power of the provided
+exponent.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">EXP</span><span class="p">(</span><span class="mf">3.14</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LN</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the natural logarithm of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">LN</span><span class="p">(</span><span class="o">/</span><span class="n">time</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">LOG2</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the base-2 logarithm of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">LOG2</span><span class="p">(</span><span class="o">/</span><span class="n">recordSize</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LOG10</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the base-10 logarithm of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">LOG10</span><span class="p">(</span><span class="o">/</span><span class="n">displayData</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">POWER</span></code></td>
+<td><em>base</em>,
+<em>exponent</em></td>
+<td><p class="first">Returns the value of <em>base</em> raised to the power of
+exponent.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">POWER</span><span class="p">(</span><span class="o">/</span><span class="n">number</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SQRT</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the square root of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">SQRT</span><span class="p">(</span><span class="mi">2304</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">COS</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the cosine of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">COS</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ACOS</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the arcosine of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">ACOS</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SIN</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the sine of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">SIN</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SINH</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the hyperbolic sine of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">SINH</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ASIN</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the arcsine of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">ASIN</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">COSH</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the hyperbolic cosine of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">COSH</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">COT</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the cotangent of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">COT</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ATAN</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the arctangent of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">ATAN</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ATAN2</span></code></td>
+<td><em>number</em>,
+<em>number</em></td>
+<td><p class="first">Returns the arctangent of the provided numbers.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">ATAN2</span><span class="p">(</span><span class="o">/</span><span class="n">y</span><span class="p">,</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TAN</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the tangent of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">TAN</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TANH</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the hyperbolic tangent of the provided number.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">TANH</span><span class="p">(</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">MD5</span></code></td>
+<td><em>string</em></td>
+<td><p class="first">Returns the MD5 checksum of the provided string.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">MD5</span><span class="p">(</span><span class="o">/</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">RADIANS</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the provided number converted from degrees
+to radians.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">RADIANS</span><span class="p">(</span><span class="o">/</span><span class="n">deg</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">DEGREES</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the provided number converted from radians
+to degrees.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">DEGREES</span><span class="p">(</span><span class="o">/</span><span class="n">rad</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SIGN</span></code></td>
+<td><em>number</em></td>
+<td><p class="first">Returns the sign of the provided number.
+If the number is less than <code class="docutils literal"><span class="pre">0</span></code>, returns <code class="docutils literal"><span class="pre">-1</span></code>
+is greater than 0, returns 1. Otherwise, the number is
+0 and the function returns 0.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">SIGN</span><span class="p">(</span><span class="o">/</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ROUND</span></code></td>
+<td><em>number</em>, <em>[number of
+decimal places]</em></td>
+<td><p class="first">Returns a number rounded
+to the specified number
+of decimal places.</p>
+<p>The number of decimal
+places is optional. When
+not provided, the number
+defaults to 0.</p>
+<p>The number of decimal
+places can be positive
+or negative. When the
+number is <em>positive</em>,
+the number specifies the
+number of digits to the
+right of the decimal
+place to round at. When
+the number is
+<em>negative</em>, the number
+specifies the number of
+digits to the left of
+the decimal place to
+round at.</p>
+<p>For example, you could
+use the following
+expression in a view to
+limit the precision of
+the <code class="docutils literal"><span class="pre">/price</span></code> field of
+the source topic to 2
+decimal places.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">ROUND</span><span class="p">(</span><span class="o">/</span><span class="n">price</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="n">AS</span>
+<span class="o">/</span><span class="n">price</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">WIDTH_BUCKET</span></code></td>
+<td><em>expression</em>,
+<em>min</em>,
+<em>max</em>,
+<em>bucket count</em></td>
+<td><p class="first">The <em>bucket count</em> argument specifies the number of
+buckets to create over the range defined by <em>min</em> and
+<em>max</em>. <em>min</em> is inclusive, while <em>max</em> is not.
+The value from <em>expression</em> is assigned to a bucket,
+and the function returns a corresponding bucket number.
+When <em>expression</em> falls outside the range of buckets,
+the function returns either 0 or <em>max</em> + 1, depending
+on whether expression is lower than <em>min</em> or greater
+than or equal to <em>max</em>.</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">WIDTH_BUCKET</span><span class="p">(</span><span class="o">/</span><span class="n">percentage</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="n">AS</span>
+<span class="o">/</span><span class="n">displayBar</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.9:</strong> <em>AMPS Numeric Functions</em></p>
+</div>
+<div class="section" id="crc-functions">
+<span id="ug-checksum-functions"></span><h2>CRC Functions<a class="headerlink" href="#crc-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes functions that computes a CRC checksum over a string.
+This function is useful for creating a numeric identifier from a string
+representation. This is commonly-used to create a shortened representation
+of the string, or to provide input for a <cite>MOD</cite> calculation.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CRC32</span></code></td>
+<td><em>string</em></td>
+<td><p class="first">Returns an integer
+calculated as a checksum
+of the provided string.</p>
+<p>This function returns a
+32-bit integer. If a
+NULL value is provided,
+this function returns
+a constant value.</p>
+<p class="last">This function uses
+CRC32-C to create the
+result. For details on
+the exact parameters,
+contact 60East.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CRC64</span></code></td>
+<td><em>string</em></td>
+<td><p class="first">Returns an integer
+calculated as a checksum
+of the provided string.</p>
+<p>This function returns a
+64-bit integer. If a
+NULL value is provided,
+this function returns
+a constant value.</p>
+<p class="last">This function uses a
+polynomial of
+0x95AC9329AC4BC9B5
+to create the result.
+For details on the exact
+parameters, contact
+60East.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.10:</strong> <em>AMPS CRC functions</em></p>
+</div>
+<div class="section" id="message-functions">
+<span id="ug-message-functions"></span><h2>Message Functions<a class="headerlink" href="#message-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes functions that can be used to refer to the current
+message being processed.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="10%" />
+<col width="40%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+<th class="head">Available for</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">MESSAGE_SIZE</span></code></td>
+<td>(none)</td>
+<td>Returns the size of the payload
+of the current message, in bytes.</td>
+<td>(all messages)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CORRELATION_ID</span></code></td>
+<td>(none)</td>
+<td><p class="first">Returns the correlation ID of the
+of the current message as a string.</p>
+<p class="last">Returns NULL if there is no correlation ID
+for the current message.</p>
+</td>
+<td>(all messages)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LAST_UPDATED</span></code></td>
+<td>(none)</td>
+<td><p class="first">Returns a timestamp for the last time that a
+message in the SOW was updated, as a double.</p>
+<p>For a subscription (including the subscription
+part of a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command), the
+<code class="docutils literal"><span class="pre">LAST_UPDATED</span></code> value will be the current
+timestamp. This function is most useful for
+queries of a topic in the SOW.</p>
+<p class="last">Notice that this field is set based on when
+the local instance has updated the message.
+For replicated topics, this means that a
+given message will have different values on
+different instances.</p>
+</td>
+<td>queries of
+a SOW topic</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">BOOKMARK</span></code></td>
+<td>(none)</td>
+<td><p class="first">Returns the bookmark for the current message,
+if one is available. Notice that
+messages retrieved from a SOW topic using a
+query return NULL for <code class="docutils literal"><span class="pre">BOOKMARK</span></code>, since the
+SOW does not store the bookmark of a message.</p>
+<p>Bookmarks are assigned using a combination
+of an identifier derived from the client
+name and a sequence number. When working
+with bookmarks, 60East recommends treating
+bookmarks as opaque identifiers. In particular,
+bookmarks are not guaranteed to sort in
+any particular order between different
+publishers.</p>
+<p class="last">AMPS only assigns bookmarks when a message is
+stored in the transaction log. Messages that
+are not in the transaction log do not have
+bookmarks assigned.</p>
+</td>
+<td>subscriptions to
+a transaction-logged
+topic, bookmark
+subscriptions, subscriptions to
+a message queue, replication
+filters</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TOPIC_NAME</span></code></td>
+<td>(none)</td>
+<td>Returns the topic name for the message
+currently being processed.</td>
+<td>(all messages)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SOW_KEY</span></code></td>
+<td>(none)</td>
+<td><p class="first">Returns the SOW key for the message
+currently being processed, if one exists.</p>
+<p class="last">This function is designed for use in
+enrichment. In a query, subscription, or delete
+command, using the <code class="docutils literal"><span class="pre">SowKeys</span></code> header with the
+key or keys of interest is more efficient.
+Although the function will return a value
+when used in a filter, using <code class="docutils literal"><span class="pre">SowKeys</span></code> is
+recommended.</p>
+</td>
+<td>queries or enrichment of a SOW topic,
+subscriptions to a SOW topic</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SOW_KEY_HASH</span></code></td>
+<td>(none)</td>
+<td><p class="first">Returns a hash value of the SOW key for the
+message currently being processed. If AMPS
+generated the SOW key, this value will be the
+same value as the SOW key. For topics where
+the publisher provides the SOW key, this will
+be a hash of the value provided by the
+publisher.</p>
+<p class="last">This function is designed for use in
+enrichment.</p>
+</td>
+<td>queries or enrichment of a SOW topic,
+subscriptions to a SOW topic</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">LAST_READ</span></code></td>
+<td>(none)</td>
+<td><p class="first">Returns a timestamp for the last time that
+this message was read from the SOW, as a double.</p>
+<p>This function only returns a value
+for messages in a topic in the SOW.
+The <code class="docutils literal"><span class="pre">LAST_READ</span></code> time for a message
+resets when AMPS restarts.</p>
+<p>Notice that this field is set based on when
+the local instance processes a read of the
+message. For replicated topics, this means that
+a given message will have different values on
+different instances.</p>
+<p class="last"><em>This function is non-deterministic, and cannot
+be used in contexts that require a
+deterministic function</em></p>
+</td>
+<td>queries of a SOW topic</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TOPIC_NAME</span></code></td>
+<td>(none)</td>
+<td>Returns the topic name for the message
+currently being processed.</td>
+<td>(all messages)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">LAST_LEASED</span></code></td>
+<td>(none)</td>
+<td><p class="first">For a message in a queue, returns a timestamp
+for the last time this message was leased from
+this instance, as a double.</p>
+<p>Returns <code class="docutils literal"><span class="pre">NULL</span></code> for a message that is not in
+a queue.</p>
+<p class="last">Notice that this timestamp is set based on when
+the local instance leased the message. This
+counter is reset when the instance restarts.</p>
+</td>
+<td>queries of a message queue,
+subscription to a message queue,
+sow delete by filter for a message queue</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LEASE_COUNT</span></code></td>
+<td>(none)</td>
+<td><p class="first">For a message in a queue, returns the number
+of times the message has been leased from this
+instance as a double.</p>
+<p>Returns <code class="docutils literal"><span class="pre">NULL</span></code> for a message that is not in
+a queue.</p>
+<p class="last">Notice that this counter is set based on leases
+from the local instance. This counter is reset
+when the instance restarts, and does not track
+leases from other instances.</p>
+</td>
+<td>queries of a message queue,
+subscription to a message queue,
+sow delete by filter for a message queue</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.11:</strong> <em>AMPS message functions</em></p>
+<p>When used in view construction or aggregate definition,
+these functions refer to the <em>incoming message</em> that is prompting
+the update to the view or aggregate, not to the constructed message
+that is the result of the update. For example, a <code class="docutils literal"><span class="pre">Field</span></code> like this
+in a view projection:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Projection&gt;</span>
+  ...
+  <span class="nt">&lt;Field&gt;</span>TOPIC_NAME() AS /theTopic<span class="nt">&lt;/Field&gt;</span>
+  ...
+<span class="nt">&lt;/Projection&gt;</span>
+</pre></div>
+</div>
+<p>will return the topic name of the topic that prompted the update
+to the view, <em>not</em> the name of the view itself.</p>
+</div>
+<div class="section" id="client-functions">
+<span id="ug-client-functions"></span><h2>Client Functions<a class="headerlink" href="#client-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes functions that return information about the
+currently-connected client. As with the message functions,
+these functions return information about the client that
+prompted the operation, if one is present.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="10%" />
+<col width="33%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+<th class="head">Available for</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CLIENT_NAME</span></code></td>
+<td>(none)</td>
+<td>Returns the name of the currently
+connected client.</td>
+<td>subscriptions to a topic or conflated topic,
+enrichment and preprocessing</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">USER</span></code></td>
+<td>(none)</td>
+<td>Returns the user ID of the currently
+connected client.</td>
+<td>subscriptions to a topic or conflated topic,
+enrichment and preprocessing</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">REMOTE_ADDRESS</span></code></td>
+<td>(none)</td>
+<td>Returns the remote address of the
+currently connected client.</td>
+<td>subscriptions to a topic or conflated topic,
+enrichment and preprocessing</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CLIENT_VERSION</span></code></td>
+<td>(none)</td>
+<td>Returns the version string reported
+by the currently connected client.</td>
+<td>subscriptions to a topic or conflated topic,
+enrichment and preprocessing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.12:</strong> <em>AMPS client functions</em></p>
+</div>
+<div class="section" id="coalesce-function">
+<span id="ug-coalesce-function"></span><h2>Coalesce Function<a class="headerlink" href="#coalesce-function" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a function that accepts any number of arguments and returns
+the first argument that is not NULL.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="32%" />
+<col width="49%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">COALESCE</span></code></td>
+<td><em>value</em>
+(any number of values
+may be provided)</td>
+<td>Returns the first <em>value</em> that is
+not <code class="docutils literal"><span class="pre">NULL</span></code>. If all values are
+<code class="docutils literal"><span class="pre">NULL</span></code>, returns <code class="docutils literal"><span class="pre">NULL</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.13:</strong> <em>AMPS coalesce function</em></p>
+</div>
+<div class="section" id="amps-information-functions">
+<span id="ug-amps-information-functions"></span><h2>AMPS Information Functions<a class="headerlink" href="#amps-information-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a pair of functions that provide the instance name and
+group name of the current instance.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="28%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AMPS_INSTANCE_NAME</span></code></td>
+<td>none</td>
+<td>Returns the instance name of this
+AMPS instance.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">AMPS_GROUP_NAME</span></code></td>
+<td>none</td>
+<td>Returns the group name of this
+AMPS instance.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.14:</strong> <em>AMPS information functions</em></p>
+</div>
+<div class="section" id="typed-value-construction-functions">
+<span id="ug-value-construction-functions"></span><h2>Typed Value Construction Functions<a class="headerlink" href="#typed-value-construction-functions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes functions for explicitly constructing constant values
+of various types.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="29%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">FALSE_VALUE</span></code></td>
+<td>none</td>
+<td><p class="first">Returns a boolean false value.</p>
+<p class="last">This function is most useful for
+constructing values in message
+types that have a distinct
+type for boolean values. In the
+AMPS expression language, false
+is equivalent to a literal <cite>0</cite>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TRUE_VALUE</span></code></td>
+<td>none</td>
+<td><p class="first">Returns a boolean true value.</p>
+<p class="last">This function is most useful for
+constructing values in message
+types that have a distinct
+type for boolean values. In the
+AMPS expression language, true
+is typically represented with a
+literal <cite>1</cite>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">NAN_VALUE</span></code></td>
+<td>none</td>
+<td>Returns a NaN (not a number)
+value.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CHAR_VALUE</span></code></td>
+<td>integer (0-255)</td>
+<td><p class="first">Returns the character (byte) for
+the integer provided.</p>
+<p class="last">This function is most useful for
+constructing values in message
+types that have a distinct
+type for char values. In the AMPS
+expression language, a single
+character value is equivalent to
+a string constructed with an
+escape, and constructing a
+string literal is more efficient.
+That is, <code class="docutils literal"><span class="pre">'\x01'</span></code> is
+more efficient in a filter or
+field construction than
+<code class="docutils literal"><span class="pre">CHAR_VALUE(1)</span></code>. However,
+to construct a character based
+on a field, use <code class="docutils literal"><span class="pre">CHAR_VALUE</span></code>,
+for example
+<code class="docutils literal"><span class="pre">CHAR_VALUE(/code)</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.15:</strong> <em>AMPS typed value construction functions</em></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

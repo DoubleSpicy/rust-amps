@@ -1,0 +1,6 @@
+- Linux: gcc 4.8 or later (recommended), 4.6 or 4.4
+
+- Windows: Visual Studio versions under current mainstream support
+
+- Solaris: Oracle Solaris Studio 12.3
+

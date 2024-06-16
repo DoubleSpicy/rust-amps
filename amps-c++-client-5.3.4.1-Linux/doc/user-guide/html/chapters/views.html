@@ -1,0 +1,1112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>13. Aggregating and Analyzing Data in AMPS &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="14. Transactional Messaging and Bookmark Subscriptions" href="txlog.html" />
+    <link rel="prev" title="12. Conflated Topics" href="conflated_topics.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">13. Aggregating and Analyzing Data in AMPS</a><ul>
+<li><a class="reference internal" href="#understanding-views">Understanding Views</a></li>
+<li><a class="reference internal" href="#defining-views-and-aggregations">Defining Views and Aggregations</a><ul>
+<li><a class="reference internal" href="#single-topic-aggregation-underlyingtopic">Single Topic Aggregation: UnderlyingTopic</a></li>
+<li><a class="reference internal" href="#multiple-topic-aggregation-join">Multiple Topic Aggregation: Join</a></li>
+<li><a class="reference internal" href="#setting-the-message-type">Setting the Message Type</a></li>
+<li><a class="reference internal" href="#defining-projections">Defining Projections</a></li>
+<li><a class="reference internal" href="#data-types-and-projections">Data Types and Projections</a></li>
+<li><a class="reference internal" href="#grouping">Grouping</a></li>
+<li><a class="reference internal" href="#inline-update-conflation">Inline Update Conflation</a></li>
+<li><a class="reference internal" href="#filtering-single-topic-aggregations">Filtering Single Topic Aggregations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#constructing-fields">Constructing Fields</a></li>
+<li><a class="reference internal" href="#best-practices-for-views">Best Practices for Views</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#simple-aggregate-view-example">Simple Aggregate View Example</a></li>
+<li><a class="reference internal" href="#multiple-topic-aggregate-example">Multiple Topic Aggregate Example</a></li>
+<li><a class="reference internal" href="#view-projected-into-different-message-type">View Projected Into Different Message Type</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#aggregated-subscriptions">Aggregated Subscriptions</a><ul>
+<li><a class="reference internal" href="#when-to-use-aggregated-subscriptions">When to Use Aggregated Subscriptions</a></li>
+<li><a class="reference internal" href="#requesting-an-aggregated-subscription">Requesting an Aggregated Subscription</a></li>
+<li><a class="reference internal" href="#considerations-for-aggregated-subscriptions">Considerations for Aggregated Subscriptions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="conflated_topics.html" title="previous chapter">12. Conflated Topics</a></li>
+      <li>Next: <a href="txlog.html" title="next chapter">14. Transactional Messaging and Bookmark Subscriptions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="index-0"></span><div class="section" id="aggregating-and-analyzing-data-in-amps">
+<span id="ug-views"></span><h1>13. Aggregating and Analyzing Data in AMPS<a class="headerlink" href="#aggregating-and-analyzing-data-in-amps" title="Permalink to this headline">¶</a></h1>
+<p>AMPS contains a high-performance aggregation engine, which can be used
+to project one SOW topic onto another, similar to the <code class="docutils literal"><span class="pre">CREATE</span> <span class="pre">VIEW</span></code>
+functionality found in most RDBMS software. The aggregation engine can
+join input from multiple topics, of the same or different message types,
+and can produce output in different message types.</p>
+<p>View topics are part of the AMPS State of the World, which means that
+views support delta subscriptions and out of focus (OOF) tracking. A
+view can also be used as the underlying topic for another view.</p>
+<p>In addition, for the limited cases where a view is not practical, AMPS
+allows an individual subscription to request aggregation and projection
+of a single SOW topic.</p>
+<p>Notice that the features described in this chapter are designed for cases
+where an application needs to aggregate data across messages or to perform
+a calculation on an individual message that should not be preserved as a
+part of that message.</p>
+<p>To modify a message as it is published to AMPS, use <em>preprocessing or
+enrichment</em>.  To simply retrieve a subset of the fields in a message, use
+<em>select lists</em>.</p>
+<div class="section" id="understanding-views">
+<span id="ug-views-understanding"></span><h2>Understanding Views<a class="headerlink" href="#understanding-views" title="Permalink to this headline">¶</a></h2>
+<p>Views allow you to aggregate messages from one or more SOW topics in
+AMPS and present the aggregation as a new SOW topic. AMPS stores the
+contents of the view as serialized messages in memory, similar to a
+materialized view in RDBMS software.</p>
+<p>Views are often used to simplify subscriber implementation and can
+reduce the network traffic to subscribers. For example, if some clients
+will only process orders where the total cost of the order exceeds a
+certain value, you can both simplify subscriber code and reduce network
+traffic by creating a view that contains a calculated field for the
+total cost. Rather than receiving all messages and calculating the cost,
+subscribers can filter on the calculated field. You can also combine
+information from multiple topics. For example, you could create a view
+that contains orders from high-priority customers that exceed a certain
+dollar amount.</p>
+<p>AMPS sends messages to view topics the same way that AMPS sends messages
+to SOW topics: when a publish arrives for a message that is used to
+calculate the view, AMPS recalculates the values in the view as
+necessary and sends a message on the view topic. Likewise,
+you can query a view the same way that you query a SOW topic.</p>
+<p>Defining a view is straightforward. You set the name of the view, the
+SOW topic or topics from which messages originate and describe how you
+want to aggregate, or project, the messages. AMPS creates a topic and
+projects the messages as requested.</p>
+<p>A view requires one or more underlying topics. Any topic, view,
+or queue defined in the <code class="docutils literal"><span class="pre">SOW</span></code> section can be the underlying
+topic for a view. However, the underlying topic for the view
+must be defined in the AMPS configuration file before the
+view itself is defined.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">All message types that you specify in a view must support view
+creation.</p>
+</div>
+<p>Because AMPS uses the SOW topics of the underlying messages to determine
+when to update the view, the underlying topics used in a view must be
+in the State of the World. Any topic, view, conflated topic, or queue defined
+in the <code class="docutils literal"><span class="pre">SOW</span></code> section can be the underlying topic for a view.
+However, the underlying topic or topics must be defined in the
+AMPS configuration file before the view is defined.</p>
+<p>AMPS updates each view after a publish or delta publish to a message in
+an underlying topic. Updates are processed for each view in the order in
+which AMPS processed the updates to the underlying topic. AMPS processes
+these updates asynchronously, after each SOW update is persisted. For
+additional performance, AMPS provides the ability to conflate updates to
+views that process high velocity updates, as described in
+<a class="reference internal" href="#inlineviewconflation"><span class="std std-ref">Inline Update Conflation</span></a>.</p>
+<p>As with a SOW topic, an incoming publish that does not change the value
+of the underlying message or the calculated value in the view is
+considered to be an update to the view topic.  If an application
+needs to see only changed fields, that application should use a
+delta subscription (with the <code class="docutils literal"><span class="pre">no_empties</span></code> option).</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">When the underlying topic for a view is a queue,
+the view will show only the messages in the queue
+that are not currently leased to subscribers.</p>
+</div>
+</div>
+<div class="section" id="defining-views-and-aggregations">
+<h2>Defining Views and Aggregations<a class="headerlink" href="#defining-views-and-aggregations" title="Permalink to this headline">¶</a></h2>
+<p id="index-1">Multiple topic aggregation creates a view using more than one topic as a
+data source. This allows you to enrich messages as they are processed by
+AMPS, enabling aggregate calculations using information published to more
+than one topic. You can combine messages from multiple topics and use
+filtered subscriptions to determine which messages are of interest. For
+example, you can set up a topic that contains orders from high-priority
+customers.</p>
+<p>You can join topics of different message types, and you can project
+messages of a different type than the underlying topic.</p>
+<p>To create an aggregate using multiple topics, each topic needs to
+maintain a SOW. Since views maintain an underlying SOW, you can create
+views from views.</p>
+<p>To define an aggregate, you decide:</p>
+<ul class="simple">
+<li>The topic, or topics, that contain the source for the aggregation</li>
+<li>If the aggregation uses more than one topic, how those topics relate
+to each other</li>
+<li>What messages to publish, or <em>project</em>, from the aggregation</li>
+<li>How to group messages for aggregation</li>
+<li>The message type of the aggregation</li>
+</ul>
+<p>Message types provided with AMPS fully support views, with the following
+exceptions:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">binary</span></code> message types cannot be the underlying topic for a view or
+the type of a view</li>
+<li><code class="docutils literal"><span class="pre">protobuf</span></code> message types can be the underlying topic for a view,
+but cannot be the type of a view</li>
+<li><code class="docutils literal"><span class="pre">composite-global</span></code> message types can be the underlying topic for
+a view, but cannot be the type of a view</li>
+<li><code class="docutils literal"><span class="pre">struct</span></code> message types can be the underlying topic for a view,
+but cannot be the type of a view</li>
+</ul>
+<p>If you are using a custom message type, check with the message type
+developer as to whether that message type supports aggregation.</p>
+<div class="section" id="single-topic-aggregation-underlyingtopic">
+<h3>Single Topic Aggregation: UnderlyingTopic<a class="headerlink" href="#single-topic-aggregation-underlyingtopic" title="Permalink to this headline">¶</a></h3>
+<p>For aggregations based on a single topic, use the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code>
+element to tell AMPS which topic to use. All messages from the
+<code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> will appear in the aggregation.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;UnderlyingTopic&gt;</span>MyOriginalTopic<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multiple-topic-aggregation-join">
+<h3>Multiple Topic Aggregation: Join<a class="headerlink" href="#multiple-topic-aggregation-join" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">Join</span></code> definitions tell AMPS how to relate underlying topics to each
+other. You use a separate <code class="docutils literal"><span class="pre">Join</span></code> element for each relationship in the
+view. Most often, the join definition describes a relationship between
+topics:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="o">.</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="o">.</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The topics specified must be previously defined in the AMPS
+configuration file. The square brackets <code class="docutils literal"><span class="pre">[]</span></code> are optional. If they are
+omitted, AMPS uses the first <code class="docutils literal"><span class="pre">/</span></code> in the expression as the start of the
+field definition. You can use any number of join expressions to define a
+multiple topic aggregation.</p>
+<p>A <code class="docutils literal"><span class="pre">Join</span></code> definition is an equality comparison between the values of
+two fields. The <code class="docutils literal"><span class="pre">Join</span></code> definition is not evaluated as an AMPS expression,
+so functions, operators (other than <code class="docutils literal"><span class="pre">=</span></code>) and so forth are not evaluated
+in these definitions.</p>
+<p>Within a <code class="docutils literal"><span class="pre">Join</span></code> definition, values are always compared as strings.
+This means that values such as <code class="docutils literal"><span class="pre">12345</span></code>, <code class="docutils literal"><span class="pre">12345.00</span></code>, and
+<code class="docutils literal"><span class="pre">1.2345E+04</span></code> can be considered to be different values by the <code class="docutils literal"><span class="pre">Join</span></code>
+expression since these are different strings, even though these strings
+contain the same numeric value.</p>
+<p>If your aggregation will join messages of different types, or produce
+messages of a different type than the underlying topics, you add message
+type specifiers to the join definition:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">messagetype</span><span class="p">]</span><span class="o">.</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="o">.</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">messagetype</span><span class="p">]</span><span class="o">.</span><span class="p">[</span><span class="n">topic</span><span class="p">]</span><span class="o">.</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In this case, the square brackets <code class="docutils literal"><span class="pre">[]</span></code> around the <em>messagetype</em> are
+mandatory. AMPS creates a projection in the aggregation that combines
+the messages from each topic where the expression is true. In other
+words, for the expression:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;UnderlyingTopic&gt;</span>
+   <span class="nt">&lt;Join&gt;</span>[Orders].[/CustomerID]=[Addresses].[/CustomerID]<span class="nt">&lt;/Join&gt;</span>
+<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+</pre></div>
+</div>
+<p>AMPS projects every message where the same <code class="docutils literal"><span class="pre">CustomerID</span></code> appears in
+both the <code class="docutils literal"><span class="pre">Addresses</span></code> topic and the <code class="docutils literal"><span class="pre">Orders</span></code> topic. If a
+<code class="docutils literal"><span class="pre">CustomerID</span></code> value appears in only the <code class="docutils literal"><span class="pre">Addresses</span></code> topic, AMPS does
+not create a projection for the message. If a <code class="docutils literal"><span class="pre">CustomerID</span></code> value
+appears in only the <code class="docutils literal"><span class="pre">Orders</span></code> topic, AMPS projects the message with
+<code class="docutils literal"><span class="pre">NULL</span></code> values for the <code class="docutils literal"><span class="pre">Addresses</span></code> topic. In database terms, this is
+equivalent to a <code class="docutils literal"><span class="pre">LEFT</span> <span class="pre">OUTER</span> <span class="pre">JOIN</span></code>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>In a <code class="docutils literal"><span class="pre">Join</span></code> expression, AMPS does not consider <code class="docutils literal"><span class="pre">NULL</span></code> values, including
+empty strings, to be equivalent. This behavior matches ANSI SQL behavior,
+but differs from previous releases of AMPS.</p>
+<p>You can disable this behavior and cause <code class="docutils literal"><span class="pre">NULL</span></code> values to match by
+including the <code class="docutils literal"><span class="pre">JoinNullEquivalency</span></code> option in the <code class="docutils literal"><span class="pre">View</span></code> definition
+and setting that option to <code class="docutils literal"><span class="pre">enabled</span></code>.</p>
+<p class="last">60East does not recommend setting this option unless it is necessary
+to preserve backward compatibility with previous versions of AMPS.</p>
+</div>
+<p>You can use any number of <code class="docutils literal"><span class="pre">Join</span></code> definitions in an underlying topic:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Join&gt;</span>[nvfix].[Orders].[/CustomerID]=[json].[Addresses].[/CustomerID]<span class="nt">&lt;/Join&gt;</span>
+<span class="nt">&lt;Join&gt;</span>[nvfix].[Orders].[/ItemID]=[nvfix].[Catalog].[/ItemID]<span class="nt">&lt;/Join&gt;</span>
+</pre></div>
+</div>
+<p>In this case, AMPS creates a projection that combines messages from the
+<code class="docutils literal"><span class="pre">Orders</span></code>, <code class="docutils literal"><span class="pre">Addresses</span></code>, and <code class="docutils literal"><span class="pre">Catalog</span></code> topics for any published
+message where matching messages are present in all three topics. Where
+there are no matching messages in the <code class="docutils literal"><span class="pre">Catalog</span></code> and <code class="docutils literal"><span class="pre">Addresses</span></code>
+topics, AMPS projects those values as <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+</div>
+<div class="section" id="setting-the-message-type">
+<h3>Setting the Message Type<a class="headerlink" href="#setting-the-message-type" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">MessageType</span></code> element of the definition sets the type of the
+outgoing messages. The message type of the aggregation does not need to
+be the same as the message type of the topics used to create the
+aggregation. However, if the <code class="docutils literal"><span class="pre">MessageType</span></code> differs from the type of
+the topics used to produce the aggregation, you must explicitly specify
+the message type of the underlying topics.</p>
+<p>For example, to produce JSON messages regardless of the types of the
+topics in the aggregation, you would use the following element:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="defining-projections">
+<h3>Defining Projections<a class="headerlink" href="#defining-projections" title="Permalink to this headline">¶</a></h3>
+<p>AMPS makes available all fields from matching messages in the join
+specification. You specify the fields that you want AMPS to project and
+how to project them.</p>
+<p>To tell AMPS how to project a message, you specify each field to include
+in the projection. The specification provides a name for the projected
+field and one or more source fields to use for the projected field. The
+data can be projected as-is, or aggregated using one of the AMPS
+aggregation functions, as described in
+<a class="reference internal" href="amps_expressions.html#ug-aggregate-functions"><span class="std std-ref">Chapter 4 Aggregate Functions</span></a>.</p>
+<p>You refer to source fields using the XPath-like expression for the
+field. You name projected fields by creating an XPath-like expression
+for the new field. AMPS uses this expression to name the new field.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Projection&gt;</span>
+    <span class="nt">&lt;Field&gt;</span>[Orders].[/CustomerID]<span class="nt">&lt;/Field&gt;</span>
+    <span class="nt">&lt;Field&gt;</span>[Addresses].[/ShippingAddress] AS /DestinationAddress<span class="nt">&lt;/Field&gt;</span>
+    <span class="nt">&lt;Field&gt;</span>SUM([Orders].[/TotalPrice]) AS /AccountTotal<span class="nt">&lt;/Field&gt;</span>
+<span class="nt">&lt;/Projection&gt;</span>
+</pre></div>
+</div>
+<p>The sample above uses the <code class="docutils literal"><span class="pre">CustomerID</span></code> from the orders topic and the
+shipping address for that customer from the <code class="docutils literal"><span class="pre">Addresses</span></code> topic. The
+sample calculates the sum of all of the orders for that customer as the
+<code class="docutils literal"><span class="pre">AccountTotal</span></code>. The sample also renames the <code class="docutils literal"><span class="pre">ShippingAddress</span></code> field
+as <code class="docutils literal"><span class="pre">DestinationAddress</span></code> in the projected message.</p>
+<p>For more information on constructing fields in a view, see <a class="reference internal" href="amps_expressions.html#ug-constructing-fields"><span class="std std-ref">Chapter 4 Constructing Fields</span></a>.</p>
+</div>
+<div class="section" id="data-types-and-projections">
+<h3>Data Types and Projections<a class="headerlink" href="#data-types-and-projections" title="Permalink to this headline">¶</a></h3>
+<p>When projecting views, AMPS converts the original values into the AMPS
+internal type system and serializes those values into a new message.
+This approach allows AMPS to efficiently aggregate messages of different
+types and produce predictable results. The data type of the
+serialization is determined by the message type of the projected
+message: the message types provided by 60East in this release project
+the AMPS internal type.</p>
+<p>This means that, for message types that rely on type markers to identify
+the type (such as <code class="docutils literal"><span class="pre">bson</span></code>), the type of the field in the projected
+message may reflect the AMPS internal type rather than the original
+type. This conversion is typically a widening conversion for numeric
+types (for example, input typed as a 32-bit integer will typically be
+widened to a 64-bit integer). For other types, the most common
+conversion is from a specific data type (such as regular expression) to
+a string type.</p>
+<p>A projection is evaluated as projecting a single value in the
+AMPS type system. This means that complex or nested data types
+are typically projected as the string equivalent. For example,
+a nested set of XML elements could be projected as an
+empty string (the text value of the containing element), or
+an array could be projected as the first value in the
+array.</p>
+<p>If necessary, and if the destination data type supports
+nested data structures, you can project the individual
+fields of a complex type.  For example, given a set
+of messages like the following (in a Topic with keys
+of <code class="docutils literal"><span class="pre">/orderId</span></code> and <code class="docutils literal"><span class="pre">/line</span></code>):</p>
+<div class="highlight-js"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;orderId&quot;</span><span class="o">:</span><span class="mf">42</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="o">:</span><span class="mf">1</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="o">:</span><span class="s2">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="o">:</span><span class="mf">40</span><span class="p">}}</span>
+
+<span class="p">{</span><span class="s2">&quot;orderId&quot;</span><span class="o">:</span><span class="mf">42</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="o">:</span><span class="mf">2</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="o">:</span><span class="s2">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="o">:</span><span class="mf">60</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>You could produce summaries for each detailed product by using
+a projection like:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Projection&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/orderId<span class="nt">&lt;/Field&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/detail/product<span class="nt">&lt;/Field&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>SUM(/detail/qty) as /detail/qty<span class="nt">&lt;/Field&gt;</span>
+ <span class="nt">&lt;/Projection&gt;</span>
+ <span class="nt">&lt;Grouping&gt;</span>
+    <span class="nt">&lt;Field&gt;</span>/orderId<span class="nt">&lt;/Field&gt;</span>
+    <span class="nt">&lt;Field&gt;</span>/detail/product<span class="nt">&lt;/Field&gt;</span>
+ <span class="nt">&lt;/Grouping&gt;</span>
+</pre></div>
+</div>
+<p>For the messages above, this would produce the following
+summary record:</p>
+<div class="highlight-js"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="o">:</span><span class="s2">&quot;AAPL&quot;</span><span class="p">,</span><span class="s2">&quot;qty&quot;</span><span class="o">:</span><span class="mf">100.0</span><span class="p">},</span><span class="s2">&quot;orderId&quot;</span><span class="o">:</span><span class="mf">42</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>For details on the AMPS data types, see the section called
+<a class="reference internal" href="amps_expressions.html#ug-expressions-data-types"><span class="std std-ref">AMPS Data Types</span></a>.</p>
+</div>
+<div class="section" id="grouping">
+<h3>Grouping<a class="headerlink" href="#grouping" title="Permalink to this headline">¶</a></h3>
+<p>Use grouping statements to tell AMPS how to aggregate data across
+messages and generate projected messages.</p>
+<p>For example, an <code class="docutils literal"><span class="pre">Orders</span></code> topic that contains messages for incoming
+orders could be used to calculate aggregates for each customer, or
+aggregates for each symbol ordered. The grouping statement tells AMPS
+which way to group messages for aggregation.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Grouping&gt;</span>
+    <span class="nt">&lt;Field&gt;</span>[Orders].[/CustomerID]<span class="nt">&lt;/Field&gt;</span>
+<span class="nt">&lt;/Grouping&gt;</span>
+</pre></div>
+</div>
+<p>The sample above groups and aggregates the projected messages by
+<code class="docutils literal"><span class="pre">CustomerId</span></code>. Because this statement tells AMPS to group by
+CustomerId, AMPS projects a message for each distinct <code class="docutils literal"><span class="pre">CustomerId</span></code>
+value. A message to the Orders topic will create an outgoing message
+with data aggregated over the <code class="docutils literal"><span class="pre">CustomerId</span></code>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Fields used in the <code class="docutils literal"><span class="pre">Grouping</span></code> element should be the fields
+in the underlying topics.</p>
+</div>
+<p>Each field in the projection should either be an aggregate or be
+specified in the <code class="docutils literal"><span class="pre">Grouping</span></code> element. Otherwise, AMPS returns the last
+processed value for the field.</p>
+<div class="admonition caution" id="grouping-note">
+<p class="first admonition-title">Caution</p>
+<p class="last">Unlike ANSI SQL, AMPS allows you to include fields in the
+projection that are not included in the <code class="docutils literal"><span class="pre">Grouping</span></code> or used
+within the aggregate functions. In this case, AMPS uses the value
+present in the last message processed as the value for these fields.
+AMPS enforces a consistent order of updates to ensure that
+the value of the field is consistent across recovery and restart.</p>
+</div>
+</div>
+<div class="section" id="inline-update-conflation">
+<span id="inlineviewconflation"></span><h3>Inline Update Conflation<a class="headerlink" href="#inline-update-conflation" title="Permalink to this headline">¶</a></h3>
+<p>AMPS has the ability to <em>conflate</em> updates to a view. Conflation is
+particularly useful when a view receives a high velocity of updates and
+subscribers to the view have no need to track every update, but instead
+want to see the current state of the view as quickly as possible. For
+applications that have a high update rate and relatively complicated
+view processing, inline conflation can significantly reduce the total
+number of updates processed for the view and increase overall
+throughput.</p>
+<p>Inline conflation changes how AMPS manages pending updates for a view.
+Without inline conflation enabled for a view, AMPS processes all
+messages for a view strictly in the order in which those messages were
+published. Even if there are multiple pending updates to the same record,
+AMPS processes each of those messages in turn and updates the view for
+each message.</p>
+<p>When inline conflation is enabled and a message arrives with the same
+<code class="docutils literal"><span class="pre">Grouping</span></code> value as a message waiting to be processed, AMPS replaces
+the pending message with the new message, and only processes the new
+message. Inline conflation <em>does not</em> cause AMPS to slow down the rate
+at which AMPS processes updates for a view. AMPS continues to process
+updates for the view as fast as possible, and makes no guarantees as to
+the number of updates to a view produced by a given set of updates to an
+underlying topic.</p>
+<p>The diagram below shows a simplified representation of inline conflation
+for a view where the underlying SOW uses the <code class="docutils literal"><span class="pre">id</span></code> field of the message as
+the <code class="docutils literal"><span class="pre">Key</span></code>.  With conflation set to <code class="docutils literal"><span class="pre">none</span></code> (the default for a view), each
+message is added to the end of the messages waiting to be processed, whether
+or not an update for that group is already waiting. Both updates are processed.
+By contrast, when conflation is set to <code class="docutils literal"><span class="pre">inline</span></code>, if there is an existing
+update waiting, the new update replaces the existing update, and only
+the new update is processed.</p>
+<img alt="../_images/inline_view_conflation.svg" src="../_images/inline_view_conflation.svg" /><p>Because inline conflation replaces messages while processing is pending,
+the following considerations apply to views that enable inline
+conflation:</p>
+<ul class="simple">
+<li>Not every update to the underlying topic will produce an individual
+update to the view: when multiple updates occur to the same record in
+a short period of time, AMPS may only process the last update.</li>
+<li>Updates to the view may be produced in an order different than the
+order in which the messages were published to the underlying topic,
+since AMPS replaces messages waiting to be processed.</li>
+<li>The final state of the view will be exactly as if each update were
+processed, since it will be based on the latest values in the underlying
+topic (or topics).</li>
+</ul>
+<p>To enable inline conflation, add the <code class="docutils literal"><span class="pre">Conflation</span></code> element to the
+configuration for the <code class="docutils literal"><span class="pre">View</span></code>, as shown below:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;View&gt;</span>
+        ...
+        <span class="nt">&lt;Conflation&gt;</span>inline<span class="nt">&lt;/Conflation&gt;</span>
+        ...
+    <span class="nt">&lt;/View&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="filtering-single-topic-aggregations">
+<h3>Filtering Single Topic Aggregations<a class="headerlink" href="#filtering-single-topic-aggregations" title="Permalink to this headline">¶</a></h3>
+<p>When a view aggregates a single topic, you can use a <code class="docutils literal"><span class="pre">Filter</span></code> element
+in the view definition to limit the messages included in the view to
+only those messages that match the filter. For example, to aggregate
+only messages from an underlying topic where the <code class="docutils literal"><span class="pre">/status</span></code> is
+complete, you could define your view as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    ...
+
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>orders<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/orderId<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;View&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>CompleteByRegion<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>orders<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Projection&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>COUNT(/orderId) AS /completedOrders<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>/region AS /region<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Projection&gt;</span>
+        <span class="nt">&lt;Grouping&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>/region<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Grouping&gt;</span>
+        <span class="nt">&lt;Filter&gt;</span>/status = &#39;complete&#39;<span class="nt">&lt;/Filter&gt;</span>
+    <span class="nt">&lt;/View&gt;</span>
+
+    ...
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">Filter</span></code> element is not supported for multiple topic aggregation.</p>
+</div>
+</div>
+<div class="section" id="constructing-fields">
+<h2>Constructing Fields<a class="headerlink" href="#constructing-fields" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS expression language is used to construct fields in aggregates,
+as described in <a class="reference internal" href="amps_expressions.html#ug-constructing-fields"><span class="std std-ref">Chapter 4 Constructing Fields</span></a>.</p>
+</div>
+<div class="section" id="best-practices-for-views">
+<h2>Best Practices for Views<a class="headerlink" href="#best-practices-for-views" title="Permalink to this headline">¶</a></h2>
+<p>When creating a view, consider the following best practices:</p>
+<ul>
+<li><p class="first">AMPS must compute and serialize each field in the view. Smaller
+numbers of views, and less expensive calculations, may provide
+better performance.</p>
+</li>
+<li><p class="first">AMPS must determine the update to the view for each change
+to an underlying topic.</p>
+</li>
+<li><p class="first">For views that join multiple topics, consider the amount
+of work produced by an update to each topic in the join.
+You can estimate this by paying attention to the number
+of matching messages on each side of the join.</p>
+<p>Consider a view that joins a large <code class="docutils literal"><span class="pre">orders</span></code> topic to
+an <code class="docutils literal"><span class="pre">order_type</span></code> topic with a much smaller number of
+messages.  If, for each <code class="docutils literal"><span class="pre">order_type</span></code>, there are
+10000 matching messages in the <code class="docutils literal"><span class="pre">orders</span></code> topic,
+then a publish that updates a message in the <code class="docutils literal"><span class="pre">order_type</span></code>
+topic would produce 10000 updates to a view joining these
+two topics together. In cases like this, avoid making
+unnecessary updates to an underlying topic with messages
+that match a large number of messages on the other side
+of the join. (For example, a change to update a value
+in <code class="docutils literal"><span class="pre">order_type</span></code> would be a necessary change. Simply
+republishing the same messages to <code class="docutils literal"><span class="pre">order_type</span></code> on
+a periodic basis would produce a large number of updates
+to the view without changing the results, and is more likely
+to be unnecessary work.)</p>
+</li>
+<li><p class="first">If an underlying message can have frequent updates
+and subscribers only need to receive the final state
+of the message in the view, consider using
+the <code class="docutils literal"><span class="pre">InlineConflation</span></code> option to allow the view
+to avoid processing intermediate changes where possible.</p>
+</li>
+<li><p class="first">For topics that are the underlying topics of views,
+avoid publishing updates that do not change the values
+of the fields used in the view. Each update to an
+underlying topic causes an update to the view. In
+particular, an approach such as republishing a set
+of lookup values every few minutes will produce a
+large amount of work (while AMPS fully recalculates
+the view) without a change in the results. In general,
+unless the set of values that was republished is
+significant, avoid republishing values to a topic
+underlying a view.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simple-aggregate-view-example">
+<span id="ug-view-examples-simple"></span><h3>Simple Aggregate View Example<a class="headerlink" href="#simple-aggregate-view-example" title="Permalink to this headline">¶</a></h3>
+<p>For a potential usage scenario, imagine the topic <code class="docutils literal"><span class="pre">ORDERS</span></code> which
+includes the following NVFIX message schema:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>NVFIX
+Tag</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>OrderID</td>
+<td>unique order identifier</td>
+</tr>
+<tr class="row-odd"><td>Tick</td>
+<td>symbol</td>
+</tr>
+<tr class="row-even"><td>ClientId</td>
+<td>unique client identifier</td>
+</tr>
+<tr class="row-odd"><td>Shares</td>
+<td>currently executed shares for the chain of orders</td>
+</tr>
+<tr class="row-even"><td>Price</td>
+<td>average price for the chain of orders</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 13.1:</strong> <em>ORDERS Table Identifiers</em></p>
+<p>This topic includes information on the current state of executed orders,
+but may not include all the information we want updated in real-time.
+For example, we may want to monitor the total value of all orders
+executed by a client at any moment. If <code class="docutils literal"><span class="pre">ORDERS</span></code> was a SQL Table within
+an RDBMS, the “view” we would want to create would be similar to:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">TOTAL_VALUE</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">ClientId</span><span class="p">,</span> <span class="k">SUM</span><span class="p">(</span><span class="n">Shares</span> <span class="o">*</span> <span class="n">Price</span><span class="p">)</span> <span class="k">AS</span> <span class="n">TotalCost</span><span class="p">,</span>
+                 <span class="k">SUM</span><span class="p">(</span><span class="n">Shares</span> <span class="o">*</span> <span class="n">Price</span><span class="p">)</span><span class="o">/</span><span class="k">SUM</span><span class="p">(</span><span class="n">Shares</span><span class="p">)</span> <span class="k">AS</span> <span class="n">WeightedAveragePrice</span>
+<span class="k">FROM</span> <span class="n">ORDERS</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ClientId</span>
+</pre></div>
+</div>
+<p>As defined above, the <code class="docutils literal"><span class="pre">TOTAL_VALUE</span></code> view would only have two fields:</p>
+<ol class="arabic simple">
+<li>ClientId: the client identifier</li>
+<li>TotalCost: the summation of current order values by client</li>
+</ol>
+<p>Views in AMPS are specified in the AMPS configuration file in <code class="docutils literal"><span class="pre">View</span></code>
+sections, which are defined in the <code class="docutils literal"><span class="pre">SOW</span></code> section. The example above
+would be defined as:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ORDERS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/OrderID<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;View&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>TOTAL_VALUE<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>ORDERS<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Projection&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>/ClientId<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>SUM(/Shares * /Price) AS /TotalCost<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>SUM(/Shares * /Price) / SUM(/Shares) AS /WeightedAveragePrice<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Projection&gt;</span>
+        <span class="nt">&lt;Grouping&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>/ClientId<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Grouping&gt;</span>
+    <span class="nt">&lt;/View&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Views require an underlying SOW topic. See
+<a class="reference internal" href="sow.html#ug-sow"><span class="std std-ref">State of the World (SOW)</span></a> for
+more information on creating and configuring SOW topics.</p>
+</div>
+<p>The <code class="docutils literal"><span class="pre">Topic</span></code> element is the name of the new topic that is being
+defined. This <code class="docutils literal"><span class="pre">Topic</span></code> value will be the topic that can be used by
+clients to subscribe for future updates or perform SOW queries against.</p>
+<p>The <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> is the SOW topic or topics that the view
+operates on. That is, the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> is where the view gets its
+data from. All XPath references within the <code class="docutils literal"><span class="pre">Projection</span></code> fields are
+references to values within this underlying SOW topic (unless they
+appear on the right-hand side of the <code class="docutils literal"><span class="pre">AS</span></code> keyword.)</p>
+<p>The <code class="docutils literal"><span class="pre">Projection</span></code> section is a list of 1 or more <code class="docutils literal"><span class="pre">Field</span></code> tags that
+define what the view will contain. The expressions can contain either a
+raw XPath value, as in “/ClientId” above, which is a straight copy of
+the value found in the underlying topic into the view topic using the
+same target XPath. If we had wanted to translate the <code class="docutils literal"><span class="pre">ClientId</span></code> tag
+into a different tag, such as <code class="docutils literal"><span class="pre">CID</span></code>, then we could have used the
+<code class="docutils literal"><span class="pre">AS</span></code> keyword to do the translation as in <code class="docutils literal"><span class="pre">/ClientId</span> <span class="pre">AS</span> <span class="pre">/CID</span></code>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Unlike ANSI SQL, AMPS allows you to include fields in the
+projection that are not included in the <code class="docutils literal"><span class="pre">Grouping</span></code> or used
+within the aggregate functions. In this case, AMPS uses the last
+value processed for the value of these fields. AMPS enforces a
+consistent order of updates to ensure that the value of the
+field is consistent across recovery and restart.</p>
+</div>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">An unexpected 0 (zero) or null value in an aggregate field within a view
+usually means that the value is either zero or <code class="docutils literal"><span class="pre">NaN</span></code>. Most AMPS
+message types default to using 0 instead of <code class="docutils literal"><span class="pre">NaN</span></code>. However, any numeric
+aggregate function will result in a <code class="docutils literal"><span class="pre">NaN</span></code> if the aggregation
+includes a field that is not a number.</p>
+</div>
+<p>Finally, the <code class="docutils literal"><span class="pre">Grouping</span></code> section is a list of one or more <code class="docutils literal"><span class="pre">Field</span></code> tags
+that define how the records in the underlying topic will be grouped to
+form the records in the view. In this example, we grouped by the tag
+holding the client identifier. However, we could have easily made this
+the “Symbol” tag <code class="docutils literal"><span class="pre">/Tick</span></code>.</p>
+<p>In the below example, we group by the <code class="docutils literal"><span class="pre">/ClientId</span></code> because we want to
+count the number of orders <em>for each client</em> that have a value greater
+than 1,000,000:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    ...
+
+    <span class="nt">&lt;View&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>NUMBER_OF_ORDERS_OVER_ONEMILL<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>ORDERS<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;Projection&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>/ClientId<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>SUM(IF(/Shares * /Price <span class="ni">&amp;gt;</span> 1000000, /Shares * /Price, NULL)) AS /AggregateValue2<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Projection&gt;</span>
+        <span class="nt">&lt;Grouping&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>/ClientId<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Grouping&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+    <span class="nt">&lt;/View&gt;</span>
+
+    ...
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>Notice that the <code class="docutils literal"><span class="pre">/AggregateValue</span></code> and <code class="docutils literal"><span class="pre">/AggregateValue_2</span></code> will
+contain the same value; however <code class="docutils literal"><span class="pre">/AggregateValue</span></code> was defined using an
+XML <code class="docutils literal"><span class="pre">CDATA</span></code> block, and <code class="docutils literal"><span class="pre">/AggregateValue_2</span></code> was defined using the XML
+<code class="docutils literal"><span class="pre">&gt;</span></code> entity reference.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">Since the AMPS configuration is XML, special characters in
+projection expressions must either be escaped with XML entity
+references or wrapped in a CDATA section.</p>
+</div>
+<p>Updates to underlying topics can potentially cause many more updates to
+downstream views, which can create stress on downstream clients
+subscribed to the view. If any underlying topic has frequent updates to
+the same records and/or a real-time view is not required, as in a GUI,
+then a replica of the topic may be a good solution to reduce the
+frequency of the updates and conserve bandwidth. For more on conflated
+topics, please see
+<a class="reference internal" href="conflated_topics.html#ug-topic-replicas"><span class="std std-ref">Chapter 12 Conflated Topics</span></a>.</p>
+</div>
+<div class="section" id="multiple-topic-aggregate-example">
+<h3>Multiple Topic Aggregate Example<a class="headerlink" href="#multiple-topic-aggregate-example" title="Permalink to this headline">¶</a></h3>
+<p>This example demonstrates how to create an aggregate view that uses more
+than one topic as a data source. For a potential usage scenario, imagine
+that another publisher provides a <code class="docutils literal"><span class="pre">COMPANIES</span></code> topic which includes the
+following NVFIX message schema:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>NVFIX
+Tag</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>CompanyId</td>
+<td>unique identifier for the company</td>
+</tr>
+<tr class="row-odd"><td>Tick</td>
+<td>symbol</td>
+</tr>
+<tr class="row-even"><td>Name</td>
+<td>company name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 13.2:</strong> <em>COMPANIES Table Identifiers</em></p>
+<p>This topic includes the name of the company, and an identifier used for
+internal record keeping in the trading system. Using this information,
+we want to provide a running total of orders for that company, including
+the company name.</p>
+<p>If <code class="docutils literal"><span class="pre">ORDERS</span></code> and <code class="docutils literal"><span class="pre">COMPANIES</span></code> were a SQL Table within an RDBMS, the
+“view” we would want to create would be similar to:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">TOTAL_COMPANY_VOLUME</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">COMPANIES</span><span class="p">.</span><span class="n">CompanyId</span><span class="p">,</span> <span class="n">COMPANIES</span><span class="p">.</span><span class="n">Tick</span><span class="p">,</span> <span class="n">COMPANIES</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span> <span class="k">SUM</span><span class="p">(</span><span class="n">ORDERS</span><span class="p">.</span><span class="n">Shares</span><span class="p">)</span> <span class="k">AS</span> <span class="n">TotalVolume</span>
+<span class="k">FROM</span> <span class="n">COMPANIES</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">ORDERS</span>
+    <span class="k">ON</span> <span class="n">COMPANIES</span><span class="p">.</span><span class="n">Tick</span> <span class="o">=</span> <span class="n">ORDERS</span><span class="p">.</span><span class="n">Tick</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ORDERS</span><span class="p">.</span><span class="n">Tick</span>
+</pre></div>
+</div>
+<p>As defined above, the <code class="docutils literal"><span class="pre">TOTAL_COMPANY_VOLUME</span></code> table would have four
+columns:</p>
+<ol class="arabic simple">
+<li>CompanyId: the identifier for the company</li>
+<li>Tick: The ticker symbol for the company</li>
+<li>Name: The name of the company</li>
+<li>TotalVolume: The total number of shares involved in orders</li>
+</ol>
+<p>To create this view, use the following definition in the AMPS
+configuration file:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ORDERS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/OrderID<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>COMPANIES<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/CompanyId<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;View&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>TOTAL_COMPANY_VOLUME<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>
+            <span class="nt">&lt;Join&gt;</span>[ORDERS]./Tick = [COMPANIES]./Tick<span class="nt">&lt;/Join&gt;</span>
+        <span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Projection&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>[COMPANIES]./CompanyId<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>[COMPANIES]./Tick<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>[COMPANIES]./Name<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>SUM([ORDERS]./Shares) AS /TotalVolume<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Projection&gt;</span>
+        <span class="nt">&lt;Grouping&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>[ORDERS]./Tick<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Grouping&gt;</span>
+    <span class="nt">&lt;/View&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>As with the single topic example, first define the underlying topics
+as SOW topics. Next, the view defines the underlying topic that is the
+source of the data. In this case, the underlying topic is a join between
+two topics in the instance. The definition next declares the message
+type of the projected messages. The message types that you join can be
+different types, and the projected messages can be a different type than
+the underlying message types. The projection uses three fields from the
+COMPANIES topic and one field that is aggregated from messages in the
+ORDERS topic. The projection groups results by the <code class="docutils literal"><span class="pre">Tick</span></code> symbols that
+appear in messages in the ORDERS topic.</p>
+</div>
+<div class="section" id="view-projected-into-different-message-type">
+<h3>View Projected Into Different Message Type<a class="headerlink" href="#view-projected-into-different-message-type" title="Permalink to this headline">¶</a></h3>
+<p>This example shows how to project an underlying topic of one message
+type into a topic of a different message type.</p>
+<p>There is very little difference between this example and the single topic view
+example - <a class="reference internal" href="#ug-view-examples-simple"><span class="std std-ref">Simple Aggregate View Example</span></a>.
+The main difference is that, because the destination view has a different message
+type than the underlying topic, every reference to a field from the
+underlying topic must be fully-qualified with the message type.</p>
+<p>As before, imagine the topic <code class="docutils literal"><span class="pre">ORDERS</span></code> which includes the following
+NVFIX message schema:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>NVFIX
+Tag</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>OrderID</td>
+<td>unique order identifier</td>
+</tr>
+<tr class="row-odd"><td>Tick</td>
+<td>symbol</td>
+</tr>
+<tr class="row-even"><td>ClientId</td>
+<td>unique client identifier</td>
+</tr>
+<tr class="row-odd"><td>Shares</td>
+<td>currently executed shares for the chain of orders</td>
+</tr>
+<tr class="row-even"><td>Price</td>
+<td>average price for the chain of orders</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 13.3:</strong> <em>ORDERS Table Identifiers</em></p>
+<p>As before, we want to project the summation of current order values by
+client. The TOTAL_VALUE view will have two fields:</p>
+<ol class="arabic simple">
+<li>ClientId: the client identifier</li>
+<li>TotalCost: the summation of current order values by client</li>
+</ol>
+<p>However, in this case, we want to project the summary into a JSON
+document. To do this we simply specify that the final view will be in
+JSON format, and fully qualify all references to the underlying topic in
+the view definition.</p>
+<p>The example above would be defined as:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ORDERS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>nvfix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/OrderID<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;View&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>TOTAL_VALUE<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>[nvfix].[ORDERS]<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Projection&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>[nvfix].[ORDERS]./ClientId AS /ClientId<span class="nt">&lt;/Field&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>SUM([nvfix].[ORDERS]./Shares * [nvfix].[ORDERS]./Price) AS /TotalCost<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Projection&gt;</span>
+        <span class="nt">&lt;Grouping&gt;</span>
+            <span class="nt">&lt;Field&gt;</span>[nvfix].[ORDERS]./ClientId<span class="nt">&lt;/Field&gt;</span>
+        <span class="nt">&lt;/Grouping&gt;</span>
+    <span class="nt">&lt;/View&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>This example uses an underlying topic in NVFIX format, computes an
+aggregation by <code class="docutils literal"><span class="pre">ClientId</span></code>, and then produces output in JSON format.</p>
+</div>
+</div>
+<div class="section" id="aggregated-subscriptions">
+<span id="index-2"></span><h2>Aggregated Subscriptions<a class="headerlink" href="#aggregated-subscriptions" title="Permalink to this headline">¶</a></h2>
+<p>In addition to precomputed views and aggregates, AMPS provides the
+ability for the server to compute an aggregation for an individual
+subscription. When an application requests an <em>aggregated subscription</em>,
+rather than providing messages for the subscription verbatim, the AMPS
+server will calculate the requested aggregates and produce a message
+that contains the aggregated data.</p>
+<p>Most of the time, AMPS applications use views to provide aggregation, as
+described in the section <a class="reference internal" href="#ug-views-understanding"><span class="std std-ref">Understanding Views</span></a>.
+AMPS views are shared across subscriptions, and are calculated once, when
+a message updates a view, regardless of the number of subscribers that
+subscribe to the view. AMPS provides aggregated subscriptions as a way to
+do <em>ad hoc</em> aggregation in cases where a specific aggregate is only needed
+for a short period time, will only be used by a single subscriber, or must
+be provided before the server can be restarted with a defined view. If the
+aggregation is frequently used, or if multiple subscribers will use the
+aggregation, consider using a view rather than an aggregated
+subscription.</p>
+<p>To request an aggregated subscription, the subscriber provides a
+definition of the fields to project and the grouping to apply with each
+subscription. AMPS performs the aggregation and constructs the specified
+message before delivering the message.</p>
+<p>For example, imagine a topic in the SOW that uses the <code class="docutils literal"><span class="pre">/id</span></code> field to
+create the SOW key. The topic contains the following messages:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="mf">1</span><span class="p">,</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">150.34</span> <span class="p">}</span>
+<span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="mf">2</span><span class="p">,</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">149.76</span> <span class="p">}</span>
+<span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="mf">3</span><span class="p">,</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">149.32</span> <span class="p">}</span>
+<span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="mf">4</span><span class="p">,</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">151.10</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>A subscriber enters a SOW query with the following options:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">projection</span><span class="o">=</span><span class="p">[</span><span class="n">MAX</span><span class="p">(</span><span class="o">/</span><span class="n">price</span><span class="p">)</span> <span class="n">AS</span> <span class="o">/</span><span class="nb">max</span><span class="p">,</span><span class="o">/</span><span class="n">tickerId</span> <span class="k">as</span> <span class="o">/</span><span class="n">ticker</span><span class="p">],</span><span class="n">grouping</span><span class="o">=</span><span class="p">[</span><span class="o">/</span><span class="n">tickerId</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>AMPS aggregates the messages in the SOW and delivers the following
+projected record:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;ticker&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span> <span class="o">:</span> <span class="mf">151.10</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>Aggregated subscriptions are supported for commands that use the
+State of the World:
+<code class="docutils literal"><span class="pre">sow</span></code>, <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>, and <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code>. However, there
+are limitations on some variants of the commands, as described in the following sections.</p>
+<p>The memory consumed to maintain an aggregated subscription is counted as part of the total
+memory for the client that submitted the subscription when considering the
+<code class="docutils literal"><span class="pre">MessageMemoryLimit</span></code> for that client.</p>
+<div class="section" id="when-to-use-aggregated-subscriptions">
+<h3>When to Use Aggregated Subscriptions<a class="headerlink" href="#when-to-use-aggregated-subscriptions" title="Permalink to this headline">¶</a></h3>
+<p>Aggregated subscriptions require AMPS to compute the aggregate for each
+subscription individually, at the time that messages are processed for
+the subscription. In addition, for aggregated subscriptions, the current
+state of the aggregation is retained for each subscription.</p>
+<p>In cases where more than one subscriber is using the same aggregation, a
+<code class="docutils literal"><span class="pre">View</span></code> is more efficient: each record in the view is only computed
+once, saving CPU cycles, and ongoing updates for the record are only
+stored once, requiring less memory. Likewise, if the aggregation uses
+more than one topic or aggregates messages of a different type than
+the final result, you must configure a  <code class="docutils literal"><span class="pre">View</span></code> on the server.</p>
+<p>An aggregated subscription could be more appropriate than a persistent
+view if one or more of the following is true:</p>
+<ul class="simple">
+<li>A subscription has <strong>unique and unpredictable aggregation needs</strong>.
+For example, if no other subscription is computing a given
+aggregation, and it is not possible to predict in advance the
+aggregates to compute, then per-subscription aggregation is a good
+solution.</li>
+<li>The application is <strong>under development and iterating quickly</strong>. It
+can be convenient to use aggregated subscriptions while developing
+aggregate definitions that will be eventually provided as view
+topics.</li>
+<li>The persistent view is <strong>expensive and seldom needed</strong>. For
+example, if an aggregation is memory-intensive and only needed once
+a week at a time when the instance is otherwise lightly-used, the
+overall memory usage of the AMPS instance may be reduced during the
+rest of the week by using an aggregated subscription.</li>
+</ul>
+<p>The considerations above are general guidance to help you consider
+options between per-subscription aggregation and a persistent view. In
+general, if it is possible to use an AMPS view for a given aggregation
+task and that view will be frequently used, a view is often the best
+option. If a view cannot be used (because the aggregation is not known
+in advance) or the view would seldom be used, an aggregated subscription
+may be a better option.</p>
+</div>
+<div class="section" id="requesting-an-aggregated-subscription">
+<h3>Requesting an Aggregated Subscription<a class="headerlink" href="#requesting-an-aggregated-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To request an aggregated subscription, set the following options on the
+subscription:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">projection=[field</span> <span class="pre">specifications]</span></code></td>
+<td><p class="first">Specifies a comma-delimited set of fields to project, within
+brackets. Each entry has the format described in
+<a class="reference internal" href="amps_expressions.html#ug-constructing-fields"><span class="std std-ref">Constructing Fields</span></a>.</p>
+<p>This option must contain an entry for every field in the aggregated
+message. If there is no entry for a field in this option, that field
+will not appear in the aggregated message, even if the field is in
+the underlying message.</p>
+<p>For example, to project the total value of orders for a specific
+item, you might take the sum of the <code class="docutils literal"><span class="pre">/price</span></code> multiplied by the
+<code class="docutils literal"><span class="pre">/quantity</span></code> for each item, along with the original <code class="docutils literal"><span class="pre">/description</span></code>,
+as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">projection</span><span class="o">=</span><span class="p">[</span><span class="n">SUM</span><span class="p">(</span><span class="o">/</span><span class="n">price</span> <span class="o">*</span> <span class="o">/</span><span class="n">quantity</span><span class="p">)</span> <span class="n">AS</span> <span class="o">/</span><span class="n">total</span><span class="p">,</span> <span class="o">/</span><span class="n">description</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>When a field appears in the projection option, but is not part of a
+grouping clause or used in an aggregation function, the message will
+have the value of that field in the last message processed by AMPS.</p>
+<p class="last">There is no default for this option. When this option is provided, a
+<code class="docutils literal"><span class="pre">grouping</span></code> must also be provided.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">grouping=[keys]</span></code></td>
+<td><p class="first">For an aggregated subscription, the format of this option is a
+comma-delimited list of XPath identifiers within brackets. For
+example, to aggregate entries based on their <code class="docutils literal"><span class="pre">/description</span></code>
+(producing one record in the aggregation for each distinct value in
+<code class="docutils literal"><span class="pre">/description</span></code>), you would use the following option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">grouping</span><span class="o">=</span><span class="p">[</span><span class="o">/</span><span class="n">description</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="last">There is no default for this option. When this option is provided, a
+<code class="docutils literal"><span class="pre">projection</span></code> must also be provided.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 13.4:</strong> <em>Aggregated Subscription options</em></p>
+<p>For example, to request a count, by customer, of the order records
+stored in a topic in the SOW, you could use the following options:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">projection</span><span class="o">=</span><span class="p">[</span><span class="n">COUNT</span><span class="p">(</span><span class="o">/</span><span class="n">orderId</span><span class="p">)</span><span class="n">AS</span> <span class="o">/</span><span class="n">orderCount</span><span class="p">,</span> <span class="o">/</span><span class="n">customer</span> <span class="n">AS</span> <span class="o">/</span><span class="n">customer</span><span class="p">],</span><span class="n">grouping</span><span class="o">=</span><span class="p">[</span><span class="o">/</span><span class="n">customer</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="considerations-for-aggregated-subscriptions">
+<h3>Considerations for Aggregated Subscriptions<a class="headerlink" href="#considerations-for-aggregated-subscriptions" title="Permalink to this headline">¶</a></h3>
+<p>When planning to use an aggregated subscription, the following
+considerations apply:</p>
+<ul class="simple">
+<li>The source of an aggregated subscription is a single topic, of
+the same message type as will be produced by the aggregation.
+The topic for the subscription must not be a regular expression.</li>
+<li>The topic for the subscription must be a topic in the State of the
+World. This includes views and the SOW view of a queue.</li>
+<li>When subscribing to a queue, an aggregated subscription does <em>not</em>
+remove messages from the queue. Like a view definition with the queue
+as an underlying topic, an aggregated subscription browses the queue
+without taking messages from the queue.</li>
+<li>Filters for the subscription apply to the original messages, <em>not</em>
+the results of the projection. A filter for an aggregated
+subscription is equivalent to the <code class="docutils literal"><span class="pre">Filter</span></code> element in a View
+definition rather than a filter for a subscription that uses the
+view.</li>
+<li>A subscription that uses per-subscription aggregation does not
+support the <code class="docutils literal"><span class="pre">replace</span></code> option <strong>except</strong> for changing pagination
+options.</li>
+<li>An aggregated subscription <em>cannot</em> be a bookmark subscription. That
+is, replay from the transaction log does not support aggregated
+subscriptions.</li>
+<li>Select lists cannot be used with aggregated subscriptions.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

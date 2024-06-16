@@ -1,0 +1,14 @@
+[Unit]
+Description=Advanced Message Processing System
+After=syslog.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/opt/amps/bin/ampServer /opt/etc/amps/config.xml
+
+[Install]
+WantedBy=multi-user.target
+

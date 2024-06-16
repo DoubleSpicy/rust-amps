@@ -1,0 +1,549 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Subscriptions &#8212; Advanced Message Processing System (AMPS) C++ Developer Guide develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. Error Handling" href="error-handling.html" />
+    <link rel="prev" title="3.Your First AMPS Program" href="first-program.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. Subscriptions</a><ul>
+<li><a class="reference internal" href="#subscribing">Subscribing</a></li>
+<li><a class="reference internal" href="#asynchronous-message-processing-interface">Asynchronous Message Processing Interface</a></li>
+<li><a class="reference internal" href="#using-an-instance-method-as-a-message-handler">Using an Instance Method as a Message Handler</a></li>
+<li><a class="reference internal" href="#understanding-threading-and-message-handlers">Understanding Threading and Message Handlers</a></li>
+<li><a class="reference internal" href="#unsubscribing">Unsubscribing</a></li>
+<li><a class="reference internal" href="#understanding-messages">Understanding messages</a></li>
+<li><a class="reference internal" href="#header-properties">Header properties</a><ul>
+<li><a class="reference internal" href="#getdata-method">getData() method</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-messaging-support">Advanced Messaging Support</a></li>
+<li><a class="reference internal" href="#regex-topics">Regex topics</a></li>
+<li><a class="reference internal" href="#content-filtering">Content filtering</a><ul>
+<li><a class="reference internal" href="#updating-the-filter-on-a-subscribe">Updating the Filter on a Subscribe</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="first-program.html" title="previous chapter">3.Your First AMPS Program</a></li>
+      <li>Next: <a href="error-handling.html" title="next chapter">5. Error Handling</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="subscriptions">
+<h1>4. Subscriptions<a class="headerlink" href="#subscriptions" title="Permalink to this headline">¶</a></h1>
+<p>Messages published to a topic on an AMPS server are available to other
+clients via a subscription. Before messages can be received, a client
+must subscribe to one or more topics on the AMPS server so that the
+server will begin sending messages to the client. The server will
+continue sending messages to the client until the client unsubscribes,
+or the client disconnects. With content filtering, the AMPS server will
+limit the messages sent only to those messages that match a
+client-supplied filter. In this chapter, you will learn how to
+subscribe, unsubscribe, and supply filters for messages using the AMPS
+C/C++ client.</p>
+<div class="section" id="subscribing">
+<span id="cpp-subscribing"></span><h2>Subscribing<a class="headerlink" href="#subscribing" title="Permalink to this headline">¶</a></h2>
+<p>Subscribing to an AMPS topic takes place by calling
+<code class="docutils literal"><span class="pre">Client.subscribe()</span></code>. Here is a short example showing the simplest way
+to subscribe to a topic (error handling and connection details are
+omitted for brevity):</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Client</span> <span class="nf">client</span><span class="p">(...);</span>
+<span class="n">client</span><span class="p">.</span><span class="n">connect</span><span class="p">(...);</span>
+
+<span class="cm">/* Here we have created or received a Client that is properly connected to an AMPS server. */</span>
+<span class="n">client</span><span class="p">.</span><span class="n">logon</span><span class="p">();</span>
+
+
+<span class="cm">/* Here we subscribe to the topic messages. We do not provide a filter, so AMPS</span>
+<span class="cm"> * does not content-filter the subscription. Although we don&#39;t use the object</span>
+<span class="cm"> * explicitly here, the subscribe function returns a MessageStream object that we</span>
+<span class="cm"> * iterate over. If, at any time, we no longer need to subscribe, we can break out</span>
+<span class="cm"> * of the loop. When we break out of the loop, the MessageStream goes out of scope,</span>
+<span class="cm"> * the MessageStream destructor runs, and the AMPS client sends an unsubscribe</span>
+<span class="cm"> * command to AMPS.</span>
+<span class="cm"> */</span>
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">client</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="cm">/* Within the body of the loop, we can process the message as we need to. In this</span>
+<span class="cm">     * case, we simply print the contents of the message.</span>
+<span class="cm">     */</span>
+    <span class="n">std</span> <span class="o">::</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Received message: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span> <span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span> <span class="o">::</span> <span class="n">endl</span> <span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 4.1:</strong> <em>Subscribing to a topic</em></p>
+<p>AMPS creates a background thread that receives messages and copies them
+into a <code class="docutils literal"><span class="pre">MessageStream</span></code> that you iterate over. This means that the
+client application as a whole can continue to receive messages while you
+are doing processing work.</p>
+<p>The simple method described above is provided for convenience. The AMPS
+C++ client provides convenience methods for the most common form of the
+AMPS commands. The client also provides an interface that allows you to
+have precise control over the command. Using that interface, the example
+above becomes:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Client</span> <span class="nf">client</span><span class="p">(...);</span>
+<span class="n">client</span><span class="p">.</span><span class="n">connect</span><span class="p">(...);</span>
+
+<span class="cm">/* Here we have created or received a Client that is properly connected to an AMPS server. */</span>
+<span class="n">client</span><span class="p">.</span><span class="n">logon</span><span class="p">();</span>
+
+
+<span class="cm">/* Here we subscribe to the topic messages. We do not provide a filter, so AMPS</span>
+<span class="cm"> * does not content-filter the subscription. Although we don&#39;t use the object</span>
+<span class="cm"> * explicitly here, the execute function returns a MessageStream object that we</span>
+<span class="cm"> * iterate over. If, at any time, we no longer need to subscribe, we can break out</span>
+<span class="cm"> * of the loop. When we break out of the loop, the MessageStream goes out of scope,</span>
+<span class="cm"> * the MessageStream destructor runs, and the AMPS client sends an unsubscribe</span>
+<span class="cm"> * command to AMPS.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Here we create a command object for the subscribe command, specifying the topic</span>
+<span class="cm"> * messages.</span>
+<span class="cm"> */</span>
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">ampsClient</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s">&quot;subscribe&quot;</span><span class="p">).</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">)))</span>
+<span class="p">{</span>
+    <span class="n">std</span> <span class="o">::</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Received message: &quot;</span><span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span> <span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span> <span class="o">::</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 4.2:</strong> <em>Subscribing to a topic</em></p>
+<p>The <code class="docutils literal"><span class="pre">Command</span></code> interface allows you to precisely customize the commands
+you send to AMPS. For flexibility and ease of maintenance, 60East
+recommends using the <code class="docutils literal"><span class="pre">Command</span></code> interface (rather than a named method)
+for any command that will receive messages from AMPS. For publishing
+messages, there can be a slight performance advantage to using the named
+commands where possible.</p>
+</div>
+<div class="section" id="asynchronous-message-processing-interface">
+<h2>Asynchronous Message Processing Interface<a class="headerlink" href="#asynchronous-message-processing-interface" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS C++ client also supports an interface that allows you to
+process messages asynchronously. In this case, you add a message handler
+to the function call. The client returns the command ID of the subscribe
+command once the server has acknowledged that the command has been
+processed. As messages arrive, the client calls your message handler
+directly on the background thread. This can be an advantage for some
+applications. For example, if your application is highly multithreaded
+and copies message data to a work queue processed by multiple threads,
+there is usually a performance benefit to enqueuing work directly from
+the background thread. See
+<a class="reference internal" href="#understanding-threading-section"><span class="std std-ref">Understanding Threading</span></a> for a
+discussion of threading considerations, including considerations for
+message handlers.</p>
+<p>Here is a short example (error handling and connection details are
+omitted for brevity):</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Client</span> <span class="nf">client</span><span class="p">(...);</span>
+<span class="n">client</span><span class="p">.</span><span class="n">connect</span><span class="p">(...);</span>
+<span class="cm">/* Here we have created or received a Client that is properly connected to an AMPS server. */</span>
+
+
+<span class="n">client</span><span class="p">.</span><span class="n">logon</span><span class="p">();</span>
+
+<span class="cm">/* Here we create a subscription with the following parameters:</span>
+<span class="cm"> * command        : This is the AMPS Command object that contains the subscribe command.</span>
+<span class="cm"> * MessageHandler : This is an AMPS MessageHandler object that refers to our message</span>
+<span class="cm"> *                  handling function myHandlerFunction. This function is</span>
+<span class="cm"> *                  called on a background thread each time a message arrives.</span>
+<span class="cm"> *                  The second parameter, NULL, is passed as-is from the</span>
+<span class="cm"> *                  client.subscribe() call to the message handler with every message,</span>
+<span class="cm"> *                  allowing you to pass context about the subscription through to the</span>
+<span class="cm"> *                  message handler.</span>
+<span class="cm"> *</span>
+<span class="cm"> * We create a command object for the subscribe command, specifying the topic</span>
+<span class="cm"> * messages.</span>
+<span class="cm"> */</span>
+<span class="n">string</span> <span class="n">subscriptionId</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">executeAsync</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s">&quot;subscribe&quot;</span><span class="p">).</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">),</span>
+                                            <span class="n">MessageHandler</span><span class="p">(</span><span class="n">myHandlerFunction</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">));</span>
+
+<span class="p">...</span>
+
+<span class="cm">/* The myHandlerFunction is a global function that is invoked by AMPS whenever a</span>
+<span class="cm"> * matching message is received. The first parameter, message, is a reference to an</span>
+<span class="cm"> * AMPS Message object that contains the data and headers of the received message.</span>
+<span class="cm"> * The second parameter, userData, is set to whatever value was provided in the</span>
+<span class="cm"> * MessageHandler constructor -- NULL in this example.</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="n">myHandlerFunction</span><span class="p">(</span><span class="k">const</span> <span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">userData</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 4.3:</strong> <em>Subscribing to a process with asynchronous processing</em></p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">The AMPS client resets and reuses the message provided to this
+function between calls. This improves performance in the client,
+but means that if your handler function needs to preserve
+information contained within the message, you must copy the
+information rather than just saving the message object. Otherwise,
+the AMPS client cannot guarantee the state of the object or the
+contents of the object when your program goes to use it.</p>
+</div>
+<p>With newer compilers, you can use additional constructs to specify a
+callback function. Recent improvements in C++ have added lambda
+functions &#8211; unnamed functions declared in-line that can refer to names
+in the lexical scope of their creator. If available on your system, both
+Standard C++ Library function objects and lambda functions may be used
+as callbacks. Check <code class="docutils literal"><span class="pre">functional.cpp</span></code> in the samples directory for
+numerous examples.</p>
+</div>
+<div class="section" id="using-an-instance-method-as-a-message-handler">
+<h2>Using an Instance Method as a Message Handler<a class="headerlink" href="#using-an-instance-method-as-a-message-handler" title="Permalink to this headline">¶</a></h2>
+<p>One of the more common ways of providing a message handler is as an
+instance method on an object that maintains message state. It&#8217;s simple
+to provide a handler with this capability, as shown below.</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StatefulHandler</span>
+<span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">_handlerName</span><span class="p">;</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="cm">/* Construct the handler and save state. */</span>
+    <span class="n">StatefulHandler</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">)</span> <span class="o">:</span> <span class="n">_handlerName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="cm">/* Message handler method. */</span>
+    <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">Message</span> <span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">_handlerName</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; got &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>You can then provide an instance of the handler directly wherever a
+message handler is required, as shown below:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">client</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">StatefulHandler</span><span class="p">(</span><span class="s">&quot;An instance&quot;</span><span class="p">),</span> <span class="s">&quot;topic&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="understanding-threading-and-message-handlers">
+<span id="client-threading"></span><span id="understanding-threading-section"></span><h2>Understanding Threading and Message Handlers<a class="headerlink" href="#understanding-threading-and-message-handlers" title="Permalink to this headline">¶</a></h2>
+<p>The first time a command causes an instance of the <code class="docutils literal"><span class="pre">Client</span></code> or <code class="docutils literal"><span class="pre">HAClient</span></code> to
+connect to AMPS (typically, the <cite>logon()</cite> command), the client creates a thread
+that runs in the background. This background thread is responsible for
+processing incoming messages from AMPS, which includes both messages that
+contain data and acknowledgments from the server.</p>
+<p>When you call a command on the AMPS client, the command typically waits for
+an acknowledgment from the server and then returns. (The exception to this
+is <cite>publish</cite>. For performance, the <cite>publish</cite> command does not wait for
+an acknowledgment from the server before returning.)</p>
+<p>In the simple case, using synchronous message processing, the
+client provides an internal handler function that populates the
+<code class="docutils literal"><span class="pre">MessageStream</span></code>. The client receive thread calls the internal
+handler function, which makes a deep copy of the incoming message
+and adds it to the <code class="docutils literal"><span class="pre">MessageStream</span></code>. The <code class="docutils literal"><span class="pre">MessageStream</span></code> is used
+on the calling thread, so operations on the <code class="docutils literal"><span class="pre">MessageStream</span></code> do not
+block the client receive thread.</p>
+<p>When using asynchronous message processing, AMPS calls the handler
+function from the client receive thread. Message handlers provided for
+<em>asynchronous</em> message processing must be aware of the following
+considerations:</p>
+<ul class="simple">
+<li>The client creates one client receive thread at a time, and the lifetime
+of the thread lasts for the lifetime of the connection to the AMPS server.
+A message handler that is only provided to a single client will
+only be called from a single thread at a time. If your message handler will
+be used by multiple clients, then multiple threads will call your message
+handler. In this case, you should take care to protect any state that will
+be shared between threads. Notice that if the client connection fails (or
+is closed), and the client reconnects, the client will create a different
+thread for the new connection.</li>
+<li>For maximum performance, do as little work in the message handler as
+possible. For example, if you use the contents of the message to update
+an external database, a message handler that adds the relevant data to
+an update queue, that is processed by a different thread, will typically
+perform better than a message handler that does this update during the
+message handling.</li>
+<li>While your message handler is running, the thread that calls your
+message handler is no longer receiving messages. This makes it easier to
+write a message handler because you know that no other messages are
+arriving from the same subscription. However, this also means that you
+cannot use the same client that called the message handler to send
+commands to AMPS. Acknowledgments from AMPS cannot be processed and
+your application will deadlock waiting for the acknowledgment. Instead,
+enqueue the command in a work queue to be processed by a separate
+thread or use a different client object to submit the commands.</li>
+<li>The AMPS client resets and reuses the <code class="docutils literal"><span class="pre">Message</span></code> provided to this
+function between calls. This improves performance in the client, but
+means that if your handler function needs to preserve information
+contained within the message, you must copy the information (either
+by making a copy of the entire message or copying the required
+fields) rather than just saving the message object. Otherwise, the
+AMPS client cannot guarantee the state of the object or the contents
+of the object when your program goes to use it. Likewise, a
+message handler should not modify the <code class="docutils literal"><span class="pre">Message</span></code> &#8211; this will
+result in modifying the message provided to other handlers (including
+handlers internal to the AMPS client).</li>
+</ul>
+</div>
+<div class="section" id="unsubscribing">
+<h2>Unsubscribing<a class="headerlink" href="#unsubscribing" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS server continues a subscription until the client explicitly ends
+the subscription (that is, <em>unsubscribes</em>) or until the connection to
+the client is closed.</p>
+<p>With the synchronous interface, AMPS automatically unsubscribes to the
+topic when the destructor for the <code class="docutils literal"><span class="pre">MessageStream</span></code> runs. You can also
+explicitly call the <code class="docutils literal"><span class="pre">close()</span></code> method on the <code class="docutils literal"><span class="pre">MessageStream</span></code> object
+to remove the subscription.</p>
+<p>In the asynchronous interface, when a subscription is successfully made,
+messages will begin flowing to the message handler, and the
+<code class="docutils literal"><span class="pre">subscribe()</span></code> or <code class="docutils literal"><span class="pre">executeAsync()</span></code> call will return a string for
+the subscription id that serves as the identifier for this subscription. A
+<code class="docutils literal"><span class="pre">Client</span></code> can have any number of active subscriptions, and this
+subscription id is how AMPS designates messages intended for this particular
+subscription. To unsubscribe, we simply call <code class="docutils literal"><span class="pre">unsubscribe</span></code> with the
+subscription identifier:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="p">...;</span>
+
+<span class="c1">// Register asynchronous subscription</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">subId</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">executeAsync</span><span class="p">(</span>
+                         <span class="n">Command</span><span class="p">(</span><span class="s">&quot;subscribe&quot;</span><span class="p">).</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">),</span>
+                         <span class="n">MessageHandler</span><span class="p">(</span><span class="n">myHandlerFunction</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">));</span>
+
+<span class="p">...</span> <span class="n">other</span> <span class="n">work</span> <span class="n">here</span> <span class="p">...</span>
+
+<span class="n">client</span><span class="p">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">subId</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Example 4.4:</strong> <em>Unsubscribing form a topic</em></p>
+<p>In this example, as in the previous section, we use the
+<code class="docutils literal"><span class="pre">client.executeAsync()</span></code> method to create a subscription to the
+<code class="docutils literal"><span class="pre">messages</span></code> topic. When our application is done listening to this
+topic, it unsubscribes by passing in the <code class="docutils literal"><span class="pre">subId</span></code> returned by
+<code class="docutils literal"><span class="pre">subscribe()</span></code>. After the subscription is removed, no more messages
+will flow into our <code class="docutils literal"><span class="pre">myHandlerFunction()</span></code>.</p>
+<p>When an application calls <code class="docutils literal"><span class="pre">unsubscribe()</span></code>, the client sends an
+explicit <code class="docutils literal"><span class="pre">unsubscribe</span></code> command to AMPS. The AMPS server removes that
+subscription from the set of subscriptions for the client, and stops
+sending messages for that subscription. On the client side, the client
+unregisters the subscription so that the <code class="docutils literal"><span class="pre">MessageStream</span></code> or
+<code class="docutils literal"><span class="pre">MessageHandler</span></code> for that subscription will no longer receive
+messages for that subscription.</p>
+<p>Notice that calling <code class="docutils literal"><span class="pre">unsubscribe</span></code> does not destroy messages that
+the server has already sent to the client. If there are messages on
+the way to the client for this subscription, the AMPS client must
+consume those messages. If a <code class="docutils literal"><span class="pre">LastChanceMessageHandler</span></code> is registered,
+the handler will receive the messages. Otherwise, they will be
+discarded since no message handler matches the subscription ID on
+the message.</p>
+</div>
+<div class="section" id="understanding-messages">
+<h2>Understanding messages<a class="headerlink" href="#understanding-messages" title="Permalink to this headline">¶</a></h2>
+<p>So far, we have seen that subscribing to a topic involves working with
+objects of <code class="docutils literal"><span class="pre">AMPS::Message</span></code> type. A <code class="docutils literal"><span class="pre">Message</span></code> represents a single
+message to or from an AMPS server. Messages are received or sent for
+every client/server operation in AMPS.</p>
+</div>
+<div class="section" id="header-properties">
+<h2>Header properties<a class="headerlink" href="#header-properties" title="Permalink to this headline">¶</a></h2>
+<p>There are two parts of each message in AMPS: a set of headers that
+provide metadata for the message, and the data that the message
+contains. Every AMPS message has one or more header fields defined. The
+precise headers present depend on the type and context of the message.
+There are many possible fields in any given message, but only a few are
+used for any given message. For each header field, the <code class="docutils literal"><span class="pre">Message</span></code> class
+contains a distinct property that allows for retrieval and setting of
+that field. For example, the <code class="docutils literal"><span class="pre">Message.get_command_id()</span></code> function
+corresponds to the <code class="docutils literal"><span class="pre">commandId</span></code> header field, the
+<code class="docutils literal"><span class="pre">Message.get_batch_size()</span></code> function corresponds to the <code class="docutils literal"><span class="pre">BatchSize</span></code>
+header field, and so on. For more information on these header fields,
+consult the <em>AMPS User Guide</em> and <em>AMPS Command Reference</em>.</p>
+<p>To work with header fields, a <code class="docutils literal"><span class="pre">Message</span></code> contains
+<code class="docutils literal"><span class="pre">getXxx()</span></code>/<code class="docutils literal"><span class="pre">setXxx()</span></code> methods corresponding to the header fields.
+60East does not recommend attempting to parse header fields from the raw
+data of the message.</p>
+<p>In AMPS, fields sometimes need to be set to a unique identifier value.
+For example, when creating a new subscription, or sending a manually
+constructed message, you’ll need to assign a new unique identifier to
+multiple fields such as <code class="docutils literal"><span class="pre">CommandId</span></code> and <code class="docutils literal"><span class="pre">SubscriptionId</span></code>. For this
+purpose, Message provides <code class="docutils literal"><span class="pre">newXxx()</span></code> methods for each field that generates
+a new unique identifier and sets the field to that new value.</p>
+<div class="section" id="getdata-method">
+<h3>getData() method<a class="headerlink" href="#getdata-method" title="Permalink to this headline">¶</a></h3>
+<p>Access to the data section of a message is provided via the
+<code class="docutils literal"><span class="pre">getData()</span></code> method. The <code class="docutils literal"><span class="pre">data</span></code> contains the unparsed data in the
+message, returned as a series of bytes (a <code class="docutils literal"><span class="pre">string</span></code> or
+<code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>). Your application code parses and works with the data.</p>
+<p>The AMPS C++ client contains a collection of helper classes for working
+with message types that are specific to AMPS (for example, FIX, NVFIX,
+and AMPS composite message types). For message types that are widely
+used, such as JSON or XML, you can use whichever library you typically
+use in your environment.</p>
+</div>
+</div>
+<div class="section" id="advanced-messaging-support">
+<h2>Advanced Messaging Support<a class="headerlink" href="#advanced-messaging-support" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">client.subscribe()</span></code> function provides options for subscribing to
+topics even when you do not know their exact names, and for providing a
+filter that works on the server to limit the messages your application
+must process.</p>
+</div>
+<div class="section" id="regex-topics">
+<h2>Regex topics<a class="headerlink" href="#regex-topics" title="Permalink to this headline">¶</a></h2>
+<p>Regular Expression (Regex) Topics allow a regular expression to be
+supplied in the place of a topic name. When you supply a regular
+expression, it is as if a subscription is made to every topic that
+matches your expression, including topics that do not yet exist at the
+time of creating the subscription.</p>
+<p>To use a regular expression, simply supply the regular expression in
+place of the topic name in the <code class="docutils literal"><span class="pre">subscribe()</span></code> call. For example:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">client</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;client.*&quot;</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="cm">/* receive messages for any topic that begins with &#39;client&#39; */</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Received a message on topic &#39;&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getTopic</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;&#39; &quot;</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot;with the data: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 4.5:</strong> <em>Regex topic subscription</em></p>
+<p>In this example, messages on topics <code class="docutils literal"><span class="pre">client</span></code> and <code class="docutils literal"><span class="pre">client1</span></code> would
+match the regular expression, and those messages will be returned by the
+<code class="docutils literal"><span class="pre">MessageStream</span></code> . As in the example, you can use the <code class="docutils literal"><span class="pre">getTopic()</span></code>
+method to determine the actual topic of the message sent to the lambda
+function.</p>
+</div>
+<div class="section" id="content-filtering">
+<h2>Content filtering<a class="headerlink" href="#content-filtering" title="Permalink to this headline">¶</a></h2>
+<p>One of the most powerful features of AMPS is content filtering. With
+content filtering, filters based on message content are applied at the
+server, so that your application and the network are not utilized by
+messages that are uninteresting for your application. For example, if
+your application is only displaying messages from a particular user, you
+can send a content filter to the server so that only messages from that
+particular user are sent to the client. The <em>AMPS User Guide</em> provides
+full details on content filtering.</p>
+<p>To apply a content filter to a subscription, simply pass it into the
+<code class="docutils literal"><span class="pre">client.subscribe()</span></code> call:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">ampsClient</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;/sender = &#39;mom&#39;&quot;</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="c1">// process messages from mom</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 4.6:</strong> <em>Using content filters</em></p>
+<p>In this example, we have passed in a content filter <code class="docutils literal"><span class="pre">/sender</span> <span class="pre">=</span> <span class="pre">'mom'</span></code>. This will
+result in the server only sending us messages that have the sender field equal to
+<code class="docutils literal"><span class="pre">mom</span></code> in the message.</p>
+<p>For example, the AMPS server will send the following message, where <code class="docutils literal"><span class="pre">/sender</span></code>
+is <code class="docutils literal"><span class="pre">mom</span></code>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;sender&quot;</span> <span class="o">:</span> <span class="s2">&quot;mom&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text&quot;</span> <span class="o">:</span> <span class="s2">&quot;Happy Birthday!&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reminder&quot;</span> <span class="o">:</span> <span class="s2">&quot;Call me Thursday!&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The AMPS server will not send a message with a different <code class="docutils literal"><span class="pre">/sender</span></code> value:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;sender&quot;</span> <span class="o">:</span> <span class="s2">&quot;henry dave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text&quot;</span> <span class="o">:</span> <span class="s2">&quot;Things do not change; we change.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="updating-the-filter-on-a-subscribe">
+<h3>Updating the Filter on a Subscribe<a class="headerlink" href="#updating-the-filter-on-a-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows you to update the filter on a subscription. When you replace
+a filter on the subscription, AMPS immediately begins sending only
+messages that match the updated filter. Notice that if the subscription
+was entered with a command that includes a SOW query, using the
+<code class="docutils literal"><span class="pre">replace</span></code> option can re-issue the SOW query (as described in the <em>AMPS
+User Guide</em>).</p>
+<p>To update the filter on a subscription, you create a <code class="docutils literal"><span class="pre">subscribe</span></code>
+command. You set the <code class="docutils literal"><span class="pre">SubscriptionId</span></code> provided on the <code class="docutils literal"><span class="pre">Command</span></code> to
+the identifier of the existing subscription and include the <code class="docutils literal"><span class="pre">replace</span></code>
+option on the <code class="docutils literal"><span class="pre">Command</span></code>. When you send the <code class="docutils literal"><span class="pre">Command</span></code>, AMPS
+atomically replaces the filter and sends messages that match the updated
+filter from that point forward.</p>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>At this point, you are able to build AMPS programs in C/C++ that publish
+and subscribe to AMPS topics. For an AMPS application to be truly
+robust, it needs to be able to handle the errors and disconnections that
+occur in any distributed system. In the next chapter, we will take a
+closer look at error handling and recovery, and how you can use it to
+make your application ready for the real world.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

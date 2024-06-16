@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Sample AMPS configuration
+
+     This minimal sample file defines an AMPS instance that provides
+     publish and subscribe, topic filtering, and content filtering for
+     messages.  The instance provides messaging services on port 9007
+     of the server.  This configuration also provides an administrative
+     interface on port 8085, and logs serious messages (error and higher
+     severity) to stdout.
+
+     This sample file does not configure State of the World (SOW) Topics,
+     Transaction Logs, Queues, Aggregation and Views, Historical SOW Query,
+     Replication, Authentication and Entitlement, Conflated Topics,
+     or other features of AMPS.
+
+     More details for the features available and how to configure them are
+     provided in the AMPS User Guide and the AMPS Configuration Reference.
+     Both are available at http://crankuptheamps.com/documentation/
+
+     -->
+
+<AMPSConfig>
+
+    <!-- Name of the AMPS instance.
+
+       This is used to identify this instance and must be unique
+       among a set of replicated instances.
+
+       -->
+
+  <Name>AMPS-Sample</Name>
+
+  <!-- Configure a transport that accepts any known message type over
+       TCP port 9007 using the amps protocol, and a transport that
+       accepts any known message type over a websocket connection
+       to port 9008. -->
+
+  <Transports>
+    <Transport>
+      <Name>any-tcp</Name>
+      <Type>tcp</Type>
+      <InetAddr>9007</InetAddr>
+      <Protocol>amps</Protocol>
+    </Transport>
+    <Transport>
+      <Name>any-ws</Name>
+      <Type>tcp</Type>
+      <InetAddr>9008</InetAddr>
+      <Protocol>websocket</Protocol>
+    </Transport>
+  </Transports>
+
+  <!-- Configure the administrative HTTP server on port 8085
+
+       This HTTP server provides Galvanometer, admin functions
+       and statistics for the instance.
+
+       A production configuration would add a FileName to
+       persist statistics.
+       -->
+
+  <Admin>
+    <!-- Listen on port 8085 for all interfaces.
+
+         You can also provide a specific IP address
+         to listen on just that address. -->
+    <InetAddr>8085</InetAddr>
+    <!-- Configure galvanometer to use the any-ws transport for
+         queries and subscriptions.
+         -->
+    <SQLTransport>any-ws</SQLTransport>
+
+    <!-- A production instance would record statistics in
+         a persistent file, and configure an Action to
+         periodically clear out older stats using
+         amps-action-do-truncate-statistics.
+
+         For example:
+
+         <FileName>FILL_IN_THE_DIRECTORY/stats.db</FileName>
+       -->
+
+  </Admin>
+
+
+ <!-- Log messages of severity 'error' and higher to stdout.
+      Also include 00-0015 (an 'info' level message) to indicate
+      successful startup. -->
+
+  <Logging>
+    <Target>
+      <Protocol>stdout</Protocol>
+      <Level>error</Level>
+      <IncludeErrors>00-0015</IncludeErrors>
+    </Target>
+
+    <!-- A production instance would log info level messages to
+         a file, with a configuration along these lines:
+
+      <Target>
+         <Protocol>file</Protocol>
+         <Level>info</Level>
+         <FileName>FILL_IN_DIRECTORY/AMPS-Sample-%Y-%m-%dT%H:%M:%S.log</FileName>
+         <RotationThreshold>125MB</RotationThreshold>
+      </Target>
+
+          A production server would also configure an Action to
+          maintain the number of log files stored. 
+    -->
+
+  </Logging>
+
+  <Actions>
+    <!-- Uncomment this action and set the schedule and Age if
+	 you persist a statistics database to a file.
+
+    <Action>
+      <On>
+        <Module>amps-action-on-schedule</Module>
+        <Options>
+	  <Name>Nightly stats file truncation</Name>
+          <Every></Every>
+        </Options>
+      </On>
+      <Do>
+        <Module>amps-action-do-truncate-statistics</Module>
+	<Options>
+	  <Age></Age>
+	</Options>
+      </Do>
+    </Action>
+    -->
+
+    <!-- Uncomment this action and set the schedule and Age option
+	 if you configure AMPS to define a TransactionLog.
+
+    <Action>
+      <On>
+        <Module>amps-action-on-schedule</Module>
+        <Options>
+	  <Name>Periodic removal of old journal files</Name>
+          <Every></Every>
+        </Options>
+      </On>
+      <Do>
+        <Module>amps-action-do-remove-journal</Module>
+	<Options>
+	  <Age></Age>
+	</Options>
+      </Do>
+    </Action>
+    -->
+
+    <!-- Uncomment this action and set the schedule, Path and GreaterThan
+	 options to add a file system disk usage check to include an orderly
+	 AMPS shutdown if disk space runs low.
+
+    <Action>
+      <On>
+        <Module>amps-action-on-schedule</Module>
+        <Options>
+	  <Name>Periodic file system disk usage check</Name>
+          <Every></Every>
+        </Options>
+      </On>
+      <If>
+        <Module>amps-action-if-file-system-usage</Module>
+        <Options>
+          <Path></Path>
+          <GreaterThan></GreaterThan>
+        </Options>
+      </If>
+      <Do>
+        <Module>amps-action-do-echo-message</Module>
+        <Options>
+          <Message>CRITICAL: Shutting down AMPS due to lack of disk space</Message>
+        </Options>
+      </Do>
+      <Do>
+        <Module>amps-action-do-shutdown</Module>
+      </Do>
+    </Action>
+    -->
+  </Actions>
+  
+</AMPSConfig>
+

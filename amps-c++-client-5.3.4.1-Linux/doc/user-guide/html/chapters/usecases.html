@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>29. Sample Use Cases &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="30. AMPS Distribution Layout" href="distribution.html" />
+    <link rel="prev" title="28. Troubleshooting AMPS" href="troubleshooting.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">29. Sample Use Cases</a><ul>
+<li><a class="reference internal" href="#view-server-use-case">View Server Use Case</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#sow-query-and-subscription">SOW Query and Subscription</a></li>
+<li><a class="reference internal" href="#out-of-focus-oof-processing">Out-of-Focus (OOF) Processing</a></li>
+<li><a class="reference internal" href="#conclusion-and-next-steps">Conclusion and Next Steps</a><ul>
+<li><a class="reference internal" href="#sow-and-delta-subscribe">sow_and_delta subscribe</a></li>
+<li><a class="reference internal" href="#topn-and-stats">TopN and Stats</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="troubleshooting.html" title="previous chapter">28. Troubleshooting AMPS</a></li>
+      <li>Next: <a href="distribution.html" title="next chapter">30. AMPS Distribution Layout</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sample-use-cases">
+<span id="ug-usecases"></span><h1>29. Sample Use Cases<a class="headerlink" href="#sample-use-cases" title="Permalink to this headline">¶</a></h1>
+<p>To further your understanding of AMPS, we provide some sample use cases
+that highlight how multiple AMPS features can be leveraged in larger
+messaging solutions. For example, AMPS is often used as a back-end
+persistent data store for client desktop applications.</p>
+<p>The provided use case shows how a client application can use the AMPS
+command <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> to populate an order table that is
+continually kept up-to-date. To limit redundant data from being sent to
+the GUI, we show how you can use a delta subscription command. You will
+also see how to improve performance and protect the GUI from
+over-subscription by using the <code class="docutils literal"><span class="pre">TopN</span></code> query limiter along with a
+<code class="docutils literal"><span class="pre">stats</span></code> acknowledgment.</p>
+<div class="section" id="view-server-use-case">
+<h2>View Server Use Case<a class="headerlink" href="#view-server-use-case" title="Permalink to this headline">¶</a></h2>
+<p>Many AMPS deployments are used as the back-end persistent store for
+desktop GUI applications. Many of the features covered in previous
+chapters are unique to AMPS and make it well suited for this task. In
+this example AMPS will be act as a data store for an application with
+the following requirements:</p>
+<ul>
+<li><p class="first">allow users to query current order-state (SOW query)</p>
+</li>
+<li><p class="first">continually keep the returned data up to date by applying incremental
+changes (subscribe)</p>
+<p>For purposes of highlighting the functionality unique to AMPS, we’ll
+skip most of the details and challenges of GUI development.</p>
+</li>
+</ul>
+<div class="section" id="setup">
+<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>For this example, let’s configure AMPS to persist FIX messages to the
+topic ORDERS. We use a separate application to acquire the FIX messages
+from the market (or other data source) and publish them into AMPS. AMPS
+accumulates all of the orders in its SOW persistence, making the data
+available for the GUI clients to consume.</div></blockquote>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/UseCaseFig1.svg"><img alt="AMPS View Server Deployment Configuration" src="../_images/UseCaseFig1.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 28.1:</strong> <em>AMPS View Server Deployment Configuration</em></p>
+</div>
+<div class="section" id="sow-query-and-subscription">
+<h3>SOW Query and Subscription<a class="headerlink" href="#sow-query-and-subscription" title="Permalink to this headline">¶</a></h3>
+<p id="index-0">The GUI will enable a user to enter a query and submit it to AMPS. If
+the query filter is valid, then the GUI displays the results in a table
+or “grid” and continually applies changes as they are published from
+AMPS to the GUI. For example, if the user wants to display active orders
+for <code class="docutils literal"><span class="pre">Client-A</span></code>, then they may use a query similar to this:</p>
+<p><code class="docutils literal"><span class="pre">/11</span> <span class="pre">=</span> <span class="pre">'Client-A'</span> <span class="pre">AND</span> <span class="pre">/39</span> <span class="pre">IN</span> <span class="pre">(0,</span> <span class="pre">'A')</span></code></p>
+<p>This filter matches all orders for <code class="docutils literal"><span class="pre">Client-A</span></code> that have FIX tag 39
+(the FIX order status field) as 0 (’New’) or ’A’ (’Pending New’).</p>
+<p>From a GUI client, we want to first issue a query to pull back all
+current orders and, at the same time, place a subscription to get future
+updates and new orders. AMPS provides the <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command
+for this purpose.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">A more realistic scenario may involve a GUI Client with multiple
+tables, each subscribing with a different AMPS filter, and all
+of these subscriptions being managed in a single GUI Client. A
+single connection to AMPS can be used to service many active
+subscriptions if the subscription identifiers are chosen such
+that they can be demultiplexed during consumption.</p>
+</div>
+<p>The GUI issues the <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command, specifying a topic of
+<code class="docutils literal"><span class="pre">ORDERS</span></code> and possibly other filter criteria to further narrow down the
+query results. Once the <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command has been received
+by AMPS, the query returns to the GUI all messages in the SOW that, at
+the moment, match the topic and content filter. Simultaneously, a
+subscription is placed to guarantee that any messages not included in
+the initial query result will be sent after the query result.</p>
+<p>The GUI client then receives a <code class="docutils literal"><span class="pre">group_begin</span></code> message from AMPS,
+signaling the beginning of a set of records returned as a result of the
+query. Upon receiving the initial SOW query result, this GUI inserts the
+returned records into the table, as shown in <a class="reference internal" href="#use-case-fig2"><span class="std std-ref">Figure 28.2</span></a>. Every
+record in the query will have assigned to it a unique <code class="docutils literal"><span class="pre">SowKey</span></code> that
+can be used for future updates.</p>
+<p>The receipt of the <code class="docutils literal"><span class="pre">group_end</span></code> message serves as a notification to the
+GUI that AMPS has reached the end of the initial query results and going
+forward all messages from the subscription will be live updates.</p>
+<div class="figure" id="use-case-fig2">
+<a class="reference internal image-reference" href="../_images/UseCaseFig2.svg"><img alt="AMPS GUI Instance With sow_and_subscribe" src="../_images/UseCaseFig2.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 28.2:</strong> <em>AMPS GUI Instance With sow_and_subscribe</em></p>
+<p>Once the initial SOW query has completed, each <code class="docutils literal"><span class="pre">publish</span></code> message
+received by the GUI will be either a new record or an update to an
+existing record. The <code class="docutils literal"><span class="pre">SowKey</span></code> sent as part of each publish message is
+used to determine if the newly published record is an update or a new
+record. If the <code class="docutils literal"><span class="pre">SowKey</span></code> matches an existing record in the GUI’s order
+table, then it is considered an update and should replace the existing
+value. Otherwise, the record is considered to be a new record and can be
+inserted directly into the order table.</p>
+<p>For example, assume there is an update to order C that changes the order
+status (tag 39) of the client’s <code class="docutils literal"><span class="pre">ORCL</span></code> order from ’A’ to 0. This is
+shown below in <a class="reference internal" href="#use-case-fig3"><span class="std std-ref">Figure 28.3</span></a></p>
+<div class="figure" id="use-case-fig3">
+<a class="reference internal image-reference" href="../_images/UseCaseFig3.svg"><img alt="AMPS Message Publish Update" src="../_images/UseCaseFig3.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 28.3:</strong> <em>AMPS Message Publish Update</em></p>
+</div>
+<div class="section" id="out-of-focus-oof-processing">
+<h3>Out-of-Focus (OOF) Processing<a class="headerlink" href="#out-of-focus-oof-processing" title="Permalink to this headline">¶</a></h3>
+<p id="index-1">Let’s take another look at the original filter used to subscribe to the
+<code class="docutils literal"><span class="pre">ORDERS</span></code> SOW topic. A unique case exists if an update occurs in which
+an <code class="docutils literal"><span class="pre">ORDER</span></code> record status gets changed to a value other than 0 or ’A’.
+One of the key features of AMPS is OOF processing, which ensures that
+client data is continually kept up-to-date. OOF processing is the AMPS
+method of notifying a client that a new message has caused a SOW
+record’s state to change, thus informing the client that a message which
+previously matched their filter criteria no longer matches or was
+deleted. For more information about OOF processing, see
+<a class="reference internal" href="oof.html#ug-oof"><span class="std std-ref">9. Out-of-Focus Messages (OOF)</span></a>.</p>
+<p>When such a scenario occurs, AMPS won’t send the update over a normal
+subscription. If OOF processing is enabled within AMPS by specifying the
+<code class="docutils literal"><span class="pre">oof</span></code> option for this subscription, then updates will occur when
+previously matching records no longer match due to an update,
+expiration, or deletion.</p>
+<p>For example, let’s say the order for <code class="docutils literal"><span class="pre">MSFT</span></code> has been filled in the
+market and the update comes into AMPS. AMPS won’t send the published
+message to the GUI because the order no longer matches the subscription
+filter; AMPS instead sends it as part of an OOF message. This happens
+because AMPS knows that the previous matching record was sent to the GUI
+client prior to the update. Once an OOF message is received, the GUI can
+remove the corresponding order from the orders table to ensure that
+users see only the up-to-date state of the orders which match their
+filter.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/UseCaseFig4.svg"><img alt="AMPS OOF Processing" src="../_images/UseCaseFig4.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 28.4:</strong> <em>AMPS OOF Processing</em></p>
+</div>
+<div class="section" id="conclusion-and-next-steps">
+<h3>Conclusion and Next Steps<a class="headerlink" href="#conclusion-and-next-steps" title="Permalink to this headline">¶</a></h3>
+<p>In summary, we have shown how a GUI application can use the
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command to populate an order table, which is then
+continually kept up-to-date. AMPS can create further enhancements, such
+as those described below, that improve performance and add greater value
+to a GUI client implementation.</p>
+<div class="section" id="sow-and-delta-subscribe">
+<h4>sow_and_delta subscribe<a class="headerlink" href="#sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h4>
+<p>The first improvement that we can make is to limit redundant data being
+sent to the GUI, by placing a <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command
+instead of a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command. The
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command, which works with most AMPS message types
+message types, can greatly reduce network congestion as well as decrease
+parsing time on the GUI client, yielding a more responsive end-user
+experience.</p>
+<p>With a delta subscription, AMPS <a class="reference internal" href="#use-case-fig3"><span class="std std-ref">Figure 28.3</span></a> sends to the
+subscriber only the values that have changed: <code class="docutils literal"><span class="pre">C:39=0</span></code> instead of all
+of the fields that were already sent to the client during the initial
+SOW query result. This may seem to make little difference in a single
+GUI deployment; but it can make a significant difference in an AMPS
+deployment with hundreds of connected GUI clients that may be running on
+a congested network or WAN.</p>
+</div>
+<div class="section" id="topn-and-stats">
+<h4>TopN and Stats<a class="headerlink" href="#topn-and-stats" title="Permalink to this headline">¶</a></h4>
+<p>We can also improve client-side data utilization and performance by
+using a <code class="docutils literal"><span class="pre">TopN</span></code> query limiter with a stats acknowledgment, which
+protects the GUI from over-subscription.</p>
+<p>For example, we may want to put a 10,000 record limit on the initial
+query response, given that users rarely want to view the real-time order
+state for such a large set. If a <code class="docutils literal"><span class="pre">TopN</span></code> value of 10000 and an
+<code class="docutils literal"><span class="pre">AckType</span></code> of <code class="docutils literal"><span class="pre">stats</span></code> is used when placing the initial
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command, then the GUI client would expect to
+receive up to 10,000 records in the query result, followed by a
+<code class="docutils literal"><span class="pre">stats</span></code> acknowledgment.</p>
+<p>The <code class="docutils literal"><span class="pre">stats</span></code> acknowledgment is useful for tracking how many records
+matched and how many were sent. The GUI client can leverage the
+<code class="docutils literal"><span class="pre">stats</span></code> acknowledgment metrics to provide a helpful error to the user.
+For example, in a scenario where a query matched 130,000 messages, the
+GUI client can notify the user that they may want to refine their
+content filter to be more selective.</p>
+<p>In the AMPS clients, a <code class="docutils literal"><span class="pre">stats</span></code> acknowledgment is returned to the
+client after the group_end for the query with an acknowledgment
+command type. The message contains statistics about the query. See the
+<em>AMPS Command Reference</em> for details on the <code class="docutils literal"><span class="pre">stats</span></code> acknowledgment
+message. See the API documentation for your development language of
+choice for information on processing messages.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

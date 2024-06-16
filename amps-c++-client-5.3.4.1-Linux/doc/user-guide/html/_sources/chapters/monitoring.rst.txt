@@ -1,0 +1,320 @@
+.. index:: Monitoring interface, Web console,
+
+.. include:: ./macros.inc
+.. _#ug-monitoring:
+
+23. Monitoring Interface
+=========================
+
+The AMPS monitoring interface has two distinct components:
+
+1. A basic monitoring interface that provides statistics for the AMPS instance
+   in common machine-readable formats. This interface also provides
+   administrative functions, such as enabling and disabling transports,
+   disconnecting clients, and upgrading and downgrading replication links.
+
+2. The AMPS *Galvanometer*, a browser-based monitoring tool that shows a
+   graphical representation of the statistics for AMPS. The Galvanometer
+   includes information about replication flow across the set of connected
+   instances. It includes the ability to enter subscriptions and queries,
+   and display the results in a grid.
+
+Statistics Collection
+------------------------
+
+Most data provided in the AMPS monitoring interface is collected at
+the interval specified in the statistics configuration.
+
+This means that the statistics presented are not a continuous sample,
+or a sample when "all operations are complete". Instead, the statistics
+reflect the point in time when the statistics are collected.
+
+When monitoring statistics, consider not only the values reported, but
+the change in values over time and how those values compare to other
+values.
+
+For example, the ``transport_rx_queue`` for a client connecting
+over the network indicates the number of bytes currently in the TCP
+buffer for a given connection. However, a single sample that shows
+a nonzero count for this metric simply means that, at the time
+statistics were collected, there were bytes in that buffer. Whether
+this indicates a problem or not depends on the context. If the
+next sample for that client shows that AMPS is consuming a large
+number of bytes for the client, then the fact that there are
+bytes in the queue simply means that the connection is active. On
+the other hand, if the ``bytes_in`` (total bytes consumed for
+this connection) and ``bytes_in_per_second`` (bytes per second
+consumed for this connection, averaged over the last statistics
+interval) indicate a slowdown, that might be cause for concern.
+Likewise, an empty ``transport_rx_queue`` does not mean that
+no messages are being received for the client if ``bytes_in``
+and ``bytes_in_per_second`` show the expected traffic.
+
+Likewise, a client that connects, runs a query, consumes
+the results and disconnects in a period of time less than
+the statistics interval, may not be captured in the statistics
+database at all. If the client connection does not exist
+at any of the times that statistics are recorded, AMPS will not
+capture statistics for that client connection, so that client
+will not appear in the statistics database.
+
+
+.. include:: ./monitor-configuration.inc
+Basic Monitoring Interface
+--------------------------
+
+.. _AMPS Monitoring Reference: ../../../monitoring/html/index.html
+
+The basic monitoring interface is useful for examining many important aspects
+about an AMPS instance. This includes health and monitoring information for
+the AMPS engine as well as the host AMPS is running on. All of this information
+is designed to be easily accessible to make gathering performance and
+availability information from AMPS easy. The monitoring interface also
+provides easy access to perform administrative actions.
+
+The root of the AMPS Monitoring interface URI contains the following child resources:
+
+* The ``host`` resource provides information about the current operating system state
+* The ``instance`` resource provides information about the instance of AMPS
+* The ``administration`` resource provides access to functions that modify the state of the instance (such as disconnecting a client)
+
+The information in the monitoring database is taken from the statistics
+database for the AMPS instance. AMPS provides actions for managing the
+statistics database, as described in the section on Actions, under
+:ref:`#ug-actions-do-stats`.
+
+The fields provided through the basic monitoring interface (and the statistics database) are described in the
+`AMPS Monitoring Reference`_.
+
+.. include:: ./time_range_selection.inc
+.. include:: ./output_formatting.inc
+.. _#ug-galvanometer:
+
+Galvanometer
+------------
+
+The AMPS Galvanometer provides an extensive set of visualizations of the state
+of the instance. Galvanometer also provides the ability to query the instance
+and display the results.
+
+
+Using TLS/SSL with Galvanometer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the ``Admin`` interface is configured to use TLS/SSL, Galvanometer will
+also use TLS/SSL with the certificate and key file specified.
+
+For the replication graph to be correctly displayed, the instances
+that replicate to each other must either *all* use TLS/SSL for the Admin interface
+or *none* of the instances can use TLS/SSL for the Admin interface.
+
+If some of the instances in the replication graph use TLS/SSL for the Admin
+interface and some do not, the information shown in the replication graph
+will be incomplete.
+
+.. _#ug-galvanometer-subscribe:
+
+
+Authorization and Entitlement in Galvanometer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to enable Galvanometer to provide credentials to the AMPS 
+instance (in case it is required to access AMPS monitoring information),
+the special ``WWWAuthenticate`` option is supported. This option
+specifies how credentials will be provided to AMPS.
+
+The option can have the following values:
+
+- Negotiate (Kerberos)
+- NTLM
+- Basic realm="<SECURITY_DOMAIN>" (Basic Auth)
+
+When using ``Negotiate`` or ``NTLM``, Galvanometer will automatically 
+supply corresponding authorization tokens to AMPS. If ``Basic Auth``
+is used for authorization, the Login/Password dialog will require a 
+user to enter credentials.
+
+.. code-block:: xml
+
+    <Admin>
+        ...
+
+        <WWWAuthenticate>Basic realm="AMPS Admin"</WWWAuthenticate>
+
+        ...
+    </Admin>
+
+
+.. _#ug-anonymous-paths:
+
+Using Anonymous Paths
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``AnonymousPaths`` option allows Galvanometer to bypass authentication
+and/or entitlement for Admin paths that match a regular expression. For
+resources that match the ``AnonymousPaths`` option, the Admin interface
+does not require authentication and does not check entitlements.
+
+The most common use of ``AnonymousPaths`` is to allow Galvanometer to correctly
+display the replication graph when the instance is configured to use ``Negotiate``
+or ``NTLM`` for authorization.  Galvanometer determines the replication graph
+by polling the instances that participate in replication. Since most browsers
+disallow sending cross-domain authorization tokens, it is necessary to provide
+access to replication paths without requiring authorization for Galvanometer to
+be able to display the replication graph. For installations that use ``Negotiate``
+or ``NTLM``, Galvanometer may not be allowed to construct a replication graph if this
+option is not set.
+
+``AnonymousPaths`` can also be used to provide access to a specific resource, without
+allowing access to any other information in the Admin interface. For example, an
+instance might specify ``^/amps$`` for unauthenticated users to be able to
+verify that the instance is running and processing Admin requests, but without
+allowing those users to obtain any other data about the instance.
+
+The following example shows how to add an ``AnonymousPaths`` directive that
+allows any connection to access replication information about the instance.
+
+.. code-block:: xml
+
+    <Admin>
+       <!-- ... other configuration here ... -->
+
+       <!--  Specify anonymous paths. In this
+             case, allow any user to access replication
+             information -->
+
+       <AnonymousPaths>^/amps/instance/replication</AnonymousPaths>
+    </Admin> 
+
+The ``AnonymousPaths`` option is **disabled** by default.
+
+
+Make Replication Page Work with NTLM / Negotiate Authentication 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When using ``Negotiate`` or ``NTLM`` for authorization and/or entitlement, 
+it prevents Galvanometer from correctly displaying replication graphs by forbidding 
+access to destination instances of AMPS since most browsers disallow sending 
+cross-domain authorization tokens that are required in order to authorize AJAX 
+data requests from a browser.
+
+
+.. index:: Galvanometer; anonymous paths
+
+
+Enabling Queries and Subscriptions in Galvanometer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Much of the functionality available in Galvanometer uses the basic monitoring
+interface.
+
+Galvanometer submits queries and subscriptions to AMPS using the ``websocket``
+protocol. To use these functions in Galvanometer, you must provide the name
+of a ``Transport`` of type ``websocket`` for Galvanometer to use.
+
+For example, the following directive specifies that Galvanometer will use
+the ``Transport`` with the ``Name`` of ``websocket-any`` to submit commands
+to AMPS.
+
+.. code-block:: xml
+
+
+    <Admin>
+       <!-- ... existing configuration ... -->
+
+       <!-- look up the transport named websocket-any in
+            this config file, and make connections to
+            that Transport for sending commands to AMPS -->
+       <SQLTransport>websocket-any</SQLTransport>
+    </Admin> 
+
+The configuration block above requires that the AMPSConfig file contains a
+``Transport`` with the ``Name`` of ``websocket-any`` of ``Type`` ``websocket``. 
+
+When this configuration item is specified, Galvanometer will enable the query
+and subscription capabilities, and submit commands to AMPS over the specified
+``Transport``.
+
+For example, the ``websocket-any`` transport referenced in the snippet
+above might be defined as follows:
+
+.. code-block:: xml
+
+
+    <Transports>
+       <!-- ...
+            existing transports remain -->
+
+        <Transport>
+            <Name>websocket-any</Name>
+            <Protocol>websocket</Protocol>
+            <Type>tcp</Type>
+            <InetAddr>9008</InetAddr>
+        </Transport>
+
+    </Transports>
+
+Notice that Galvanometer connects as a client using this ``Transport``. There
+is no special transport or protocol for Galvanometer, and the security
+configured for the instance (or the ``Transport``) applies to Galvanometer.
+
+.. caution::
+
+      If the ``Transport`` is configured to use TLS/SSL, it must use certificates
+      signed by a certificate authority (CA) known to the browser that will be used
+      to access AMPS. For security reasons, browsers disallow self-signed certificates by
+      default. This means that, although a client application may be able to connect,
+      a browser will not allow a websocket connection to a transport that uses a
+      self-signed certificate.
+
+
+Queries and Subscriptions with Basic Auth in Galvanometer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When Basic Auth is used for authorization and entitlement, an additional
+option ``TrustedAdmin`` allows Galvanometer to use a valid session 
+cookie created after successful authorization for queries and subscriptions.
+This option forces AMPS to reuse credentials supplied by Galvanometer 
+for websocket connections created by Galvanometer.
+
+.. code-block:: xml
+
+    <Protocols>
+
+        ...
+
+        <Protocol>
+            <Name>websocket-portal</Name>
+            <Module>websocket</Module>
+
+            <!-- disabled by default -->
+            <TrustedAdmin>enabled</TrustedAdmin>
+
+        </Protocol>
+
+        ...
+
+    </Protocols>
+
+``TrustedAdmin`` is only supported by the websocket-based protocols 
+and is **disabled** by default.
+
+
+.. index:: Galvanometer; disabling
+
+Disabling Galvanometer
+~~~~~~~~~~~~~~~~~~~~~~
+
+Galvanometer is enabled in the monitoring interface by default. To disable
+Galvanometer, add the following directive to the ``Admin`` configuration
+block:
+
+.. code-block:: xml
+
+    <Admin>
+       <!-- ... existing configuration ... -->
+       <Galvanometer>disabled</Galvanometer>
+    </Admin> 
+
+Disabling Galvanometer with this configuration item has no effect on the basic
+monitoring interface.

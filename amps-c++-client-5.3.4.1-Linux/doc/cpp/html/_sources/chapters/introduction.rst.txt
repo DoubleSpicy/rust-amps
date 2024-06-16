@@ -1,0 +1,27 @@
+1. Introduction
+============================
+
+This document explains how to use the C/C++ client for AMPS. Use this
+document to learn how to install, configure, develop C and C++
+applications that use AMPS.
+
+Prerequisites
+-------------
+
+Before reading this book, it is important to have a good understanding
+of the following topics:
+
+-  Developing in C or C++. To be successful using this guide, you will
+   need to possess a working knowledge of C or C++.
+
+-  AMPS concepts. Before reading this book, you will need to understand
+   the basic concepts of AMPS, such as *topics*, *subscriptions*,
+   *messages*, and *SOW*. Consult the AMPS Users' Guide to learn more
+   about these topics before proceeding.
+
+You will need an installed and running AMPS server to use the product as
+well. You can write and compile programs that use AMPS without a running
+server, but you will get the most out of this guide by running the
+programs against a working server.
+
+.. include:: ./client-support-section-cpp.inc

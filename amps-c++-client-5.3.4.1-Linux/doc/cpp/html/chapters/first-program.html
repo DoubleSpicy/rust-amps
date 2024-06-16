@@ -1,0 +1,562 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3.Your First AMPS Program &#8212; Advanced Message Processing System (AMPS) C++ Developer Guide develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Subscriptions" href="subscriptions.html" />
+    <link rel="prev" title="2. Installing the AMPS Client" href="installing.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">3.Your First AMPS Program</a><ul>
+<li><a class="reference internal" href="#connecting-to-amps">Connecting to AMPS</a><ul>
+<li><a class="reference internal" href="#build-and-run">Build and run</a></li>
+<li><a class="reference internal" href="#examining-the-code">Examining the code:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#client-names">Client Names</a></li>
+<li><a class="reference internal" href="#connection-strings">Connection Strings</a><ul>
+<li><a class="reference internal" href="#providing-credentials-in-a-connection-string">Providing Credentials in a Connection String</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#connection-parameters">Connection Parameters</a><ul>
+<li><a class="reference internal" href="#ipv6-connections">IPv6 Connections</a></li>
+<li><a class="reference internal" href="#tcp-and-ssl-transport-options">TCP and SSL Transport Options</a></li>
+<li><a class="reference internal" href="#unix-transport-parameters">Unix Transport Parameters</a></li>
+<li><a class="reference internal" href="#amps-additional-logon-options">AMPS Additional Logon Options</a></li>
+<li><a class="reference internal" href="#providing-credentials-to-amps">Providing Credentials to AMPS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installing.html" title="previous chapter">2. Installing the AMPS Client</a></li>
+      <li>Next: <a href="subscriptions.html" title="next chapter">4. Subscriptions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="your-first-amps-program">
+<h1>3.Your First AMPS Program<a class="headerlink" href="#your-first-amps-program" title="Permalink to this headline">¶</a></h1>
+<p>In this chapter, we will learn more about the structure and
+features of the AMPS C/C++ library, and build our first C/C++
+program using AMPS.</p>
+<div class="section" id="connecting-to-amps">
+<h2>Connecting to AMPS<a class="headerlink" href="#connecting-to-amps" title="Permalink to this headline">¶</a></h2>
+<p>Let’s begin by writing a simple program that connects to an
+AMPS server and sends a single message to a topic:</p>
+<div class="highlight-cpp" id="cpp-connecting-to-amps"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;amps/ampsplusplus.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">uri</span> <span class="o">=</span> <span class="s">&quot;tcp://127.0.0.1:9007/amps/json&quot;</span><span class="p">;</span>
+
+    <span class="c1">// Construct a client with the name &quot;examplePublisher&quot;.</span>
+
+    <span class="n">AMPS</span><span class="o">::</span><span class="n">Client</span> <span class="n">ampsClient</span><span class="p">(</span><span class="s">&quot;examplePublisher&quot;</span><span class="p">);</span>
+
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="c1">// connect to the server and log on</span>
+        <span class="n">ampsClient</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">);</span>
+        <span class="n">ampsClient</span><span class="p">.</span><span class="n">logon</span><span class="p">();</span>
+
+        <span class="c1">// publish a JSON message</span>
+        <span class="n">ampsClient</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">,</span>
+                           <span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{ &quot;message&quot; : &quot;Hello, World!&quot; ,</span><span class="dl">)</span><span class="s">&quot;</span>
+                           <span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">&quot;client&quot; : 1 }</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">AMPSException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 3.1:</strong> <em>Connecting to AMPS</em></p>
+<p>In the preceding <a class="reference internal" href="#cpp-connecting-to-amps"><span class="std std-ref">3.1</span></a>,
+we show the entire program; but future examples will isolate one or more specific portions of the
+code. The next section describes how to build and run the application and explains the code in further
+detail.</p>
+<div class="section" id="build-and-run">
+<span id="index-0"></span><h3>Build and run<a class="headerlink" href="#build-and-run" title="Permalink to this headline">¶</a></h3>
+<p>To build the program that you&#8217;ve created:</p>
+<ul class="simple">
+<li>Create a new <code class="docutils literal"><span class="pre">.cpp</span></code> file and use your c compiler to build it, making
+sure the <code class="docutils literal"><span class="pre">amps-c++-client/include</span></code> directory is in your compiler’s
+<code class="docutils literal"><span class="pre">include</span></code> path</li>
+<li>Link to the <code class="docutils literal"><span class="pre">libamps.a</span></code> or <code class="docutils literal"><span class="pre">amps.lib</span></code> static libraries.</li>
+<li>Additionally, link to any operating system libraries required by
+AMPS; a full list may be found by examining the Makefile and project
+files in the <code class="docutils literal"><span class="pre">samples</span></code> directory.</li>
+</ul>
+<p>If the message is published successfully, there is no output to the
+console. We will demonstrate how to create a subscriber to receive messages in
+<a class="reference internal" href="subscriptions.html#cpp-subscribing"><span class="std std-ref">Subscribing</span></a>.</p>
+</div>
+<div class="section" id="examining-the-code">
+<span id="index-1"></span><h3>Examining the code:<a class="headerlink" href="#examining-the-code" title="Permalink to this headline">¶</a></h3>
+<p>Let us revisit the code we listed earlier:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cm">/* These are the include files required for an AMPS C++ Client. The</span>
+<span class="cm"> * first is &lt;ampsplusplus.hpp&gt;. This header includes everything needed to</span>
+<span class="cm"> * compile C++ programs for AMPS. The next include is the Standard C++ Library</span>
+<span class="cm"> * &lt;iostream&gt;, necessary due to use of std::cerr and std::endl</span>
+<span class="cm"> */</span>
+<span class="cp">#include</span> <span class="cpf">&lt;amps/ampsplusplus.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="cm">/* The URI to use to connect to AMPS. The URI consists of the transport,</span>
+<span class="cm">     * the address, and the protocol to use for the AMPS connection. In this case,</span>
+<span class="cm">     * the transport is tcp, the address is 127.0.0.1:9007, and the protocol is</span>
+<span class="cm">     * amps. In this case, AMPS is configured to allow any message type on that</span>
+<span class="cm">     * transport, so we specify json in the URI to let AMPS know which message</span>
+<span class="cm">     * type this connection will use. Even though a transport that uses the</span>
+<span class="cm">     * amps protocol can accept multiple message types, each connection must specify</span>
+<span class="cm">     * the exact message type that connection will use. Check with the person who</span>
+<span class="cm">     * manages the AMPS instance to get the connection string to use for your programs.</span>
+<span class="cm">     */</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">uri</span> <span class="o">=</span> <span class="s">&quot;tcp://127.0.0.1:9007/amps/json&quot;</span><span class="p">;</span>
+
+
+    <span class="cm">/* This is where we first interact with AMPS by instantiating an AMPS::Client</span>
+<span class="cm">     * object. Client is the class used to connect to and interact with an AMPS</span>
+<span class="cm">     * server. We pass the string &quot;exampleClient&quot; as the clientName. This name</span>
+<span class="cm">     * will be used to uniquely identify this client to the server. Errors relating</span>
+<span class="cm">     * to this connection will be logged with reference to this name, and AMPS uses</span>
+<span class="cm">     * this name to help detect duplicate messages. AMPS enforces uniqueness for</span>
+<span class="cm">     * client names when a transaction log is configured, and it is good practice</span>
+<span class="cm">     * to always use unique client names.</span>
+<span class="cm">     */</span>
+    <span class="n">AMPS</span><span class="o">::</span><span class="n">Client</span> <span class="n">ampsClient</span><span class="p">(</span><span class="s">&quot;exampleClient&quot;</span><span class="p">);</span>
+
+    <span class="cm">/* Here we open a try block. AMPS C++ classes throw exceptions to indicate</span>
+<span class="cm">     * errors. For the remainder of our interactions with AMPS, if an</span>
+<span class="cm">     * error occurs, the exception thrown by AMPS will be caught and handled</span>
+<span class="cm">     * in the exception handler below.</span>
+<span class="cm">     */</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="cm">/* At this point, we establish a valid AMPS network connection and</span>
+<span class="cm">         * can begin to use it to publish and subscribe to messages. In this</span>
+<span class="cm">         * example, we use the URI specified earlier in the file. If any errors</span>
+<span class="cm">         * occur while attempting to connect to AMPS, the connect() method will</span>
+<span class="cm">         * throw an exception.</span>
+<span class="cm">         */</span>
+        <span class="n">ampsClient</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">);</span>
+
+        <span class="cm">/* The AMPS logon() command connects to AMPS and creates a named</span>
+<span class="cm">         * connection. This version of the logon() command uses a DefaultAuthenticator,</span>
+<span class="cm">         * which uses the credentials provided in the URI. Without credentials, the</span>
+<span class="cm">         * client logs on to AMPS anonymously. AMPS versions 5.0 and later</span>
+<span class="cm">         * require a logon() command in the default configuration.</span>
+<span class="cm">         *</span>
+<span class="cm">         * If you need to use a different authentication scheme, implement an</span>
+<span class="cm">         * Authenticator and pass that Authenticator to this command.</span>
+<span class="cm">         */</span>
+        <span class="n">ampsClient</span><span class="p">.</span><span class="n">logon</span><span class="p">();</span>
+
+        <span class="cm">/* publish a JSON message</span>
+<span class="cm">         * Here, a single message is published to AMPS on the messages topic,</span>
+<span class="cm">         * containing the data Hello world. This data is placed into an XML</span>
+<span class="cm">         * message and sent to the server. Upon successful completion of this</span>
+<span class="cm">         * function, the AMPS client has sent the message to the server, and</span>
+<span class="cm">         * subscribers to the messages topic will receive this Hello world message.</span>
+<span class="cm">         */</span>
+        <span class="n">ampsClient</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="s">&quot;messages&quot;</span><span class="p">,</span>
+                           <span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{ &quot;message&quot; : &quot;Hello, World!&quot; ,</span><span class="dl">)</span><span class="s">&quot;</span>
+                           <span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s"> &quot;client&quot; : 1 }</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* Error handling begins with the catch block. All exceptions thrown by</span>
+<span class="cm">     * AMPS derive from AMPSException classes. More specific exceptions may</span>
+<span class="cm">     * be caught to handle certain conditions, but catching</span>
+<span class="cm">     * AMPSException&amp; allows us to handle all AMPS errors in one</span>
+<span class="cm">     * place. In this example, we print out the error to the console and exit</span>
+<span class="cm">     * the program.</span>
+<span class="cm">     */</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">AMPSException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* At this point we return from main() and our ampsClient object falls</span>
+<span class="cm">     * out of scope.  When this happens AMPS automatically disconnects from the</span>
+<span class="cm">     * server and frees all of the client resources associated with the</span>
+<span class="cm">     * connection.  In the AMPS C++ client, objects are reference-counted,</span>
+<span class="cm">     * meaning that you can safely copy a client, for example, and destroy copies</span>
+<span class="cm">     * of client without worrying about premature closure of the server connection</span>
+<span class="cm">     * or memory leaks.</span>
+<span class="cm">     */</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 3.2:</strong> <em>Connecting to AMPS</em></p>
+</div>
+</div>
+<div class="section" id="client-names">
+<span id="index-2"></span><h2>Client Names<a class="headerlink" href="#client-names" title="Permalink to this headline">¶</a></h2>
+<p>AMPS uses the name of the client as a session identifier and as part of the
+identifier for a message. For this reason, when a transaction log is enabled
+in the AMPS instance (that is, when the instance is recording a sequence of
+publishes and attempting to eliminate duplicate publishes), an AMPS instance
+will only allow one application with a given client name to connect to the
+instance.</p>
+<p>When a transaction log is present, AMPS <strong>requires</strong> the client name for a publisher
+to be:</p>
+<ul class="simple">
+<li>Unique within a set of replicated AMPS instances</li>
+<li>Consistent from invocation to invocation <em>if</em> the publisher will be publishing the same <em>logical</em> stream of messages</li>
+</ul>
+<p>If publishers do not meet this contract (for example, if the publisher
+changes its name and publishes the same messages, or if a different publisher
+uses the same session name), message loss or duplication can
+happen.</p>
+<p>60East recommends always using consistent, unique client names. For example,
+the client name could be formed by combining the application name, an
+identifier for the host system, and the ID of the user running the application.
+A strategy like this provides a name that will be different for different users
+or on different systems, but consistent for instances of the application that
+should be treated as equivalent to the AMPS system.</p>
+<p>Likewise, if a publisher is sending a completely independent stream
+of messages (for example, a microservice that sends a different,
+unrelated sequence of messages each time it connects to AMPS), there
+is no need for a publisher to retain the same name each time it starts.
+However, if a publisher is resuming a stream of messages (as in the case
+when using a file-backed publish store), that publisher <strong>must</strong>
+use the same client name, since the publisher is resuming the session.</p>
+</div>
+<div class="section" id="connection-strings">
+<h2>Connection Strings<a class="headerlink" href="#connection-strings" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS clients use connection strings to determine the server, port,
+transport, and protocol to use to connect to AMPS. When the connection
+point in AMPS accepts multiple message types, the connection string also
+specifies the precise message type to use for this connection.</p>
+<p>Connection strings have a number of elements:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/connection_string.svg"><img alt="elements of a connection string" src="../_images/connection_string.svg" width="100.0%" /></a>
+</div>
+<p><strong>Figure 3.1:</strong> <em>Elements of a Connection String</em></p>
+<p>As shown in the figure above, connection strings have the following
+elements:</p>
+<ul>
+<li><p class="first"><em>Transport</em> - Defines the network used to send and receive messages
+from AMPS. In this case, the transport is <code class="docutils literal"><span class="pre">tcp</span></code>. For connections to
+transports that use the Secure Sockets Layer (SSL), use <code class="docutils literal"><span class="pre">tcps</span></code>. For
+connections to AMPS over a Unix domain socket, use <code class="docutils literal"><span class="pre">unix</span></code>.</p>
+</li>
+<li><p class="first"><em>Host Address</em> - Defines the destination on the network where the AMPS
+instance receives messages. The format of the address is dependent on
+the transport. For <code class="docutils literal"><span class="pre">tcp</span></code> and <code class="docutils literal"><span class="pre">tcps</span></code>, the address consists of a
+host name and port number. In this case, the host address is
+<code class="docutils literal"><span class="pre">localhost:9007</span></code>. For <code class="docutils literal"><span class="pre">unix</span></code> domain sockets, a value for hostname
+and port must be provided to form a valid URI, but the content of the
+hostname and port are ignored, and the file name provided in the
+<strong>path</strong> parameter is used instead (by convention, many connection
+strings use <code class="docutils literal"><span class="pre">localhost:0</span></code> to indicate that this is a local
+connection that does not use TCP/IP).</p>
+</li>
+<li><p class="first"><em>Protocol</em> - Sets the format in which AMPS receives commands from the
+client. Most code uses the default <code class="docutils literal"><span class="pre">amps</span></code> protocol, which sends
+header information in JSON format. AMPS supports the ability to
+develop custom protocols as extension modules, and AMPS also supports
+legacy protocols for backward compatibility.</p>
+</li>
+<li><p class="first"><em>MessageType</em> - Specifies the message type that this connection uses.
+This component of the connection string is required if the protocol
+accepts multiple message types and the transport is configured to
+accept multiple message types. If the protocol does not accept
+multiple message types, this component of the connection string is
+optional, and defaults to the message type specified in the
+transport.</p>
+<p>Legacy protocols such as <code class="docutils literal"><span class="pre">fix</span></code>, <code class="docutils literal"><span class="pre">nvfix</span></code> and <code class="docutils literal"><span class="pre">xml</span></code> only accept a
+single message type, and therefore do not require or accept a message
+type in the connection string.</p>
+</li>
+</ul>
+<p>As an example, a connection string such as:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">tcp</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">9007</span><span class="o">/</span><span class="n">amps</span><span class="o">/</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>would work for programs connecting from the local host to a
+<code class="docutils literal"><span class="pre">Transport</span></code> configured as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+
+    <span class="c">&lt;!-- This transport accepts any known message type for the instance: the</span>
+<span class="c">         client must specify the message type. --&gt;</span>
+    <span class="nt">&lt;Transport&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>any-tcp<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Type&gt;</span>tcp<span class="nt">&lt;/Type&gt;</span>
+        <span class="nt">&lt;InetAddr&gt;</span>9007<span class="nt">&lt;/InetAddr&gt;</span>
+        <span class="nt">&lt;Protocol&gt;</span>amps<span class="nt">&lt;/Protocol&gt;</span>
+    <span class="nt">&lt;/Transport&gt;</span>
+
+    ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>See the <em>AMPS Configuration Guide</em> for more information on configuring
+transports.</p>
+<div class="section" id="providing-credentials-in-a-connection-string">
+<h3>Providing Credentials in a Connection String<a class="headerlink" href="#providing-credentials-in-a-connection-string" title="Permalink to this headline">¶</a></h3>
+<p>When using the default authenticator, the AMPS clients support the
+standard format for including a username and password in a URI, as shown
+below:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">tcp</span><span class="p">:</span><span class="o">//</span><span class="n">user</span><span class="p">:</span><span class="n">password</span><span class="nd">@host</span><span class="p">:</span><span class="n">port</span><span class="o">/</span><span class="n">protocol</span><span class="o">/</span><span class="n">message_type</span>
+</pre></div>
+</div>
+<p>When provided in this form, the default authenticator provides the
+username and password specified in the URI. If you have implemented
+another authenticator, that authenticator controls how passwords are
+provided to the AMPS server.</p>
+</div>
+</div>
+<div class="section" id="connection-parameters">
+<span id="index-3"></span><h2>Connection Parameters<a class="headerlink" href="#connection-parameters" title="Permalink to this headline">¶</a></h2>
+<p>When specifying a URI for connection to an AMPS server, you may specify
+a number of transport-specific options in the parameters section of the
+URI connection parameters. Here is an example:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>tcp://localhost:9007/amps/json?tcp_nodelay=true&amp;tcp_sndbuf=100000
+</pre></div>
+</div>
+<p>In this example, we have specified the AMPS instance on <code class="docutils literal"><span class="pre">localhost</span></code>,
+port <code class="docutils literal"><span class="pre">9007</span></code>, connecting to a transport that uses the <code class="docutils literal"><span class="pre">amps</span></code> protocol
+and sending JSON messages. We have also set two parameters: <code class="docutils literal"><span class="pre">tcp_nodelay</span></code>, a
+Boolean (true/false) parameter, and <code class="docutils literal"><span class="pre">tcp_sndbuf</span></code>, an integer parameter.
+Multiple parameters may be combined to finely tune settings available on
+the transport. Normally, you&#8217;ll want to stick with the defaults on your
+platform, but there may be some cases where experimentation and
+fine-tuning will yield higher or more efficient performance.</p>
+<p>The AMPS client supports the value of <code class="docutils literal"><span class="pre">tcp</span></code> in the <em>scheme</em> component
+connection string for TCP/IP connections, and the value of <code class="docutils literal"><span class="pre">tcps</span></code> as
+the scheme for SSL encrypted connections.</p>
+<p>For connections that use Unix domain sockets, the client supports the
+value of <code class="docutils literal"><span class="pre">unix</span></code> in the scheme, and requires an additional option, as
+described in the Unix Transports Parameters section below.</p>
+<div class="section" id="ipv6-connections">
+<span id="index-4"></span><h3>IPv6 Connections<a class="headerlink" href="#ipv6-connections" title="Permalink to this headline">¶</a></h3>
+<p>Starting with version 5.3.3.0, the AMPS client supports creating connections over
+both IPv4 and IPv6 protocols if supported by the underlying Operating System.</p>
+<p>By default, the AMPS client will prefer to resolve host names to IPv4 addresses,
+but this behavior can be adjusted by supplying the <code class="docutils literal"><span class="pre">ip_protocol_prefer</span></code> transport
+option, described in the table below.</p>
+</div>
+<div class="section" id="tcp-and-ssl-transport-options">
+<span id="index-5"></span><h3>TCP and SSL Transport Options<a class="headerlink" href="#tcp-and-ssl-transport-options" title="Permalink to this headline">¶</a></h3>
+<p>The following transport options are available for TCP connections:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Option</strong></td>
+<td><strong>Description</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">bind</span></code></td>
+<td><p class="first">(IP address) Sets the interface to bind the outgoing socket to.</p>
+<p class="last">Starting with version 5.3.3.0, both IPv4 and IPv6 addresses are fully
+supported for use with this parameter.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">tcp_rcvbuf</span></code></td>
+<td>(integer) Sets the socket receive buffer size. This defaults to the
+system default size. (On Linux, you can find the system default size
+in <code class="docutils literal"><span class="pre">/proc/sys/net/core/rmem_default</span></code>.)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">tcp_sndbuf</span></code></td>
+<td>(integer) Sets the socket send buffer size. This defaults to the
+system default size. (On Linux, you can find the system default size
+in <code class="docutils literal"><span class="pre">/proc/sys/net/core/wmem_default</span></code>.)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">tcp_nodelay</span></code></td>
+<td>(boolean) Enables or disables the <code class="docutils literal"><span class="pre">TCP_NODELAY</span></code> setting on the
+socket. By default <code class="docutils literal"><span class="pre">TCP_NODELAY</span></code> is disabled.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">tcp_linger</span></code></td>
+<td>(integer) Enables and sets the <code class="docutils literal"><span class="pre">SO_LINGER</span></code> value for the socket
+By default, <code class="docutils literal"><span class="pre">SO_LINGER</span></code> is enabled with a value of <code class="docutils literal"><span class="pre">10</span></code>, which
+specifies that the socket will linger for 10 seconds.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">tcp_keepalive</span></code></td>
+<td>(boolean) Enables or disables the <code class="docutils literal"><span class="pre">SO_KEEPALIVE</span></code> value for the socket.
+The default value for this option is true.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ip_protocol_prefer</span></code></td>
+<td><p class="first">(string) Influence the IP protocol to prefer during DNS resolution
+of the host. If a DNS entry of the preferred protocol can not be
+found, the other <em>non-preferred</em> protocol will then be tried.</p>
+<p>If this parameter is not set, the default will be to prefer IPv4.</p>
+<p>If an explicit IPv4 address or IPv6 IP address is provided
+as the host, the format of the IP address is used to determine
+the IP protocol used and this setting has no effect.</p>
+<p>Supported Values:</p>
+<p><code class="docutils literal"><span class="pre">ipv4</span></code>: Prefer an IPv4 address when resolving the host</p>
+<p><code class="docutils literal"><span class="pre">ipv6</span></code>: Prefer an IPv6 address when resolving the host</p>
+<p class="last">This parameter is available starting with version 5.3.3.0.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="unix-transport-parameters">
+<h3>Unix Transport Parameters<a class="headerlink" href="#unix-transport-parameters" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">unix</span></code> transport type communicates over Unix domain sockets. This
+transport <strong>requires</strong> the following additional option:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Option</strong></td>
+<td><strong>Description</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">path</span></code></td>
+<td>The path to the Unix domain socket to connect to.</td>
+</tr>
+</tbody>
+</table>
+<p>Unix domain sockets always connect to the local system. When the scheme
+specified is <code class="docutils literal"><span class="pre">unix</span></code>, the host address is <em>ignored</em> in the connection
+string. For example, the connection string:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>unix://localhost:0/amps/json?path=/sockets/the-amps-socket
+</pre></div>
+</div>
+<p>and the connection string:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>unix://unix:unix/amps/json?path=/sockets/the-amps-socket
+</pre></div>
+</div>
+<p>are equivalent.</p>
+<p>The other components of the connection string, including the <em>protocol</em>,
+<em>message type</em>, <em>username</em>, and <em>authentication token</em> are processed
+just as they would be for TCP/IP sockets.</p>
+</div>
+<div class="section" id="amps-additional-logon-options">
+<h3>AMPS Additional Logon Options<a class="headerlink" href="#amps-additional-logon-options" title="Permalink to this headline">¶</a></h3>
+<p>The connection string can also be used to pass logon parameters to AMPS.
+AMPS supports the following additional logon option:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Option</strong></td>
+<td><strong>Description</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">pretty</span></code></td>
+<td>Provide formatted representations of binary messages rather
+than the original message contents.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="providing-credentials-to-amps">
+<h3>Providing Credentials to AMPS<a class="headerlink" href="#providing-credentials-to-amps" title="Permalink to this headline">¶</a></h3>
+<p>When a client logs on to AMPS, the client sends AMPS a username and password. The
+username is derived from the URI, using the standard syntax for providing a
+user name in a URI, for example, <code class="docutils literal"><span class="pre">tcp://JohnDoe:&#64;server:port/amps/messagetype</span></code>
+to include the user name <code class="docutils literal"><span class="pre">JohnDoe</span></code> in the request.</p>
+<p>For a given user name, the password is provided by an <code class="docutils literal"><span class="pre">Authenticator</span></code>.  The AMPS client
+distribution includes a <code class="docutils literal"><span class="pre">DefaultAuthenticator</span></code> that simply returns the password,
+if any, provided in the URI. A <code class="docutils literal"><span class="pre">logon()</span></code> command that does not specify an
+<code class="docutils literal"><span class="pre">Authenticator</span></code> will use an instance of <code class="docutils literal"><span class="pre">DefaultAuthenticator</span></code>.</p>
+<p>If your authentication system requires a different authentication token, you
+can implement an <code class="docutils literal"><span class="pre">Authenticator</span></code> that provides the appropriate token.</p>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>You are now able to develop and build an application in C or C++ that publishes
+messages to AMPS. In the following chapters, you will learn how to subscribe to
+messages, use content filters, work with SOW caches, and fine-tune
+messages that you send.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

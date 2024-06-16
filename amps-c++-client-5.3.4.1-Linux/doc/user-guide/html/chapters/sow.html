@@ -1,0 +1,1036 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7. State of the World (SOW) &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="8. SOW Queries" href="sow_queries.html" />
+    <link rel="prev" title="6. Regular Expressions" href="regular_expressions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7. State of the World (SOW)</a><ul>
+<li><a class="reference internal" href="#how-does-the-state-of-the-world-work">How Does the State of the World Work?</a></li>
+<li><a class="reference internal" href="#queries">Queries</a></li>
+<li><a class="reference internal" href="#sow-keys">SOW Keys</a><ul>
+<li><a class="reference internal" href="#amps-generated-sow-keys">AMPS-Generated SOW Keys</a><ul>
+<li><a class="reference internal" href="#using-enrichment-with-sow-keys">Using Enrichment with SOW Keys</a></li>
+<li><a class="reference internal" href="#customizing-amps-generated-sow-keys">Customizing AMPS-Generated SOW Keys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#user-generated-sow-keys">User-Generated SOW Keys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-indexing">SOW Indexing</a></li>
+<li><a class="reference internal" href="#removing-sow-records">Removing SOW Records</a></li>
+<li><a class="reference internal" href="#sow-message-expiration">SOW Message Expiration</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#enabling-expiration-for-a-topic">Enabling Expiration for a Topic</a></li>
+<li><a class="reference internal" href="#setting-expiration-for-a-message">Setting Expiration for a Message</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-message-lifecycle">Example Message Lifecycle</a><ul>
+<li><a class="reference internal" href="#recovery-and-expiration">Recovery and Expiration</a></li>
+<li><a class="reference internal" href="#replication-and-expiration">Replication and Expiration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-maintenance">SOW Maintenance</a></li>
+<li><a class="reference internal" href="#using-a-pattern-to-create-a-current-value-cache-for-related-topics">Using a Pattern to Create a Current Value Cache for Related Topics</a><ul>
+<li><a class="reference internal" href="#when-to-use-a-regular-expression-topic">When to Use a Regular Expression Topic</a></li>
+<li><a class="reference internal" href="#limitations-and-differences-between-regular-expression-topics-and-topics">Limitations and Differences Between Regular Expression Topics and Topics</a></li>
+<li><a class="reference internal" href="#configuration-file-precedence">Configuration File Precedence</a></li>
+<li><a class="reference internal" href="#entitlements-and-regular-expression-topics">Entitlements and Regular Expression Topics</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="regular_expressions.html" title="previous chapter">6. Regular Expressions</a></li>
+      <li>Next: <a href="sow_queries.html" title="next chapter">8. SOW Queries</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="state-of-the-world-sow">
+<span id="ug-sow"></span><span id="index-0"></span><h1>7. State of the World (SOW)<a class="headerlink" href="#state-of-the-world-sow" title="Permalink to this headline">¶</a></h1>
+<p>One of the core features of AMPS is the ability to persist the most
+recent update for each distinct message published to a given topic. The
+State of the World (SOW) can be thought of as a database where messages
+published to AMPS are filtered into topics, and where the topics store
+the latest update to each distinct message. The SOW gives subscribers
+the ability to quickly resolve any differences between their data
+and updated data in the SOW by querying the current state of a topic
+or any set of messages inside a topic. Topics recorded in the SOW are
+also used for caching data, providing &#8220;point in time&#8221; snapshots of
+active data flows, providing key/value stores over data flows, and so on.
+Topics recorded in the SOW are the underlying sources for AMPS aggregation
+and analytics capabilities, and the ability to store the previous state
+of a message is the foundation of advanced messaging features such as
+delta messaging and out of focus notifications.</p>
+<p>AMPS also provides the ability to keep historical snapshots of the
+contents of the SOW, which allows subscribers to query the contents
+of the SOW at a particular point in time and replay changes from
+that point in time.</p>
+<p>AMPS can maintain the SOW for a topic in a persistent file, which will
+be available across restarts of the AMPS server. The SOW can also be
+<em>transient</em>, in which case the state of the SOW does not persist across
+server restarts.</p>
+<p>Topics do not keep the current values in the SOW by default. To provide
+this capability for a topic, you must configure AMPS to maintain the
+topic in the SOW by adding a definition for the <code class="docutils literal"><span class="pre">Topic</span></code> to the
+<code class="docutils literal"><span class="pre">SOW</span></code> section of the AMPS configuration file.</p>
+<div class="section" id="how-does-the-state-of-the-world-work">
+<h2>How Does the State of the World Work?<a class="headerlink" href="#how-does-the-state-of-the-world-work" title="Permalink to this headline">¶</a></h2>
+<p>Much like tables in a relational database, topics in the AMPS SOW
+persist the most recent update for each message. AMPS identifies a
+message by using a unique key for the message. The SOW key for a
+given message is similar to the primary key in a relational database:
+each value of the key is a unique message. The first time a message
+is received with a particular SOW key, AMPS adds the message to the SOW.
+Subsequent messages with the same SOW key value update the message.</p>
+<p>There are several ways to create a SOW key for a message:</p>
+<ul class="simple">
+<li>Most applications specify that AMPS assigns a SOW key based on the
+content of the message. The fields to use for the key are specified
+in the SOW topic definition, and consist of one or more XPath
+expressions. AMPS finds the specified fields in the message and
+computes a SOW key based on the name of the topic and the values in
+these fields. 60East recommends this approach unless an application
+has a specific need for a different approach.</li>
+<li>A topic can also be configured to require that a publisher provide a
+SOW key for each message when publishing the message to AMPS.</li>
+<li>AMPS also supports the ability for custom SOW key generation logic to
+be defined in an AMPS module, which will be invoked to generate the
+SOW key for each message. While these SOW keys are generated
+automatically by AMPS, rather than being provided by the publisher,
+the logic to generate these keys is provided by the module, and the
+configuration required (if any) is determined by the module.</li>
+</ul>
+<p>The following diagrams demonstrate how the SOW works, using a SOW topic
+that is configured to have AMPS determine the SOW key based on the
+<code class="docutils literal"><span class="pre">/orderId</span></code> field within the message. As each message comes in, AMPS
+uses the contents of the <code class="docutils literal"><span class="pre">/orderId</span></code> field to generate a SOW key for
+the message. The SOW key is used to identify unique records in the SOW,
+so AMPS will store a distinct record for each distinct <code class="docutils literal"><span class="pre">/orderId</span></code>
+value published to this topic. The calculated SOW key will be returned
+in the <code class="docutils literal"><span class="pre">SowKey</span></code> header of messages received from the topic in the SOW.</p>
+<div class="figure" id="fig-sow-ex1">
+<a class="reference internal image-reference" href="../_images/sow_overview_1.svg"><img alt="../_images/sow_overview_1.svg" src="../_images/sow_overview_1.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 7.1:</strong> <em>A SOW topic named ORDERS with a key definition of /orderId</em></p>
+<p>In <a class="reference internal" href="#fig-sow-ex1"><span class="std std-ref">Figure 7.1</span></a>, two messages are published where neither of the
+messages have matching keys existing in the <code class="docutils literal"><span class="pre">ORDERS</span></code> topic, the
+messages are both inserted as new messages. Some time after these
+messages are processed, an update comes in for the order with an
+<code class="docutils literal"><span class="pre">orderId</span></code> of <code class="docutils literal"><span class="pre">2</span></code>. This message changes the price from 120 to 95.
+Since the incoming message has an <code class="docutils literal"><span class="pre">orderId</span></code> of 2, this matches an
+existing record and overwrites the existing message for the same SOW
+key, as seen in <a class="reference internal" href="#fig-sow-ex2"><span class="std std-ref">Figure 7.2</span></a>. AMPS replaces the entire record
+with the contents of the update.</p>
+<div class="figure" id="fig-sow-ex2">
+<a class="reference internal image-reference" href="../_images/sow_overview_2.svg"><img alt="../_images/sow_overview_2.svg" src="../_images/sow_overview_2.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 7.2:</strong> <em>Updating the IBM record by matching incoming message keys</em></p>
+<p>Although the SOW key is derived from the content of the message in many
+cases, the SOW key is distinct from the content of the message. Each
+record in a SOW topic has a distinct SOW key, which is stored with the
+record.</p>
+<p>By default, a topic recorded in the SOW is <em>persistent</em>. For these topics,
+AMPS stores the contents of the SOW for that topic in a dedicated,
+memory-mapped file. This means that the total SOW does not need to fit into
+memory, and that the contents of the SOW database are maintained across
+server restarts. You can also define a <em>transient</em> SOW topic, which does not
+store the contents of the SOW to a persisted file.</p>
+<p id="index-1">The SOW file is separate from the transaction log, and you do not
+need to configure a transaction log to use a SOW. When a transaction
+log is present that covers the SOW topic, on restart AMPS uses the
+transaction log to keep the SOW up to date. When the latest transaction
+in the SOW is more recent than the last transaction in the transaction
+log (for example, if the transaction log has been deleted), AMPS takes
+no action. If the transaction log has newer transactions than the SOW,
+AMPS replays those transactions into the SOW to bring the SOW file up
+to date. If the SOW file is missing or damaged, AMPS rebuilds the SOW
+by replaying the transaction log from the beginning of the log.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">When a SOW topic is <code class="docutils literal"><span class="pre">persistent</span></code>, each topic must be stored in
+a separate file. Only one instance of AMPS can access a given
+file; the same copy of the SOW file <em>cannot</em> be used by multiple
+instances of AMPS.</p>
+</div>
+<p>When the SOW for a topic is <em>transient</em>, AMPS does not store the
+SOW for this topic across restarts. In this case, AMPS will synchronize
+the SOW with the transaction log when the server starts by default.
+You can use the <cite>RecoveryPoint</cite> configuration option to specify that the
+topic should have only new publishes, or should recover from a specific
+point in time (for example, you could use an environment variable
+to provide a timestamp to the <cite>RecoveryPoint</cite> so that AMPS
+recovers only the last day&#8217;s worth of messages.)</p>
+</div>
+<div class="section" id="queries">
+<h2>Queries<a class="headerlink" href="#queries" title="Permalink to this headline">¶</a></h2>
+<p id="index-2">At any point in time, applications can issue SOW queries to retrieve all
+of the messages that match a given topic and content filter. When a
+query is executed, AMPS will test each message in the SOW against the
+content filter specified and all messages matching the filter will be
+returned to the client. The topic can be a literal topic name or a
+regular expression pattern. For more information on issuing queries,
+please see <a class="reference external" href="sow_queries.html#sow-queries">SOW Queries</a>.</p>
+<span class="target" id="ug-generating-sow-keys"></span></div>
+<div class="section" id="sow-keys">
+<span id="index-3"></span><h2>SOW Keys<a class="headerlink" href="#sow-keys" title="Permalink to this headline">¶</a></h2>
+<p>This section describes AMPS SOW keys in detail, including information on
+how AMPS generates SOW keys and considerations for applications that
+generate SOW keys. An individual SOW topic may use either AMPS-generated
+SOW keys or user-generated SOW keys. Every message in the SOW must use
+the same type of key generation.</p>
+<p>Regardless of how the SOW key is generated, AMPS creates an opaque value
+from the SOW key and uses this value for efficient lookup internally.
+For SOW keys that AMPS generates, this opaque value is returned in the
+message header for SOW messages and is used in commands that reference
+SOW keys. When the SOW key is provided with a message, AMPS returns the
+original value in the SOW key header, and the original value is used in
+commands that reference SOW keys.</p>
+<p>For topics that have a SOW key (including views and conflated topics),
+commands that directly use the SOW for a topic (for example, <code class="docutils literal"><span class="pre">sow</span></code>,
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>, <code class="docutils literal"><span class="pre">sow_delete</span></code>) can provide a SOW key, or a set
+of SOW keys with the command. When a set of SOW keys is provided with
+one of these commands, the command will only operate on messages that
+have a SOW key in the provided set.</p>
+<div class="section" id="amps-generated-sow-keys">
+<h3>AMPS-Generated SOW Keys<a class="headerlink" href="#amps-generated-sow-keys" title="Permalink to this headline">¶</a></h3>
+<p>AMPS-generated SOW keys are often the easiest and most reliable way to
+define the SOW key for a message. The advantages of this approach are
+that AMPS handles all of the mechanics of generating the key, the key
+will always match the data in the message, and there is no need for a
+publisher to be concerned with how AMPS assigns the key. The publisher
+simply publishes messages, and AMPS handles all of the details.</p>
+<p>AMPS generates SOW keys based on the message content when you define one
+or more <code class="docutils literal"><span class="pre">Key</span></code> fields in the SOW configuration. For example, if your
+SOW tracks unique orders that are identified by an <code class="docutils literal"><span class="pre">orderId</span></code> field in
+the message, you could provide the following <code class="docutils literal"><span class="pre">Key</span></code> element in your SOW
+configuration:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Key&gt;</span>/orderId<span class="nt">&lt;/Key&gt;</span>
+</pre></div>
+</div>
+<p>This configuration item tells AMPS to use that field of the message to
+generate SOW keys. AMPS supports composite SOW keys when multiple <code class="docutils literal"><span class="pre">Key</span></code>
+elements are provided. For example, the following configuration
+specifies that every unique combination of <code class="docutils literal"><span class="pre">/orderId</span></code> and
+<code class="docutils literal"><span class="pre">/customerId</span></code> is a unique record in the SOW:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Key&gt;</span>/orderId<span class="nt">&lt;/Key&gt;</span>
+<span class="nt">&lt;Key&gt;</span>/customerId<span class="nt">&lt;/Key&gt;</span>
+</pre></div>
+</div>
+<p>When AMPS generates a key, it creates the key based on the <em>key domain</em>
+(which is the name of the topic by default) and the values of the fields
+specified as SOW keys. AMPS concatenates these values together with a
+unique separator and then calculates a checksum over the value. This
+ensures that different values create different keys, and ensures that
+records in different topics have different keys.</p>
+<p>In some cases, you may need AMPS to calculate consistent SOW key values
+for identical messages even when the messages are published to different
+topics. The SOW topic definition allows you to set an explicit key
+domain in the configuration, which AMPS will use instead of the topic
+name when generating SOW keys. For example, if your application uses the
+<code class="docutils literal"><span class="pre">orderId</span></code> field of a message as a SOW key in both a <code class="docutils literal"><span class="pre">ShippingStatus</span></code>
+topic and an <code class="docutils literal"><span class="pre">OpenOrders</span></code> topic, having AMPS generate a consistent key
+for the same <code class="docutils literal"><span class="pre">orderId</span></code> value may make it easier to correlate messages
+from those topics in your application. By setting the same <code class="docutils literal"><span class="pre">KeyDomain</span></code>
+value in the Topic configuration for those SOW topics, you can ensure
+that AMPS generates consistent SOW keys for the same order ID across
+topics.</p>
+<p>An application should treat SOW keys generated with the AMPS default SOW
+key generator as opaque tokens. The value of a generated SOW key is
+guaranteed to be consistent for the same fields, values, and key domain.
+However, an application should not make assumptions as to the specific
+value that the AMPS default key generator will produce from a given set
+of values. If an application requires a specific value for the SOW key,
+the application should generate a SOW key, as described in the following
+section.</p>
+<div class="section" id="using-enrichment-with-sow-keys">
+<h4>Using Enrichment with SOW Keys<a class="headerlink" href="#using-enrichment-with-sow-keys" title="Permalink to this headline">¶</a></h4>
+<p>The preprocessor phase of AMPS enrichment occurs before AMPS generates
+SOW keys for a message. You can use this phase of enrichment to
+construct fields that are then used to generate the SOW key for a message.</p>
+</div>
+<div class="section" id="customizing-amps-generated-sow-keys">
+<h4>Customizing AMPS-Generated SOW Keys<a class="headerlink" href="#customizing-amps-generated-sow-keys" title="Permalink to this headline">¶</a></h4>
+<p>AMPS allows you to customize how the server generates SOW keys for a
+topic. To customize SOW key generation, you implement a SOW key
+generator module and specify that the module should be used to generate
+keys for that SOW topic.</p>
+<p>To use a custom SOW key generator, you first load the module in the
+<code class="docutils literal"><span class="pre">Modules</span></code> section of the configuration file, then specify the module
+as the <code class="docutils literal"><span class="pre">KeyGenerator</span></code> for the SOW topic.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+
+    <span class="c">&lt;!-- load the module --&gt;</span>
+    <span class="nt">&lt;Modules&gt;</span>
+        <span class="nt">&lt;Module&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>key-generator<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;Library&gt;</span>libmy_key_generator.so<span class="nt">&lt;/Library&gt;</span>
+        <span class="nt">&lt;/Module&gt;</span>
+    <span class="nt">&lt;/Modules&gt;</span>
+
+    <span class="c">&lt;!-- use the module to generate keys --&gt;</span>
+    <span class="nt">&lt;SOW&gt;</span>
+        <span class="nt">&lt;Topic&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>custom-keyed-sow<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+            <span class="nt">&lt;KeyGenerator&gt;</span>
+                <span class="nt">&lt;Module&gt;</span>key-generator<span class="nt">&lt;/Module&gt;</span>
+                <span class="nt">&lt;Options&gt;</span>
+                    <span class="nt">&lt;OptionOne&gt;</span>module-specific-option<span class="nt">&lt;/OptionOne&gt;</span>
+                    <span class="nt">&lt;OptionTwo&gt;</span>another-specific-option<span class="nt">&lt;/OptionTwo&gt;</span>
+                <span class="nt">&lt;/Options&gt;</span>
+            <span class="nt">&lt;/KeyGenerator&gt;</span>
+        <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;/SOW&gt;</span>
+
+    ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>For information on implementing a custom SOW key generator, contact
+60East support for the AMPS Server SDK.</p>
+</div>
+</div>
+<div class="section" id="user-generated-sow-keys">
+<h3>User-Generated SOW Keys<a class="headerlink" href="#user-generated-sow-keys" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows applications to explicitly generate and assign SOW keys. In
+this case, the publisher calculates the SOW key for the message and
+includes that key in the message when it is published. AMPS does not
+interpret the data in the message to decide whether the message is
+unique: AMPS uses only the value of the SOW key.</p>
+<p>When using a user-generated SOW key, applications should consider the
+following:</p>
+<ul class="simple">
+<li>All publishers should use a consistent method for generating SOW Keys</li>
+<li>SOW Keys must contain only characters that are valid in Base64
+encoding</li>
+<li>The application must ensure that messages intended to be logically
+different do not receive the same SOW key</li>
+</ul>
+<p>User-generated SOW keys are particularly useful for the <code class="docutils literal"><span class="pre">binary</span></code>
+message type. For this message type, AMPS does not parse the message, so
+providing an explicit SOW key allows you to create a SOW that contains
+only <code class="docutils literal"><span class="pre">binary</span></code> messages.</p>
+<p>To specify that AMPS will require publishers to this topic to submit
+the SOW key, the <code class="docutils literal"><span class="pre">Topic</span></code> configuration does not specify any <code class="docutils literal"><span class="pre">Key</span></code>
+fields and does not specify a <code class="docutils literal"><span class="pre">KeyGenerator</span></code> for the topic.</p>
+</div>
+</div>
+<div class="section" id="sow-indexing">
+<span id="ug-sow-indexing"></span><span id="index-4"></span><h2>SOW Indexing<a class="headerlink" href="#sow-indexing" title="Permalink to this headline">¶</a></h2>
+<p>AMPS maintains indexes over SOW topics, views, and conflated topics to
+improve query efficiency. There are two types of indexes available:</p>
+<ul>
+<li><p class="first">Memo indexes are created automatically when AMPS needs to use a
+particular field for a query. These indexes maintain the value of a
+key, and can be used for any type of query, including regular
+expression queries, range queries, and comparisons such as less than
+or greater than. You can also request that AMPS pre-create an index
+of this type with the <code class="docutils literal"><span class="pre">Index</span></code> directive of the SOW topic
+configuration.</p>
+</li>
+<li><p class="first">Hash indexes are defined by the configuration for the topic,
+view or conflated topic. These indexes
+maintain a hash derived from the values provided for the fields in
+the key. When the topic is configured so that AMPS generates the SOW
+key, AMPS automatically creates a hash index that contains all of the
+fields in the SOW Key. You can create any number of hash indexes for
+a SOW topic, with any combination of fields. Hash index queries are
+significantly faster than queries using memo indexes.</p>
+<p>You can create any number of hash indexes for a given topic, to
+cover various combinations of query fields.</p>
+<p>A hash index can be created using any XPath Identifier in the
+message. For example, if you are using a <code class="docutils literal"><span class="pre">composite-local</span></code> message
+type, you can create a hash index using fields from any part of the
+message. If you are using an <code class="docutils literal"><span class="pre">xml</span></code> message, you can create a
+hash index that uses the XML attributes.</p>
+<p>The values of hash indexes are always evaluated as strings. Hash
+indexes are only used for exact matches on the value of the fields or with
+the <code class="docutils literal"><span class="pre">IN</span></code> operator, and only for queries that use the exact set of fields
+in the hash index. Other operators or functions (for example,
+<code class="docutils literal"><span class="pre">LIKE</span></code>, <code class="docutils literal"><span class="pre">!=</span></code>, <code class="docutils literal"><span class="pre">BETWEEN</span></code>, <code class="docutils literal"><span class="pre">IS</span> <span class="pre">NULL</span></code>, <code class="docutils literal"><span class="pre">IS</span> <span class="pre">NOT</span> <span class="pre">NULL</span></code>, and so
+on) cannot use the hash index.</p>
+<p>For example, if your configuration specifies a hash index that uses
+the fields <code class="docutils literal"><span class="pre">/address/postalCode</span></code> and <code class="docutils literal"><span class="pre">/customerType</span></code>, a filter
+such as
+<code class="docutils literal"><span class="pre">/address/postalCode</span> <span class="pre">=</span> <span class="pre">'99705'</span> <span class="pre">AND</span> <span class="pre">/customerType</span> <span class="pre">=</span> <span class="pre">'retail'</span></code> will
+use the hash index. A filter such as
+<code class="docutils literal"><span class="pre">/address/postalCode</span> <span class="pre">=</span> <span class="pre">'99705'</span> <span class="pre">AND</span> <span class="pre">/customerType</span> <span class="pre">LIKE</span> <span class="pre">'retail|remainder'</span></code>
+will not use the hash index, since this filter uses the <code class="docutils literal"><span class="pre">LIKE</span></code>
+operator rather than exact matching.</p>
+<p>Starting with AMPS 5.3.1.0, AMPS will also use a hash index for a
+compound filter if the <em>first</em> clause in the filter is an <code class="docutils literal"><span class="pre">IN</span></code>
+operator that can use a hash index <em>and</em> the other comparisons
+in the filter are evaluated using the <code class="docutils literal"><span class="pre">AND</span></code> operator. In this
+case, AMPS evaluates the <code class="docutils literal"><span class="pre">IN</span></code> clause first, and executes the
+rest of the expression against the results of the <code class="docutils literal"><span class="pre">IN</span></code> clause.
+For example, a filter like
+<code class="docutils literal"><span class="pre">/id</span> <span class="pre">IN</span> <span class="pre">('jon',</span> <span class="pre">'jim',</span> <span class="pre">'joy')</span> <span class="pre">AND</span> <span class="pre">/price</span> <span class="pre">&gt;</span> <span class="pre">50</span></code> will use a
+hash index to find matching records for <code class="docutils literal"><span class="pre">/id</span></code> and then
+compare the matching records to the rest of the filter (in
+this case, a numeric comparison on <code class="docutils literal"><span class="pre">/price</span></code>).  (Notice
+that this optimization is not available if the other
+comparisons use the <code class="docutils literal"><span class="pre">OR</span></code> operator.)</p>
+</li>
+</ul>
+<p>AMPS uses a hash index for filters where possible. If the filter
+does not meet the requirements for using a hash index, AMPS uses
+memo indexes for the fields in the filter if those are available. If
+one or more of the required memo indexes is not available, AMPS
+creates the indexes during the query.</p>
+<p>If your application frequently uses queries for an exact match on a
+specific set of fields (for example, retrieving a set of customers by
+the <code class="docutils literal"><span class="pre">/address/postalCode</span></code> field), creating a hash index can
+significantly improve the speed of those queries.</p>
+</div>
+<div class="section" id="removing-sow-records">
+<span id="ug-sow-delete"></span><span id="index-5"></span><h2>Removing SOW Records<a class="headerlink" href="#removing-sow-records" title="Permalink to this headline">¶</a></h2>
+<p>AMPS allows applications to explicitly remove records from a SOW topic
+using the <code class="docutils literal"><span class="pre">sow_delete</span></code> command.</p>
+<p>When removing records from a SOW, there are three different ways to
+indicate which message, or messages, will be deleted:</p>
+<ol class="arabic simple">
+<li>Using a content filter. AMPS will delete all messages in the SOW that
+match the content filter. To delete every message in the SOW, use the
+special filter <code class="docutils literal"><span class="pre">1=1</span></code> to indicate that the filter is true for every
+message, regardless of the contents of the message. (In essence,
+AMPS runs a query to locate the records to be deleted, and then
+deletes the matching records.)</li>
+<li>Using the SOW key assigned to the message. AMPS accepts a list of SOW
+keys, and will remove the messages indicated by those SOW keys.</li>
+<li>Using message data. The application provides message data with the
+<code class="docutils literal"><span class="pre">sow_delete</span></code> command. AMPS parses the message data to determine the
+SOW key for the record that would be updated if the command were
+a <code class="docutils literal"><span class="pre">publish</span></code>, and deletes that record (if one exists). Notice that
+if the topic is configured so that publishers must provide the
+SOW key, the key cannot be derived from the data, which means
+that using message data to delete messages may not produce
+the expected results.</li>
+</ol>
+<p>When a record is removed from the SOW, AMPS sends an out-of-focus (OOF)
+message to any subscriptions that have requested OOF notifications. AMPS
+also updates any views that use the SOW topic, and the record will be
+removed from conflated topics at the next conflation interval.</p>
+<p>When the SOW is configured with the <code class="docutils literal"><span class="pre">History</span></code> option to enable
+historical queries, the <code class="docutils literal"><span class="pre">sow_delete</span></code> command removes the message from
+the current set of messages in the SOW. The command does not remove
+previously-saved versions of the message: the historical state of the
+SOW is unaffected by the <code class="docutils literal"><span class="pre">sow_delete</span></code>.</p>
+<p>The most efficient way to delete a specific message or specific set of
+messages is to use the SOW key that AMPS assigns, when that key is
+available. You can provide these keys in the <code class="docutils literal"><span class="pre">SowKeys</span></code> header (a delete
+by keys), or by providing a filter expression that will be evaluated as
+a query on the primary key or a hash index.  See the <a class="reference internal" href="#ug-sow-indexing"><span class="std std-ref">SOW Indexing</span></a> section for details on how AMPS determines if a hash index or primary key can be used for a filter.</p>
+<p>When the SOW delete provides an example message to be deleted, AMPS parses
+that message to determine the SOW key and then uses that to key to delete
+the message, which is also relatively efficient.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Deleting a message from the SOW means that AMPS can
+reuse the space that the message consumed, but AMPS
+does not reduce the size of the storage for the topic
+when a message is removed. Typically, SOW topics
+in production reach a steady state based on the
+number of messages that are typically present
+at any given time: it is most efficient to
+simply make the space available for new messages.</p>
+<p class="last">To reduce the size of a file used to persist
+a topic in the SOW after messages are removed, use the
+<a class="reference internal" href="actions.html#ug-actions-do-compact-sow"><span class="std std-ref">compact SOW action</span></a>.
+Running this operation will typically reduce throughput
+to the topic being compacted during the process of
+compacting the topic, so this should only be done
+during a maintenance window or when reducing
+(or pausing) throughput to the topic would have
+less impact on the application than leaving
+the SOW file at its current size.</p>
+</div>
+</div>
+<div class="section" id="sow-message-expiration">
+<span id="index-6"></span><h2>SOW Message Expiration<a class="headerlink" href="#sow-message-expiration" title="Permalink to this headline">¶</a></h2>
+<p>By default, a topic in the SOW stores all distinct records until a record is
+explicitly deleted. For scenarios where message persistence needs to be
+limited in duration, AMPS provides the ability to set a time limit on
+the lifespan of SOW topic messages. This limit on duration is known as
+message expiration and can be thought of as a &#8220;Time to Live&#8221; feature for
+messages stored in a SOW topic.</p>
+<div class="section" id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>Expiration on SOW topics is disabled by default. For AMPS to expire
+messages in a SOW topic, you must explicitly enable expiration on the
+SOW topic.</p>
+<p>There are two ways message expiration time can be set. First, a topic
+recorded in the SOW can specify a default lifespan for all messages
+stored for that topic. Second, each message can provide an expiration as
+part of the message header.</p>
+<p>AMPS stores the expiration time for each message individually, as a
+property of the message in the SOW. The expiration for a given message
+is first determined based on the message expiration specified in the
+message header. If a message has no expiration specified in the header,
+then the message will inherit the expiration setting for the topic
+expiration. If there is no message expiration and no topic expiration,
+then it is implicit that a SOW topic message will not expire. When an
+expiration of 0 is provided in the message header, this indicates that
+AMPS should not provide expiration for this message.</p>
+<div class="section" id="enabling-expiration-for-a-topic">
+<h4>Enabling Expiration for a Topic<a class="headerlink" href="#enabling-expiration-for-a-topic" title="Permalink to this headline">¶</a></h4>
+<p>AMPS configuration supports the ability to specify a default message
+expiration for all messages in a single SOW topic. Below is an example
+of a configuration section for a SOW topic definition with an
+expiration. <a class="reference internal" href="#ug-sow"><span class="std std-ref">Chapter 7</span></a> has more detail on how to configure the
+SOW topic.</p>
+<div class="highlight-XML" id="topic-expiration-example"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ORDERS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+
+        <span class="nt">&lt;Expiration&gt;</span>30s<span class="nt">&lt;/Expiration&gt;</span>
+
+        <span class="nt">&lt;Key&gt;</span>/55<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/109<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>fix<span class="nt">&lt;/MessageType&gt;</span>
+  <span class="nt">&lt;/Topic&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 7.1:</strong> <em>Topic Expiration</em></p>
+<p>In this case, messages with no lifetime specified on the message have a
+30 second lifetime in the SOW. When a message arrives and that message
+has an expiration set, the message expiration on the publish
+overrides the default expiration for the topic. Each publish or
+delta publish that arrives, including an update to an existing
+message, updates the expiration time.</p>
+<p>AMPS also allows you to enable expiration on a SOW topic, but to only
+expire messages that have message-level expiration set:</p>
+<div class="highlight-XML" id="topic-expiration-no-interval-example"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ORDERS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+
+        <span class="nt">&lt;Expiration&gt;</span>enabled<span class="nt">&lt;/Expiration&gt;</span>
+
+        <span class="nt">&lt;Key&gt;</span>/55<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/109<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>fix<span class="nt">&lt;/MessageType&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 7.2:</strong> <em>Topic Expiration</em></p>
+<p>With this configuration file, expiration is enabled for the topic. The
+message lifetime is specified on each individual message. When
+expiration is disabled for a SOW topic, AMPS preserves any message
+expiration set on an individual message but does not expire messages.</p>
+<p>AMPS processes expirations during startup when SOW expiration is
+enabled. This means that any record in the SOW which needs to be expired
+will be expired as AMPS starts. Notice that if expiration has been disabled
+in the configuration file, AMPS will not process expiration for the topic.</p>
+</div>
+<div class="section" id="setting-expiration-for-a-message">
+<h4>Setting Expiration for a Message<a class="headerlink" href="#setting-expiration-for-a-message" title="Permalink to this headline">¶</a></h4>
+<p>When expiration is enabled for a topic in the SOW, each message
+published to that topic expires at the configured time by default.</p>
+<p>Individual messages have the ability to specify the expiration for that
+individual message. When an expiration time is provided on a message,
+that value overrides the default expiration set for the topic. For
+example, the SOW configuration for a topic might specify an expiration
+of 5 minutes for a pending order. For large orders, however, a publisher
+might explicitly prevent messages from expiring by providing a <code class="docutils literal"><span class="pre">0</span></code> for
+the expiration time when publishing the message.</p>
+<p>AMPS does not process expiration for any messages in a topic recorded in
+the SOW unless expiration is enabled for the topic. When expiration is
+not configured for a topic, messages published to that topic do not
+expire, regardless of the expiration setting on an individual message.</p>
+</div>
+</div>
+<div class="section" id="example-message-lifecycle">
+<h3>Example Message Lifecycle<a class="headerlink" href="#example-message-lifecycle" title="Permalink to this headline">¶</a></h3>
+<p>When a message arrives, AMPS calculates the expiration time for the
+message and stores a timestamp at which the message expires in the SOW
+with the message. When the message contains an expiration time, AMPS
+uses that time to create the timestamp. When the message does not
+include an expiration time, but the topic contains an expiration time,
+AMPS uses the topic expiration for the message. Otherwise, there is no
+expiration set on the message, and AMPS records a timestamp value that
+indicates no expiration.</p>
+<p>Messages in the SOW topic can receive updates before expiration. When a
+message is updated, the message’s expiration lifespan is reset. For
+example, a message is first published to a SOW topic with an expiration
+of 45 seconds. The message is updated 15 seconds after publication of
+the initial message, and the update resets the expiration to a new 45
+second lifespan. This process can continue for the entire lifespan of
+the message, causing a new 45 second lifespan renewal for the message
+with every update.</p>
+<p>If a message expires, then the message is deleted from the SOW topic.
+This event will trigger delete processing to be executed for the
+message, similar to the process of executing a <code class="docutils literal"><span class="pre">sow_delete</span></code> command on
+a message stored in a SOW topic.</p>
+<div class="section" id="recovery-and-expiration">
+<h4>Recovery and Expiration<a class="headerlink" href="#recovery-and-expiration" title="Permalink to this headline">¶</a></h4>
+<p>When using message expiration, one common scenario is that the message
+has an expiration set, but the AMPS instance is shut down during the
+lifetime of the message.</p>
+<p>To handle such a scenario, AMPS calculates and stores a timestamp for
+the expiration, as described above. Therefore, if the AMPS instance is
+shutdown, upon recovery the engine will check to see which messages
+have expired since the occurrence of the shutdown. Any expired messages
+will be removed from the topic as soon as possible.</p>
+<p>Notice that, because the timestamp is stored with each message, changing
+the default expiration of a SOW topic does not affect the lifetime of
+messages already in the SOW. Those timestamps have already been
+calculated, and AMPS does not recalculate them when the instance is
+restarted or when the defaults on the SOW topic change. If expiration is
+not enabled for the topic after the configuration change, AMPS does not
+process expirations for that topic and messages will not expire.</p>
+</div>
+<div class="section" id="replication-and-expiration">
+<h4>Replication and Expiration<a class="headerlink" href="#replication-and-expiration" title="Permalink to this headline">¶</a></h4>
+<p>Because the expiration time is stored as an attribute of each
+individual message, that expiration time is replicated with the
+message. A downstream instance that receives the message via
+replication does not reset or change the expiration time that
+is stamped on the message.</p>
+<p>Expiration processing happens on each individual instance.
+The fact that a message has expired is not replicated (this
+is not necessary, since the message expiration is stored as
+a part of the message, so each individual instance can manage
+expiration locally).</p>
+</div>
+</div>
+</div>
+<div class="section" id="sow-maintenance">
+<span id="index-7"></span><h2>SOW Maintenance<a class="headerlink" href="#sow-maintenance" title="Permalink to this headline">¶</a></h2>
+<p>Applications that store topics in the SOW must consider the ongoing
+storage needs and file management for the SOW.</p>
+<p>There are two aspects to SOW maintenance:</p>
+<ul class="simple">
+<li>Ensuring that the host system has enough capacity to efficiently
+store and manage the topics in the SOW. Capacity planning guidelines
+are discussed in
+<a class="reference internal" href="operation.html#operation-deployment-capacity-planning"><span class="std std-ref">Chapter 26 Capacity Planning</span></a>
+in the operations section of this Guide.</li>
+<li>Setting and implementing a data retention policy for the contents of
+each topic in the SOW.</li>
+</ul>
+<p>The data retention policy for a topic in the SOW is determined by the
+needs of your application. Consider the following questions:</p>
+<ol class="arabic">
+<li><p class="first">Does the topic have a data set that tends to stay at a consistent
+size? If so, there may be no need to explicitly manage data
+retention. Many AMPS applications have topics that fall into this
+category.</p>
+<p>For example, an application that uses a SOW topic to track the
+current price of a specific set of ticker symbols has little need to
+set a data retention policy. The SOW will always contain the same
+number of records (one for each ticker symbol), and those records
+will always contain data of a consistent size. The application may
+choose to remove a record when a symbol is removed from the set, but
+otherwise rely on publishers to keep the data current.</p>
+</li>
+<li><p class="first">Is the data only valid for a specific period of time after the data
+is published? If so, SOW expiration may be a good way to manage the
+SOW.</p>
+<p>For example, an application that needs to ensure that quotes are
+removed from the system after 10 minutes from the time the quote is
+published could use SOW expiration to remove records after 10
+minutes.</p>
+</li>
+<li><p class="first">Is the data valid until a certain condition becomes true? If so,
+having the application remove records from the SOW or using AMPS
+actions may be a good way to manage the SOW.</p>
+<p>For example, an application that needs to clear the state of the SOW
+every 24 hours during a maintenance window could use an action to
+remove those records. An application that can determine when a record
+is no longer needed can remove the record immediately, which means
+that the topic only contains data that the application needs at any
+given time.</p>
+</li>
+</ol>
+<p>Regardless of the approach an application takes, 60East recommends that
+every application that uses a SOW consider capacity and explicitly
+consider the data retention needs of each topic and the
+application.</p>
+</div>
+<div class="section" id="using-a-pattern-to-create-a-current-value-cache-for-related-topics">
+<span id="ug-regular-expression-sow"></span><h2>Using a Pattern to Create a Current Value Cache for Related Topics<a class="headerlink" href="#using-a-pattern-to-create-a-current-value-cache-for-related-topics" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides a way to easily define a set of related SOW topics by specifying
+a <code class="docutils literal"><span class="pre">Pattern</span></code> element in the <code class="docutils literal"><span class="pre">Topic</span></code> configuration. When this element is
+present, AMPS creates a regular expression SOW topic. A topic name that
+matches the pattern is treated as a SOW topic within the topic that defines
+the pattern. The definition of each individual topic (for example, the <code class="docutils literal"><span class="pre">Key</span></code>
+values defined, the hash indexes defined, and so on) matches the definition
+for the overall topic in the configuration file.</p>
+<p>A regular expression topic creates a single physical topic (that is, a single
+in-memory SOW topic and, when the topic is persisted, a single file) that
+contains records for any number of topic names. The topics within
+a regular expression topic maintain the last value of each individual record
+within <em>each</em> of the topics. Publishers and subscribers can use these topics
+as though the topics were each configured individually as a <code class="docutils literal"><span class="pre">Topic</span></code>
+in the AMPS configuration file (with some minor behavioral differences
+resulting from all of the topics and messages being stored in the
+same data structure, as described in the following sections).</p>
+<p>Although AMPS treats every topic within the regular expression topic as
+a distinct topic for the purposes of publishing and subscribing,
+AMPS manages those topics as a single SOW object. When a regular expression
+topic is persisted, every message for a topic within the regular expression
+topic is stored within the same file. Likewise, the regular expression topic
+is treated as a single topic in memory (including for monitoring and statistics
+purposes). In cases where an application has a large number of topics
+and each topic has a small number of messages (typically, in cases where
+each topic has only a single message), using a regular expression topic can
+use considerably less memory than individual <code class="docutils literal"><span class="pre">Topic</span></code> entries for the same
+number of topics and messages.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>60East recommends using a regular expression topic in situations
+where an existing system uses topic names rather than
+content filtering. For example, when migrating a legacy
+system that distinguishes orders for different customers
+using different topic names rather than using the content
+of the message (such as using topic names
+<code class="docutils literal"><span class="pre">/orders/customerA</span></code> and <code class="docutils literal"><span class="pre">/orders/customerB</span></code> rather
+than including a <code class="docutils literal"><span class="pre">customer</span></code> field on the message),
+a regular expression topic using a <code class="docutils literal"><span class="pre">Pattern</span></code> of <code class="docutils literal"><span class="pre">^/orders/</span></code>
+might be the most straightforward way to adapt the system to
+AMPS.</p>
+<p class="last">For a small number of topics, or cases where an
+individual topic would have a large number of
+entries, 60East recommends using individual topics
+rather than a regular expression topic.</p>
+</div>
+<div class="section" id="when-to-use-a-regular-expression-topic">
+<h3>When to Use a Regular Expression Topic<a class="headerlink" href="#when-to-use-a-regular-expression-topic" title="Permalink to this headline">¶</a></h3>
+<p>Using a regular expression topic allows you to easily define a large number
+of SOW topics that will hold a small number or records (typically, only
+one record per topic) while minimizing the memory and storage overhead
+for each topic.  This can be especially helpful when migrating
+a system that uses topic-based routing to AMPS, since you can easily
+create a large number of topics (hundreds or thousands) without
+having to explicitly specify each one in the AMPS configuration file
+in cases where it is important to query the last value of each topic.</p>
+<p>Consider using a regular expression topic in cases where:</p>
+<ul class="simple">
+<li>You need to be able to query the current value of a
+record (or topic). If you do <em>not</em> need to query current
+values, there is no need to define topics in the
+SOW at all (consider using ad hoc topics instead).</li>
+<li>The information that determines whether a given message
+is unique is not contained in the message itself. If that
+information is already present in the data, it is more
+efficient to use a <code class="docutils literal"><span class="pre">Topic</span></code> with the unique property
+configured as a <code class="docutils literal"><span class="pre">Key</span></code>.</li>
+<li>The messages have the same structure, and are the same
+logical type of message. Messages that are different types,
+or that have different structures, would typically be
+represented in different topics.</li>
+<li>Your application requires a large number of topics, or
+you do not know the topics in advance, such that it is
+impractical to define the topics using individual <code class="docutils literal"><span class="pre">Topic</span></code>
+declarations.</li>
+<li>Each unique topic will have a small number of messages
+(often, only one message per topic in a regular expression
+topic).</li>
+<li>Your application does not require historical point in
+time query, or enrichment on the messages.</li>
+<li>All of the topics within the regular expression topic have the same
+set of permissions.  AMPS does not support applying different
+entitlements to individual topics within a regular expression topic.</li>
+</ul>
+<p>If any of the above considerations are not true, consider
+using a set of <code class="docutils literal"><span class="pre">Topic</span></code> declarations rather than a
+regular expression topic.</p>
+<p>Regular expression topics are most commonly used when adapting a
+system that did not support content filtering
+(content-based routing) to an AMPS-based application
+in cases where the message data itself does not contain
+enough information to support content-based routing.
+Applications designed for AMPS most frequently use a
+<code class="docutils literal"><span class="pre">Topic</span></code> and content filtering rather than a
+regular expression topic.</p>
+</div>
+<div class="section" id="limitations-and-differences-between-regular-expression-topics-and-topics">
+<h3>Limitations and Differences Between Regular Expression Topics and Topics<a class="headerlink" href="#limitations-and-differences-between-regular-expression-topics-and-topics" title="Permalink to this headline">¶</a></h3>
+<p>For most purposes, regular expression topics
+work just like any other topic defined using the
+<code class="docutils literal"><span class="pre">Topic</span></code> directive. There are, however, some differences
+in behavior.</p>
+<ul class="simple">
+<li>When an application issues a <code class="docutils literal"><span class="pre">sow</span></code> or <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>
+that uses a regular expression for the topic name, messages
+from topics in the Regex Topic are delivered between a <em>single</em>
+<code class="docutils literal"><span class="pre">group_begin</span></code> and <code class="docutils literal"><span class="pre">group_end</span></code> pair. Messages from any
+topic within the Regex Topic may be delivered in any order
+within the query results. Each message will indicate which
+topic within the Regex Topic it originated from.</li>
+<li>A regular expression topic <em>cannot</em> be the underlying topic
+for a view.</li>
+<li>A regular expression topic can be the underlying topic
+for a conflated topic, but the conflated topic must be
+configured to use a regular expression topic.</li>
+<li>All of the topics within a regular expression topic must have the
+same permissions.</li>
+</ul>
+</div>
+<div class="section" id="configuration-file-precedence">
+<h3>Configuration File Precedence<a class="headerlink" href="#configuration-file-precedence" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows you to define a standalone topic, view, queue, or
+conflated topic with a <code class="docutils literal"><span class="pre">Name</span></code> that matches the <code class="docutils literal"><span class="pre">Pattern</span></code>
+of a regular expression topic. To do so, however, that definition must
+appear in the configuration file <strong>before</strong> the definition of
+the regular expression topic. The topic, view, queue, or conflated topic
+will be configured as though no matching regular expression topic were
+defined.</p>
+<p>For example, the following <code class="docutils literal"><span class="pre">SOW</span></code> configuration creates
+a <code class="docutils literal"><span class="pre">Topic</span></code> named <code class="docutils literal"><span class="pre">/orders/specialHandling</span></code> and a regular
+expression topic that matches the pattern <code class="docutils literal"><span class="pre">^/orders/</span></code>. The
+<code class="docutils literal"><span class="pre">/orders/specialHandling</span></code> topic adds preprocessing, and
+could also, in principle, have different permissions than
+the topics in the regular expression topic.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+  <span class="nt">&lt;Topic&gt;</span>
+     <span class="nt">&lt;Name&gt;</span>/orders/specialHandling<span class="nt">&lt;/Name&gt;</span>
+     <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+     <span class="nt">&lt;Key&gt;</span>/orderId<span class="nt">&lt;/Key&gt;</span>
+     <span class="nt">&lt;Preprocessing&gt;</span>
+       <span class="nt">&lt;Field&gt;</span>COALESCE(/orderId,
+                  CONCAT(/customerName, /customerSerialNumber)) as /orderId<span class="nt">&lt;/Field&gt;</span>
+     <span class="nt">&lt;/Preprocessing&gt;</span>
+     <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+  <span class="nt">&lt;/Topic&gt;</span>
+
+  <span class="c">&lt;!-- Regular expression topic since this definition</span>
+<span class="c">       has a Pattern directive. --&gt;</span>
+
+  <span class="nt">&lt;Topic&gt;</span>
+     <span class="nt">&lt;Name&gt;</span>RegexOrders<span class="nt">&lt;/Name&gt;</span>
+     <span class="nt">&lt;Pattern&gt;</span>^/orders/<span class="nt">&lt;/Pattern&gt;</span>
+     <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+     <span class="nt">&lt;Key&gt;</span>/orderId<span class="nt">&lt;/Key&gt;</span>
+     <span class="nt">&lt;FileName&gt;</span>./sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+  <span class="nt">&lt;/Topic&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>With these definitions, a publish to the following topic names
+would produce the following results:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Message published to topic</td>
+<td>Results</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/orders/specialHandling</span></code></td>
+<td>Matches <code class="docutils literal"><span class="pre">Topic</span></code> definition.
+Stored in the <code class="docutils literal"><span class="pre">Topic</span></code>.
+The <code class="docutils literal"><span class="pre">Preprocessing</span></code> directive runs
+and creates the <code class="docutils literal"><span class="pre">/orderId</span></code> from the
+<code class="docutils literal"><span class="pre">/customerName</span></code> and
+<code class="docutils literal"><span class="pre">/customerSerialNumber</span></code> if there is
+no <code class="docutils literal"><span class="pre">/orderId</span></code> already present.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/orders/RHAT</span></code></td>
+<td>Matches the regular expression topic
+definition, stored in the regular
+expression topic.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/orders/specialHandling/oops</span></code></td>
+<td>Matches the regular expression topic
+definition, stored in the regular
+expression topic. Notice
+that a <code class="docutils literal"><span class="pre">Topic</span></code> definition is an
+<em>exact</em> match on the topic name, not a
+pattern match.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/customer/orders/timothy_someone</span></code></td>
+<td>Does not match either the <code class="docutils literal"><span class="pre">Topic</span></code> or
+the regular expression topic. Not
+included in the SOW.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="entitlements-and-regular-expression-topics">
+<h3>Entitlements and Regular Expression Topics<a class="headerlink" href="#entitlements-and-regular-expression-topics" title="Permalink to this headline">¶</a></h3>
+<p>AMPS considers permissions for the entire set of topics defined by the
+regular expression topic to be identical. When checking permissions for
+the topic with an entitlement module, AMPS requests that the module provide
+permissions for the <code class="docutils literal"><span class="pre">Pattern</span></code> specified in the regular expression topic.
+Any topic covered by the regular expression topic will use the permissions,
+entitlement filter, and entitlement select list specified by the module
+when AMPS provides the regular expression topic pattern.</p>
+<p>If it becomes necessary to restrict access to individual topics in the
+regular expression topic, there are two approaches that you can
+take:</p>
+<ul class="simple">
+<li>Create a new regular expression topic with a <code class="docutils literal"><span class="pre">Pattern</span></code> that
+specifies the topics that require different permissions, and
+apply the permissions to that topic.</li>
+<li>Provide an entitlement filter that uses the <code class="docutils literal"><span class="pre">TOPIC_NAME()</span></code>
+function to restrict access to specific topic names, for example,
+<code class="docutils literal"><span class="pre">TOPIC_NAME()</span> <span class="pre">IN</span> <span class="pre">('/orders/RHAT',</span> <span class="pre">'/orders/MSFT',</span> <span class="pre">'/orders/IBM')</span></code>.
+Using this method is less efficient than providing permissions
+for those topics (either as standalone topics, or for a
+regular expression topic containing exactly those three topics),
+but this approach can be a good option in cases
+where subscribers typically subscribe only to the topics they
+are entitled to, different subscribers have substantially different
+sets of entitlements, or there are no logical or convenient groupings
+that can be used to separate the topics into several
+regular expression topic declarations.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p id="index-8">Topics where SOW persistence is desired are individually configured
+within the <code class="docutils literal"><span class="pre">SOW</span></code> section of the configuration file. Each topic will be
+defined with a <code class="docutils literal"><span class="pre">Topic</span></code> section enclosed within <code class="docutils literal"><span class="pre">SOW</span></code>. The <em>AMPS
+Configuration Reference</em> contains a description of the attributes that
+can be configured per topic. <code class="docutils literal"><span class="pre">TopicMetaData</span></code> is a synonym for <code class="docutils literal"><span class="pre">SOW</span></code>
+provided for compatibility with previous versions of AMPS. Likewise,
+<code class="docutils literal"><span class="pre">TopicDefinition</span></code> is a synonym for the <code class="docutils literal"><span class="pre">Topic</span></code> element of the SOW
+section, provided for compatibility with versions of AMPS prior to 5.0.</p>
+<p>For the set of configuration options available in a SOW topic, see <a class="reference external" href="../../../configuration/html/chapters/sow.html#sow-topic">SOW/Topic</a> in the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>.</p>
+<p>The listing in <a class="reference internal" href="#sow-topic-config"><span class="std std-ref">Example 7.3</span></a>
+is an example of using <code class="docutils literal"><span class="pre">Topic</span></code> to add a SOW topic to the AMPS configuration. One topic named
+<code class="docutils literal"><span class="pre">ORDERS</span></code> is defined as having key <code class="docutils literal"><span class="pre">/invoice</span></code>, <code class="docutils literal"><span class="pre">/customerId</span></code> and <code class="docutils literal"><span class="pre">MessageType</span></code>
+of <code class="docutils literal"><span class="pre">json</span></code>. The persistence file for this topic is saved in the
+<code class="docutils literal"><span class="pre">sow/ORDERS.json.sow</span></code> file. For every message published to the
+<code class="docutils literal"><span class="pre">ORDERS</span></code> topic, a unique key will be assigned to each record with a
+unique combination of the fields <code class="docutils literal"><span class="pre">/invoice</span></code> and <code class="docutils literal"><span class="pre">/customerId</span></code>. A
+second topic named <code class="docutils literal"><span class="pre">ALERTS</span></code> is also defined with a <code class="docutils literal"><span class="pre">MessageType</span></code> of
+<code class="docutils literal"><span class="pre">xml</span></code> keyed off of <code class="docutils literal"><span class="pre">/client/id</span></code>. The SOW persistence file for
+<code class="docutils literal"><span class="pre">ALERTS</span></code> is saved in the <code class="docutils literal"><span class="pre">sow/ALERTS.xml.sow</span></code> file.</p>
+<div class="highlight-XML" id="sow-topic-config"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ORDERS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/invoice<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/customerId<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;SlabSize&gt;</span>1MB<span class="nt">&lt;/SlabSize&gt;</span>
+        <span class="nt">&lt;HashIndex&gt;</span>
+            <span class="nt">&lt;Key&gt;</span>/region<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;/HashIndex&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>ALERTS<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>sow/%n.sow<span class="nt">&lt;/FileName&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/client/id<span class="nt">&lt;/Key&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>xml<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="c">&lt;!-- Pregenerate an index for the /alert/type element. This is seldom necessary,</span>
+<span class="c">             since AMPS will generate the index when it is needed, but the directive is included here</span>
+<span class="c">             for example purposes. --&gt;</span>
+        <span class="nt">&lt;Index&gt;</span>/alert/type<span class="nt">&lt;/Index&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 7.3:</strong> <em>Sample SOW Configuration</em></p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Topics are scoped by their message type.</p>
+<p>For example, two topics named Orders can be created: one which
+supports <code class="docutils literal"><span class="pre">MessageType</span></code> of <code class="docutils literal"><span class="pre">json</span></code> and another which supports
+<code class="docutils literal"><span class="pre">MessageType</span></code> of <code class="docutils literal"><span class="pre">xml</span></code>.</p>
+<p>Each of the <code class="docutils literal"><span class="pre">MessageType</span></code> entries that are defined for the
+<code class="docutils literal"><span class="pre">Orders</span></code> topic will require that <code class="docutils literal"><span class="pre">Transport</span></code> in the
+configuration file can accept messages of that type. Otherwise,
+there is no way for a publisher to publish messages of that type
+to this instance or for a subscriber to receive messages of that
+type from this instance.</p>
+<p class="last">This means that messages published to the <code class="docutils literal"><span class="pre">Orders</span></code> topic must
+know the type of message they are sending (<code class="docutils literal"><span class="pre">json</span></code> or <code class="docutils literal"><span class="pre">xml</span></code>)
+and the port defined by the transport.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,157 @@
+API License Agreement
+
+IMPORTANT - READ THIS CAREFULLY BEFORE INSTALLING, USING OR ELECTRONICALLY
+ACCESSING THIS PROPRIETARY PRODUCT. THIS API LICENSE AGREEMENT ("AGREEMENT") IS
+A LEGAL AGREEMENT BETWEEN 60EAST TECHNOLOGIES, INC. ("60EAST") AND THE BUSINESS
+ENTITY ON WHOSE BEHALF YOU ("YOU") ARE ACTING ("CUSTOMER") AS THE END USER OF
+THE 60EAST CLIENT APPLICATION PROGRAMING INTERFACE SOFTWARE CODE ACCOMPANYING
+THIS AGREEMENT, WHICH INCLUDES OBJECT CODE AND SOURCE CODE AND MAY INCLUDE
+ASSOCIATED MEDIA, PRINTED MATERIALS AND DOCUMENTATION (COLLECTIVELY, THE "CLIENT
+API").  THE CLIENT API ALSO INCLUDES ANY UPDATES OR UPGRADES TO OR NEW VERSIONS
+OF THE ORIGINAL CLIENT API, IF AND WHEN MADE AVAILABLE TO YOU BY 60EAST.
+
+YOU AGREE THAT YOU ARE AN EMPLOYEE OR AGENT OF CUSTOMER AND ARE ENTERING INTO
+THIS AGREEMENT TO USE THE CLIENT API FOR CUSTOMER'S OWN BUSINESS PURPOSES.  YOU
+HEREBY AGREE THAT YOU ENTER INTO THIS AGREEMENT ON BEHALF OF CUSTOMER AND THAT
+YOU HAVE THE AUTHORITY TO BIND CUSTOMER TO THE TERMS AND CONDITIONS OF THIS
+AGREEMENT.
+
+60EAST IS WILLING TO LICENSE THE CLIENT API TO CUSTOMER ONLY ON THE CONDITION
+THAT YOU ACCEPT ALL OF THE TERMS IN THIS AGREEMENT.  IF YOU ARE ACCESSING THE
+CLIENT API ELECTRONICALLY AND YOU AGREE TO THE TERMS OF THIS AGREEMENT, SELECT
+THE "I AGREE", "I ACCEPT", OR "YES" BUTTON BENEATH THIS AGREEMENT TO COMPLETE
+YOUR ACCESS TO THE CLIENT API.  BY INSTALLING, DOWNLOADING, CONFIGURING,
+ACCESSING, OR OTHERWISE USING THE CLIENT API, INCLUDING ANY UPDATES, UPGRADES,
+OR NEWER VERSIONS, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS AGREEMENT, UNDERSTAND
+THIS AGREEMENT, AND THAT CUSTOMER AGREES TO BE BOUND BY ALL OF THE TERMS OF
+THIS AGREEMENT.
+
+1. License Grant.  Subject to the terms of this Agreement, 60East grants to
+Customer, during the Term, a limited, revocable, non-exclusive,
+non-transferable, non-sublicensable license to install and use the Client API
+solely to (a) download and integrate "package manager" sites from development
+environments into a Customer application and (b) enable a Customer application
+to interact with 60East's AMPS Software ("AMPS") solely for Customer's own
+internal business purpose in accordance with the Client API documentation and
+other terms and conditions of this Agreement.  Customer may make a reasonable
+number of copies of the Client API solely for the purpose of interacting with
+AMPS for Customer's internal business purposes.
+
+2. Restrictions on Use.  Customer is responsible for all activities that occur
+in connection with the Client API.  Customer acknowledges that the Client API
+and the structure, organization, and source code thereof constitute valuable
+trade secrets of 60East.  Accordingly, except as expressly permitted in
+Section 1 or as otherwise authorized by 60East in writing, Customer will not,
+and will not permit any third party to (a) modify, adapt, alter, translate, or
+create derivative works from the Client API; (b) sublicense, lease, rent, loan,
+sell, distribute, make available or otherwise transfer the Client API to any
+third party; (c) reverse engineer, decompile, disassemble, or otherwise attempt
+to derive the source code for the Client API; or (d) otherwise use or copy the
+Client API except as expressly allowed under Section 1 above.  Customer may not
+disclose to third parties or through publication the results of
+performance/benchmark tests run on the Client API without the prior written
+consent of 60East.
+
+3. Delivery and Acceptance.  The Client API will be delivered electronically
+pursuant to 60East standard download procedures.  The Client API is deemed
+accepted upon delivery.
+
+4. Ownership.  As between the parties, the Client API and all modifications and
+improvements to the Client API, and all worldwide intellectual property rights
+and proprietary rights relating thereto or embodied therein, are the exclusive
+property of 60East and its suppliers.  60East and its suppliers reserve all
+rights in and to the Client API not expressly granted to Customer in Section 1,
+and no other licenses or rights are granted by implication, estoppel or
+otherwise.
+
+5. Implementation and Support.  60East has no obligation under this Agreement to
+provide any support or consultation concerning the Client API; provided,
+however, 60East may, in its sole discretion, provide Customer with certain
+support and consultation free of charge to assist in the permitted activities of
+Customer under this Agreement. The furnishing of such support or consultation
+will not subject 60East to any liability, whether in contract, tort or
+otherwise.  Customer is responsible for providing all applicable hardware and
+any third party software or required installation and configuration services
+required for the operation of the Client API.  Any third party software license
+agreements will be agreed to by Customer and the applicable third party software
+vendor.
+
+6. Term and Termination.  This Agreement is effective upon acceptance by
+Customer and shall continue until terminated in accordance with this Agreement.
+Customer may terminate this Agreement at any time by destroying the Client API
+and notifying 60East at:  sales@crankuptheamps.com.  If Customer breaches any
+provision of this Agreement, this Agreement will automatically terminate.  The
+provisions of Sections 2, 4, 6, 7, 8, 9, 10, 11, and 12 shall survive
+termination or expiration of this Agreement for any reason.
+
+7. Confidentiality.  60East may disclose certain information regarding the
+business of 60East and its suppliers, including the Client API and technical,
+marketing, financial, employee, planning, and other confidential or proprietary
+information of 60East or its suppliers ("Confidential Information"). Any
+information that Customer knew or should have known, under the circumstances,
+was considered confidential or proprietary by 60East will be considered
+Confidential Information. Customer agrees (a) not to disclose Confidential
+information to any persons outside its organization, except to its consultants
+or agents who agree in writing to protect such Confidential information as
+required herein; and (b) to use the Confidential information only for the
+purpose of using the Client API as permitted by this Agreement.
+
+8. Disclaimer.  CUSTOMER ACKNOWLEDGES AND AGREES THAT CUSTOMER'S USE OF THE
+CLIENT API IS ENTIRELY AT ITS OWN RISK AND THE CLIENT API PROVIDED BY 60EAST TO
+CUSTOMER IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND WHATSOEVER.
+60EAST, ON BEHALF OF ITSELF AND ITS SUPPLIERS, HEREBY EXPRESSLY DISCLAIMS ALL
+WARRANTIES WITH REGARD TO THE CLIENT API, WHETHER EXPRESS, IMPLIED, STATUTORY OR
+OTHERWISE, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE NON-INFRINGEMENT AND
+ANY WARRANTIES ARISING FROM COURSE OF DEALING OR COURSE OF PERFORMANCE. TO THE
+EXTENT THAT, AS A MATTER OF APPLICABLE LAW, ANY IMPLIED OR STATUTORY WARRANTY
+MAY NOT BE DISCLAIMED, THE DURATION AND SCOPE OF SUCH WARRANTY SHALL BE THE
+MINIMUM PERMISSIBLE UNDER SUCH APPLICABLE LAW.
+
+9. Limitation of Liability.  IN NO EVENT WILL 60EAST BE LIABLE FOR ANY
+CONSEQUENTIAL, INDIRECT, EXEMPLARY, PUNITIVE, SPECIAL OR INCIDENTAL DAMAGES,
+INCLUDING ANY LOST DATA AND LOST PROFITS, ARISING FROM OR RELATING TO THE CLIENT
+API OR THIS AGREEMENT, EVEN IF 60EAST HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES. 60EAST'S TOTAL CUMULATIVE LIABILITY IN CONNECTION WITH THIS
+AGREEMENT AND THE CLIENT API, WHETHER IN CONTRACT OR TORT OR OTHERWISE, WILL NOT
+EXCEED $1000. CUSTOMER ACKNOWLEDGES THAT THIS PROVISION REFLECTS THE AGREED UPON
+ALLOCATION OF RISK FOR THIS AGREEMENT AND THAT 60EAST WOULD NOT ENTER INTO THIS
+AGREEMENT WITHOUT THESE LIMITATIONS ON ITS LIABILITY.
+
+10. Compliance with Laws.  Customer shall comply with all laws, regulations,
+rules, ordinances and orders applicable to its use of the Client API. Without
+limiting the foregoing, Customer shall comply with the relevant export
+administration and control laws and regulations, as may be amended from time to
+time, including, without limitation, the United States Export Administration
+Act, to ensure that the Client API is not shipped, transferred or exported
+(directly or indirectly) in violation of U.S. law.
+
+11. U.S. Government End Users.  The Client API is a "commercial item" as that
+term is defined at 48 C.F.R. 2.101, consisting of "commercial computer software"
+and "commercial computer software documentation" as such terms are used in 48
+C.F.R. 12.212. Consistent with 48 C.F.R. 12.212 and 48 C.F.R. 227.7202-1 through
+227.7202-4, all U.S. Government end users acquire the Client API with only those
+rights set forth therein.
+
+12. Miscellaneous.  Customer may not assign or delegate, directly or indirectly,
+by operation of law or otherwise, this Agreement or any of its rights or
+obligations under this Agreement (including the license rights granted to
+Customer to the Client API) to any third party.  Any attempted assignment or
+transfer in violation of the foregoing will be null and void and of no effect.
+This Agreement will be subject to and governed by the laws of the State of
+Nevada and the United States of America without regard for its conflicts of law
+principles that would require application of the laws of a different state or
+country. The federal and state courts for Clark County Nevada shall have
+jurisdiction over any disputes, claims or controversies arising out of or
+relating to this Agreement, and Customer hereby irrevocably waives any objection
+to the jurisdiction of such courts over any such dispute, claim or controversy.
+All modifications, waivers and amendments must be in writing and signed by both
+parties. Any waiver or failure to enforce any provision of this Agreement on one
+occasion will not be deemed a waiver of any other provision or of such provision
+on any other occasion. If any provision of this Agreement is held by a court of
+competent jurisdiction to be unenforceable for any reason, the remaining
+provisions hereof shall be unaffected and continue in full force and effect.
+This Agreement constitutes the entire agreement between the parties regarding
+the subject hereof and supersedes all prior or contemporaneous agreements,
+understandings and communications, whether written or oral.
+

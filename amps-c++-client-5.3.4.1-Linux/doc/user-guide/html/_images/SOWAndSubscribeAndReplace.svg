@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <rect x="-52" y="196.499" class="st0" width="499.002" height="398.999" transform="matrix(0.999997, 0.002597, 0, 1.000003, 119.166664, -300.061798)" style="fill: rgb(255, 255, 255);"/>
+  <g transform="matrix(1, 0.002597, 0, 1, 333.916656, -85.254051)" style="">
+    <rect x="-55" y="197" class="st1" width="66.5" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -50.4434 195)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 269.75px 250.812px;">group_end</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 291.541656, -123.364105)" style="">
+    <rect x="-55" y="197" class="st1" width="153.3" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -36.7314 195)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 290.344px 0px;">matching sow records</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 300.666656, -164.340408)" style="">
+    <rect x="-55" y="197" class="st1" width="133" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -48.2129 195)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 292.719px 250.812px;">group_begin response</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 243.916672, -204.487793)" style="">
+    <rect x="-55" y="197" class="st1" width="244.5" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -14.375 195)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 308.594px 250.812px;">sow_and_subscribe command</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 131.166672, -276.405609)" style="">
+    <g transform="translate(4.0,4.0)">
+      <rect x="-55" y="197" class="st4" width="140" height="38.8" style="fill: rgb(168, 168, 168); fill-opacity: 0.6;"/>
+    </g>
+    <rect x="-55" y="197" class="st5" width="140" height="38.8" style="fill: rgb(255, 255, 255); stroke: rgb(51, 51, 51); stroke-width: 3px;"/>
+    <g transform="translate(0.0,27.375)">
+      <text transform="matrix(1 0 0 1 -10.0005 194)" class="st6 st7" style="white-space: pre; font-family: Arial-BoldMT; font-size: 18px; line-height: 28.8px; perspective-origin: 267.109px 0px;">Client</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 201.166672, -237.473816)" style="">
+    <path class="st8" d="M-54.9,197v411.8c0,10.2-0.5,15.3-1.6,15.3h-1.6" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 23px, 0px; stroke-width: 2px;"/>
+    <g transform="translate(0.0,135.0625)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 128.666672, 33.462898)" style="">
+    <g transform="translate(4.0,4.0)">
+      <rect x="-57" y="344.5" class="st4" width="139" height="15" style="fill: rgb(168, 168, 168); fill-opacity: 0.6;"/>
+    </g>
+    <rect x="-57" y="344.5" class="st9" width="139" height="15" style="stroke: rgb(51, 51, 51);"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 467.166656, -274.53299)" style="">
+    <g transform="translate(4.0,4.0)">
+      <rect x="-55" y="197" class="st4" width="140" height="38.8" style="fill: rgb(168, 168, 168); fill-opacity: 0.6;"/>
+    </g>
+    <rect x="-55" y="197" class="st5" width="140" height="38.8" style="fill: rgb(255, 255, 255); stroke: rgb(51, 51, 51); stroke-width: 3px;"/>
+    <g transform="translate(0.0,27.375)">
+      <text transform="matrix(1 0 0 1 -11.0024 194)" class="st6 st7" style="white-space: pre; font-family: Arial-BoldMT; font-size: 18px; line-height: 28.8px; perspective-origin: 267.125px 0px;">AMPS</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 537.166687, -235.601196)" style="">
+    <path class="st8" d="M-55,197v409.9c0,10.2-0.5,15.3-1.5,15.3H-58" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 23px, 0px; stroke-width: 2px;"/>
+    <g transform="translate(0.0,135.0625)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 464.666656, 35.335518)" style="">
+    <g transform="translate(4.0,4.0)">
+      <rect x="-57" y="344.5" class="st4" width="139" height="15" style="fill: rgb(168, 168, 168); fill-opacity: 0.6;"/>
+    </g>
+    <rect x="-57" y="344.5" class="st9" width="139" height="15" style="stroke: rgb(51, 51, 51);"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 201.166672, -182.848816)" style="">
+    <path class="st8" d="M-55,197h156.5c6.7,0,10,0,10,0l0,0l0,0H275" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 23px, 0px; stroke-width: 2px;"/>
+    <g transform="translate(333.0,0.0) rotate(180.0)">
+      <polygon class="st10" points="58,-197 64,-200 64,-194 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(161.5,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 536.166687, -143.978806)" style="">
+    <path class="st11" d="M-55,197h-156c-6.7,0-10,0-10,0l0,0l0,0h-163" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-332.0,0.0) rotate(360.0)">
+      <polygon class="st10" points="-52,197 -46,194 -46,200 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-161.0,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 535.166687, -102.981384)" style="">
+    <path class="st11" d="M-55,197h-155.5c-6.7,0-10,0-10,0l0,0l0,0H-383" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-331.0,0.0) rotate(360.0)">
+      <polygon class="st10" points="-52,197 -46,194 -46,200 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-160.5,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 535.166687, -62.981388)" style="">
+    <path class="st11" d="M-55,197h-155c-6.7,0-10-0.2-10-0.5l0,0c0-0.3-0.2-0.5-0.5-0.5H-382" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-330.0,-1.0) rotate(360.0)">
+      <polygon class="st10" points="-52,197 -46,194 -46,200 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-159.75,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 333.916656, -85.254051)" style="">
+    <rect x="-60.5" y="237.4" class="st1" width="66.5" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -117.75 235.375)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 328.922px 0px;">publish messages matching subscription</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 535.166687, -62.981388)" style="">
+    <path class="st11" d="M-60.5,237.4h-155c-6.7,0-10-0.2-10-0.5l0,0c0-0.3-0.2-0.5-0.5-0.5h-161.5" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-330.0,-1.0) rotate(360.0)">
+      <polygon class="st10" points="-57.5,237.4 -51.5,234.4 -51.5,240.4 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-159.75,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 243.916672, -204.487793)" style="">
+    <rect x="-54" y="395.8" class="st1" width="244.5" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -29.25 393.75)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 334.75px 250.812px;">sow_and_subscribe command with replace</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 201.166672, -182.848816)" style="">
+    <path class="st8" d="M-54,395.8h156.5c6.7,0,10,0,10,0l0,0l0,0H276" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 23px, 0px; stroke-width: 2px;"/>
+    <g transform="translate(333.0,0.0) rotate(180.0)">
+      <polygon class="st10" points="57,-395.8 63,-398.8 63,-392.8 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(161.5,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 333.916656, -85.254051)" style="">
+    <rect x="-57.5" y="395.5" class="st1" width="66.5" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -52.9434 393.5)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 269.75px 250.812px;">group_end</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 291.541656, -123.364105)" style="">
+    <rect x="-57.5" y="395.5" class="st1" width="153.3" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 340.734px 0px;" x="-44.68" y="392.23">newly matchng sow records</text>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 28px;" transform="matrix(0.574713, -0.001493, 0, 0.574713, 403.285919, 300.394348)">Enter your text here.</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 300.666656, -164.340408)" style="">
+    <rect x="-57.5" y="395.5" class="st1" width="133" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -50.7129 393.5)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 292.719px 250.812px;">group_begin response</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 536.166687, -143.978806)" style="">
+    <path class="st11" d="M-57.5,395.5h-156c-6.7,0-10,0-10,0l0,0l0,0h-163" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-332.0,0.0) rotate(360.0)">
+      <polygon class="st10" points="-54.5,395.5 -48.5,392.5 -48.5,398.5 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-161.0,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 535.166687, -102.981384)" style="">
+    <path class="st11" d="M-57.5,395.5H-213c-6.7,0-10,0-10,0l0,0l0,0h-162.5" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-331.0,0.0) rotate(360.0)">
+      <polygon class="st10" points="-54.5,395.5 -48.5,392.5 -48.5,398.5 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-160.5,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 535.166687, -62.981388)" style="">
+    <path class="st11" d="M-57.5,395.5h-155c-6.7,0-10-0.2-10-0.5l0,0c0-0.3-0.2-0.5-0.5-0.5h-161.5" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-330.0,-1.0) rotate(360.0)">
+      <polygon class="st10" points="-54.5,395.5 -48.5,392.5 -48.5,398.5 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-159.75,0.0)"/>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 333.916656, -85.254051)" style="">
+    <rect x="-57.5" y="429.4" class="st1" width="66.5" height="23.5" style="fill: none;"/>
+    <g transform="translate(0.0,16.75)">
+      <text transform="matrix(1 0 0 1 -145 427.375)" class="st2 st3" style="white-space: pre; font-family: ArialMT; font-size: 12px; line-height: 19.2px; perspective-origin: 346.047px 0px;">publish messages matching updated subscription</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0.002597, 0, 1, 535.166687, -62.981388)" style="">
+    <path class="st11" d="M-57.5,429.4h-155c-6.7,0-10-0.2-10-0.5l0,0c0-0.3-0.2-0.5-0.5-0.5h-161.5" style="fill: none; stroke: rgb(0, 0, 0); stroke-dasharray: 6px, 12px; stroke-width: 2px;"/>
+    <g transform="translate(-330.0,-1.0) rotate(360.0)">
+      <polygon class="st10" points="-54.5,429.4 -48.5,426.4 -48.5,432.4 &#9;&#9;" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"/>
+    </g>
+    <g transform="translate(-159.75,0.0)"/>
+  </g>
+</svg>

@@ -1,0 +1,93 @@
+.. _#ug-actions:
+
+24. Automating AMPS With Actions
+===================================
+
+.. index:: Actions,
+
+AMPS provides the ability to run scheduled tasks or respond to events,
+such as Linux signals, using the Actions interface.
+
+To create an action, you add an ``Actions`` section to the AMPS
+configuration file. Each ``Action`` contains one (or more) ``On``
+statement which specifies when the action occurs, and one (or more)
+``Do`` statement which specifies what the AMPS server does for the
+action. Within an action, AMPS performs each ``Do`` statement in the
+order in which they appear in the file.
+
+
+AMPS actions may require the use of parameters. AMPS allows you to use
+variables in the parameters of an action. You can access these variables
+using the following syntax:
+
+``{{VARIABLE_NAME}}``
+
+AMPS defines a set of default variables when running an action. The
+event, or a previous action, can add variables in the context of the
+action. Those variables can be expanded in subsequent parameters. If a
+variable is used that isn't defined at the point where it is used, AMPS
+will expand that variable to an empty string literal. The context can
+also be updated as the module is running, so any variables that are
+available at any given point in the file depend on what action was
+previously executed.
+
+By default, AMPS loads the following variables when it initializes an
+AMPS action:
+
++--------------------------------+--------------------------------------------+
+| Variable                       | Description                                |
++================================+============================================+
+| ``AMPS_INSTANCE_NAME``         | The name of the AMPS instance.             |
++--------------------------------+--------------------------------------------+
+| ``AMPS_BYTE_XX``               | Insert byte *XX*, where *XX* is a 2-digit  |
+|                                | uppercase hex number (00-FF). AMPS expands |
+|                                | this variable to the corresponding byte    |
+|                                | value. These variables are useful for      |
+|                                | creating field separators or producing     |
+|                                | characters that are not permitted within   |
+|                                | XML.                                       |
++--------------------------------+--------------------------------------------+
+| ``AMPS_DATETIME``              | The current date and time in ISO-8601      |
+|                                | format.                                    |
++--------------------------------+--------------------------------------------+
+| ``AMPS_UNIX_TIMESTAMP``        | The current date and time as a UNIX        |
+|                                | timestamp.                                 |
++--------------------------------+--------------------------------------------+
+
+**Table 24.1:** *Default Context Variables*
+
+An example to echo a message when AMPS starts up is shown below. Note
+the AMPS_INSTANCE_NAME is one of the variables that AMPS pushes to the
+context when an action is loaded.
+
+.. code-block:: xml
+
+    <Actions>
+        <Action>
+            <On>
+                <Module>amps-action-on-startup</Module>
+            </On>
+            <Do>
+                <Module>amps-action-do-echo-message</Module>
+                <Options>
+                    <Message>instance={{AMPS_INSTANCE_NAME}}</Message>        
+                </Options>
+            </Do>
+        </Action>
+    </Actions>
+
+AMPS actions are implemented as AMPS modules.  To run each statement, AMPS
+simply calls the module that implements that ``Do`` statement. The module is
+free to take any necessary actions. If a ``Do`` statement returns
+a failure, AMPS does not run subsequent ``Do`` statements in that action.
+This is intended to help make maintenance processes reliable. For example,
+if a ``Do`` statement that is intended to copy a log file to a storage
+directory fails because the device that holds the storage directory is
+not mounted, further steps in the action -- which might do things like
+remove the log file from the original directory -- should not be run. Likewise,
+if AMPS exits unexpectedly during a given ``Do`` statement, subsequent
+statements will not be run.
+
+AMPS provides the modules described in the following sections by default.
+
+.. include:: ./actions.inc

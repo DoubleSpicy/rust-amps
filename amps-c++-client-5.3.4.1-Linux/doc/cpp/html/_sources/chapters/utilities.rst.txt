@@ -1,0 +1,356 @@
+
+12. Utilities
+============================
+
+The AMPS C++ client includes a set of utilities and helper classes to
+make working with AMPS easier.
+
+Composite Message Types
+-----------------------
+
+The client provides a pair of classes for creating and parsing composite
+message types.
+
+-  ``CompositeMessageBuilder`` allows you to assemble the parts of a
+   composite message and then serialize them in a format suitable for
+   AMPS.
+
+-  ``CompositeMessageParser`` extracts the individual parts of a
+   composite message type
+
+For more information regarding composite message types, refer to Chapter 4.3.
+
+Building Composite Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To build a composite message, create an instance of
+``CompositeMessageBuilder``, and populate the parts. The
+``CompositeMessageBuilder`` copies the parts provided, in order, to the
+underlying message. The builder simply writes to an internal buffer with
+the appropriate formatting, and does not allow you to update or change
+the individual parts of a message once they've been added to the
+builder.
+
+The snippet below shows how to build a composite message that includes a
+JSON part, constructed as a string, and a binary part consisting of the
+bytes from a standard ``vector``.
+
+.. code-block:: cpp
+
+    std::string json_part("{\"data\":\"sample\"}");
+
+    std::vector<double> data;
+    /* populate data */
+    ...
+
+    /* Create the payload for the composite message. */
+    AMPS::CompositeMessageBuilder builder;
+
+    builder.append(json_part.str());
+    builder.append(reinterpret_cast<const char*>(data.data()),
+                       data.size() * sizeof(double));
+
+    /* send the message */
+    std::string topic("messages");
+    ampsClient.publish(topic.c_str(), topic.length(), builder.data(), builder.length());
+
+Parsing Composite Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To parse a composite message, create an instance of
+``CompositeMessageParser``, then use the ``parse()`` method to parse the
+message provided by the AMPS client. The CompositeMessageParser gives
+you access to each part of the message as a sequence of bytes.
+
+For example, the following snippet parses and prints messages that
+contain a JSON part and a binary part that contains an array of doubles.
+
+.. code-block:: cpp
+
+    for (auto message : ampsClient.subscribe("messages")) {
+
+        parser.parse(message); 
+
+        /* first part is JSON */
+        std::string json_part = std::string(parser.getPart(0));
+
+        /* Second part is the raw bytes for a vector<double> */
+        AMPS::Field binary = parser.getPart(1);
+             
+        std::vector<double> vec;
+        double *array_start = (double*)binary.data();
+        double *array_end = array_start + (binary.len() / sizeof(double));
+
+        vec.insert(vec.end(), array_start, array_end);
+
+        /* Print the contents of the message */
+        std::cout << "Received message with " << parser.size() << " parts"
+                  << std::endl
+                  << "\t" << json_part
+                  << std::endl;
+
+        for (auto d : vec)
+            std::cout << d << " ";
+
+        std::cout << std::endl;
+    }
+
+Notice that the receiving application is written with explicit knowledge
+of the structure and content of the composite message type.
+
+Composite Message Builder and Composite Message Parser Samples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The C++ client distribution contains the following samples to
+demonstrate ``CompositeMessageBuilder`` and ``CompositeMessageParser``.
+
++----------------------------------+-------------------------------------------+
+| Sample Name                      | Demonstrates                              |
++==================================+===========================================+
+| ``amps_publish_composite.cpp``   | Creating and publishing a composite       |
+|                                  | message using ``CompositeMessageBuilder`` |
++----------------------------------+-------------------------------------------+
+| ``amps_subscribe_composite.cpp`` | Receiving and parsing a composite message |
+|                                  | using ``CompositeMessageParser``          |
++----------------------------------+-------------------------------------------+
+
+NVFIX Messages
+----------------
+
+The client provides a pair of classes for creating and parsing NVFIX
+message types.
+
+-  ``NVFIXBuilder`` allows you to assemble an NVFIX message and then
+   serialize them in a format suitable for AMPS.
+
+-  ``FIXShredder`` extracts the individual fields of a NVFIX message
+   type
+
+Building NVFIX Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To build a NVFIX message, create an instance of ``NVFIXBuilder``, then
+add the fields of the message using ``append()``. ``NVFIXBuilder``
+copies the fields provided, in order, to the underlying message. The
+builder simply writes to an internal buffer with the appropriate
+formatting, and does not allow you to update or change the individual
+fields of a message once they've been added to the builder.
+
+The snippet below shows how to build a NVFIX message and publish it to
+the AMPS client.
+
+.. code-block:: cpp
+
+    /* Construct a client with the name "NVFIXPublisher". */
+    AMPS::Client ampsClient("NVFIXPublisher");
+
+    /* Construct a simple NVFIX message. */
+    AMPS::NVFIXBuilder builder;
+        
+    /* Add data to the builder */
+    builder.append("Test", "data");
+    builder.append("More", "stuff");
+
+    /* Display the data */
+    std::cout << builder.getString() << std::endl;
+
+    try
+    {
+        /* Connect to the server and log on */
+        ampsClient.connect(uri);
+        ampsClient.logon();
+
+        /* Publish message to the topic messages */
+        std::string topic("messages");
+        ampsClient.publish(topic, builder.getString());
+    }
+    catch (const AMPS::AMPSException& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+Parsing NVFIX Messages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+To parse a NVFIX message, create an instance of ``FIXShredder``, then
+use the ``toMap()`` method to parse the message provided by the AMPS
+client. The ``FIXShredder`` gives you access to each field of the
+message in a map.
+
+The snippet below shows how to parse and print an NVFIX message.
+
+.. code-block:: cpp
+
+    /* Create a client with the name "NVFIXSubscriber" */
+    AMPS::Client ampsClient("NVFIXSubscriber");
+
+    try
+    {
+        /* Connect to the server and log on */
+        ampsClient.connect(uri);
+        ampsClient.logon();
+
+        /* Subscribe to the messages topic 
+         *
+         * This overload of the subscribe method returns a MessageStream
+         * that can be iterated over.  When the MessageStream destructor
+         * runs, the destructor unsubscribes.
+         */
+           
+        /* Set up the shredder */
+        AMPS::FIXShredder shredder;
+
+        for (auto message : ampsClient.subscribe("messages")) {
+            /* Shred the data to a map */
+            auto subscription = shredder.toMap(message.getData());
+
+            /* Display the data */
+            for (auto iterator = subscription.begin(); iterator != subscription.end(); ++iterator) {
+                std::cout << iterator->first << " " << iterator->second << std::endl;
+            }
+        }
+    }
+    catch (const AMPS::AMPSException& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+NVFIX Builder and Shredder Samples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The C++ client distribution contains the following samples to
+demonstrate ``NVFIXBuilder`` and ``NVFIXShredder``.
+
++---------------------------------------+------------------------------------+
+| Sample Name                           | Demonstrates                       |
++=======================================+====================================+
+| ``amps_nvfix_builder_publisher.cpp``  | Creating and publishing            |
+|                                       | a message using ``NVFIXBuilder``   |
++---------------------------------------+------------------------------------+
+| ``amps_nvfix_builder_subscriber.cpp`` | Receiving a message and            |
+|                                       | parsing it using ``NVFIXShredder`` |
++---------------------------------------+------------------------------------+
+
+FIX Messages
+------------
+
+The client provides a pair of classes for creating and parsing FIX
+messages.
+
+-  ``FIXBuilder`` allows you to assemble a FIX message and then
+   serialize them in a format suitable for AMPS.
+
+-  ``FIXShredder`` extracts the individual fields of a FIX message.
+
+Building FIX Messages
+^^^^^^^^^^^^^^^^^^^^^
+
+To build a FIX message, create an instance of ``FIXBuilder``, then add
+the fields of the message using ``append()``. ``FIXBuilder`` copies the
+fields provided, in order, to the underlying message. The builder simply
+writes to an internal buffer with the appropriate formatting, and does
+not allow you to update or change the individual fields of a message
+once they've been added to the builder.
+
+The snippet below shows how to build a FIX message and publish it to the
+AMPS client.
+
+.. code-block:: cpp
+
+    /* Construct a client with the name "FIXPublisher". */
+    AMPS::Client ampsClient("FIXPublisher");
+
+    /* Construct a simple FIX message. */
+    AMPS::FIXBuilder builder;
+       
+    /* Add data to the builder */
+    builder.append(0, "123");
+
+    /* Display the data */
+    std::cout << builder.getString() << std::endl;
+
+    try
+    {
+        /* connect to the server and log on */
+        ampsClient.connect(uri);
+        ampsClient.logon();
+
+        /* publish message to the messages topic */
+        std::string topic("messages");
+        ampsClient.publish(topic, builder.getString());
+
+    }
+    catch (const AMPS::AMPSException& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+Parsing FIX Messages
+^^^^^^^^^^^^^^^^^^^^^
+
+To parse a FIX message, create an instance of ``FIXShredder``, then use
+the ``toMap()`` method to parse the message provided by the AMPS client.
+The ``FIXShredder`` gives you access to each field of the message in a
+map.
+
+The snippet below shows how to parse and print a FIX message.
+
+.. code-block:: cpp
+
+    /* Create a client with the name "NVFIXSubscriber" */
+    AMPS::Client ampsClient("NVFIXSubscriber");
+
+    try
+    {
+        /* Connect to the server and log on */
+        ampsClient.connect(uri);
+        ampsClient.logon();
+
+        /* Subscribe to the messages topic
+         *
+         * This overload of the subscribe method returns a MessageStream
+         * that can be iterated over.  When the MessageStream destructor
+         * runs, the destructor unsubscribes.
+         */
+           
+        /* Set up the shredder */
+        AMPS::FIXShredder shredder;
+
+        for (auto message : ampsClient.subscribe("messages"))
+        {
+            // Shred the data to a map
+            auto subscription = shredder.toMap(message.getData());
+
+            // Display the data
+            for (auto iterator = subscription.begin(); iterator != subscription.end(); ++iterator)
+            {
+                std::cout << iterator->first << " " << iterator->second << std::endl;
+            }
+        }
+    }
+    catch (const AMPS::AMPSException& e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+
+FIX Builder and Shredder Samples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The C++ client distribution contains the following samples to
+demonstrate ``NVFIXBuilder`` and ``NVFIXShredder``.
+
++-------------------------------------+----------------------------------+
+| Sample Name                         | Demonstrates                     |
++=====================================+==================================+
+| ``amps_fix_builder_publisher.cpp``  | Creating and publishing          |
+|                                     | a message using ``FIXBuilder``   |
++-------------------------------------+----------------------------------+
+| ``amps_fix_builder_subscriber.cpp`` | Receiving a message and          |
+|                                     | parsing it using ``FIXShredder`` |
++-------------------------------------+----------------------------------+
+

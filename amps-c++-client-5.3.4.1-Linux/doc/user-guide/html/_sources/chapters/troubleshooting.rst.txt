@@ -1,0 +1,459 @@
+.. _#ug-troubleshooting:
+
+28. Troubleshooting AMPS
+========================
+
+This chapter presents common techniques for troubleshooting AMPS.
+Additional troubleshooting information and answers to common questions
+about AMPS are included on our support site at
+http://support.crankuptheamps.com/hc.
+
+.. index:: troubleshooting; planning,
+
+Planning for Troubleshooting
+----------------------------
+
+There are several steps that you can take before you need to
+troubleshoot a problem that will make troubleshooting easier. 60East
+recommends that you consider taking the following steps for a production
+instance of AMPS:
+
+1. Configure the instance to log messages of ``info`` level or more
+   verbose if possible, or a minimum of ``warning`` level. Some
+   problems require more information, so increasing the amount of
+   logging typically makes troubleshooting easier if your instance
+   has storage available. 60East recommends that production instances
+   log at ``info`` level or more verbose. If space is extremely
+   restricted, ``warning`` level will provide some information,
+   although more logging may be required to completely troubleshoot
+   a problem.
+
+2. Ensure that client applications use unique names. Wherever possible,
+   ensure that those names can easily be traced back to the instance of
+   the application. For example, you might use the name of application
+   combined with the name of the logged on user as a unique name. This
+   will help you to more quickly find log messages related to a problem.
+
+3. Enable the administrative server. The administrative console is a
+   good way to get a snapshot of the current state of a running
+   instance, and the Galvanometer provides graphing and historical
+   analysis capabilities.
+
+4. If you are using replication, ensure that your AMPS instances have
+   unique names. Where possible, use names that make it easy to relate
+   replication messages to the servers that process the message. For
+   example, you might relate the AMPS instance name to the purpose that
+   the instance serves, the physical server that the instance runs on,
+   or both.
+
+5. Learn what normal operation looks like for your application. If
+   possible, take the time to inspect the AMPS logs and the output of
+   the administrator console when everything is working as expected.
+   Applications vary in how they use AMPS, and what is normal for your
+   application might indicate a problem in a different application. For
+   example, if your application normally has a few publishers and many
+   subscribers, seeing dozens of publishers come online may indicate
+   that an application has unexpectedly started more publishers.
+   Likewise, if no publishers are online, that may indicate an issue
+   with connectivity to the AMPS server. Understanding normal behavior
+   will help you to more easily and accurately spot problems.
+
+.. index:: utilities for troubleshooting
+
+Diagnostic Utilities
+----------------------
+
+The AMPS distribution provides the following utilities for analyzing
+and displaying data from the files used by the AMPS server.
+
++---------------------------+------------------------------------------+
+| ``amps-grep``             | Utility for searching AMPS error and     |
+|                           | event logs *or* AMPS journal files.      |
+|                           |                                          |
+|                           | For error and event logs, the utility    |
+|                           | is aware of the structure of AMPS        |
+|                           | messages, and searches message by        |
+|                           | message rather than line by line.        |
+|                           |                                          |
+|                           | For journal files, the utility is able   |
+|                           | to interpret the journal file format     |
+|                           | and is aware of the structure of AMPS    |
+|                           | bookmarks and is also able to correlate  |
+|                           | client names to the hash values in       |
+|                           | journal files, making it much easier to  |
+|                           | locate specific messages or the activity |
+|                           | of a specific publisher.                 |
+|                           |                                          |
+|                           | See :ref:`Using amps-grep to             |
+|                           | Find Information In Logs                 |
+|                           | <#logging-finding-messages>` for tips on |
+|                           | using the utility to search the error    |
+|                           | and event log.                           |
+|                           |                                          |
+|                           | See :ref:`Using amps-grep to             |
+|                           | Find Messages in the Transaction Log     |
+|                           | <#txlog-finding-entries>` for tips on    |
+|                           | using the utility to search the          |
+|                           | transaction log.                         |
++---------------------------+------------------------------------------+
+| ``amps_journal_dump``     | Utility for extracting information from  |
+|                           | the journal files that comprise the      |
+|                           | AMPS transaction log.                    |
+|                           |                                          |
+|                           | This utility fully supports compressed   |
+|                           | journal files.                           |
++---------------------------+------------------------------------------+
+| ``amps_journal_search``   | Utility for searching for a specific     |
+|                           | message within the journal files that    |
+|                           | comprise the AMPS transaction log.       |
+|                           |                                          |
+|                           | This utility is optimized for locating   |
+|                           | a specific message by exact bookmark.    |
+|                           |                                          |
+|                           | For other searches, use ``amps-grep``.   |
++---------------------------+------------------------------------------+
+| ``amps_sow_dump``         | Utility for extracting information from  |
+|                           | the file that holds SOW topic data.      |
+|                           |                                          |
+|                           |                                          |
+|                           |                                          |
++---------------------------+------------------------------------------+
+| ``amps_sqlite3``          | Utility for running SQL queries over the |
+|                           | the SQLite3 database that holds AMPS     |
+|                           | statistics.                              |
+|                           |                                          |
++---------------------------+------------------------------------------+
+| ``amps_file``             | Utility for providing filetype and       |
+|                           | version information for AMPS files.      |
+|                           |                                          |
++---------------------------+------------------------------------------+
+| ``amps_clients_ack_dump`` | Utility for displaying the contents of   |
+|                           | the file that contains information on    |
+|                           | the last message persisted for a given   |
+|                           | publisher.                               |
+|                           |                                          |
++---------------------------+------------------------------------------+
+| ``amps_queues_ack_dump``  | Utility for displaying the contents of   |
+|                           | the file that contains information on    |
+|                           | the last acknowledged message for a      |
+|                           | given queue.                             |
+|                           |                                          |
++---------------------------+------------------------------------------+
+| ``ampserr``               | Utility that provides information about  |
+|                           | AMPS errors and events.                  |
+|                           |                                          |
+|                           |                                          |
++---------------------------+------------------------------------------+
+
+.. index:: troubleshooting; examining logs,
+
+Finding Information in the Log
+------------------------------
+
+The AMPS log is one of the most useful places to find information when
+there's a problem with your application. Here are some techniques to use
+for finding relevant information in the log.
+
+-  Ensure the log is capturing information that will be useful for
+   diagnosing the problem. In general production use, 60East recommends
+   logging at ``info`` level (or more verbose). To fully troubleshoot
+   an error, it may be necessary to log at ``trace`` level to see the
+   exact behavior in AMPS. Some deployments may find it useful to keep
+   a separate log at ``warning`` level and above to more easily detect errors
+   and potential problems, while maintaining an ``info`` level log for being
+   able to troubleshoot problems.
+   
+
+-  To find log messages that may indicate a problem, use ``amps-grep`` or
+   the Linux ``grep`` tool to find log messages at warning, error, critical, or
+   emergency levels. For example, you might use the following command line:
+
+    ``amps-grep -E 'warning|error|critical|emergency' log_file``
+
+    or
+
+    ``grep -E 'warning|error|critical|emergency' log_file``
+
+
+   This will show lines from the log that contain messages logged at
+   those levels. The text that AMPS uses for log messages is guaranteed
+   not to include strings that duplicate one of the log levels, although
+   information that you configure (such as client names, topic names,
+   and so on) may contain those strings.
+
+-  If you know the name of the client that experienced the problem, you
+   can use that name to get information about the client. It's often
+   helpful to get log messages that include the client name and several
+   lines of output after the client name to help you understand the
+   context in which AMPS produced the message for the client name. To do
+   this, you might you use the following command line:
+
+    ``amps-grep client_name log_file``
+
+    or
+
+    ``grep –B2 –A10 client_name log_file``
+
+
+This command line looks for all occurrences of the *client_name* in
+the log file. The ``amps-grep`` version prints the full messages where
+the *client_name* appears. The ``grep`` version attempts to approximate this
+by printing two lines of context before the line that contains the client name,
+and ten lines of context after the line that contains the client name.
+
+Once you've found the information you're looking for, the ``ampserr``
+utility can help you look up more information on messages, as described
+in :ref:`#logging-error-discovery`.
+
+.. index:: troubleshooting; replication log messages,
+
+Reading Replication Log Messages
+--------------------------------
+
+For replication connections, the replication source creates a client
+name that it uses to connect to the downstream instance. This client
+name contains the source, destination, sync setting, and protocol for
+the connection. The client name uses the following format:
+
+.. code::
+
+    source!destination!sync_setting!protocol
+
+Notice, however, that this is a *client name*. The client name is the
+name used for the connection, but it does not indicate the direction of
+any particular message. As an example, consider a client name of:
+
+.. code::
+
+    OrderServer!HotBackup!sync!amps-replication
+
+This client name is used for a connection that the AMPS instance named
+*OrderServer* has made to AMPS instance named *HotBackup*. The
+connection uses the amps-replication protocol, and was configured for
+synchronous replication at the time the client connected. In this case,
+a message like the following:
+
+.. code::
+
+    12-1002 client[OrderServer!HotBackup!sync!amps-replication] replication ack received: publish ack
+          [txid=35922]
+
+Means that a publish acknowledgment was received on the connection that
+*OrderServer* made to *HotBackup*.
+
+.. index:: troubleshooting; disconnected clients,
+
+Troubleshooting Disconnected Clients
+-------------------------------------
+
+One common symptom of problems in an AMPS application is that AMPS
+disconnects clients unexpectedly. AMPS disconnects clients in the
+following situations:
+
+-  When transaction logging is configured for the instance and a client
+   with a duplicate name logs on
+
+-  When heartbeating is enabled, and the client misses a heartbeat
+
+-  When a slow client falls behind by more than the configured threshold
+
+-  When the entitlement cache for an instance is reset
+
+-  When the administration console disconnects a client
+
+-  When the transport is disabled
+
+This section presents techniques to help you identify why clients are
+disconnected and correct any problems that may exist.
+
+Locating the Reason for Disconnection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To discover the reason that a client was disconnected, use the following
+command to find the client name in the logs:
+
+.. code::
+
+    amps-grep client_name log_file
+     
+
+The results of this can provide information as to why the client was
+disconnected. AMPS logs a reason for the disconnection if the
+disconnection was the result of an internal action by AMPS.
+
+If the client chose to disconnect, or the disconnection is the result
+of network instability, the disconnection is logged but no further
+information is available to AMPS.
+
+The reasons that AMPS will log for a client disconnection are
+shown below:
+
++-------------------------+-------------------------------------+
+| *Reason*                | Explanation                         | 
++=========================+=====================================+
+| ``connection closed``   | AMPS has detected that the socket   |
+|                         | has been closed.                    |
++-------------------------+-------------------------------------+
+| ``entitlement reset``   | Entitlements have been reset for    |
+|                         | this user (or the full transport).  |
++-------------------------+-------------------------------------+
+| ``name in use``         | A client session (as identified by  |
+|                         | the client name) has reconnected,   |
+|                         | and the redundant connection has    |
+|                         | been closed.                        |
++-------------------------+-------------------------------------+
+| ``heartbeat``           | The connection failed to provide    |
+|                         | a heartbeat within the period of    |
+|                         | time set by the connection, so AMPS |
+|                         | has closed the connection.          |
++-------------------------+-------------------------------------+
+| ``slow client``         | The connection was closed due to    |
+|                         | the client capacity settings being  |
+|                         | exceeded.                           |
++-------------------------+-------------------------------------+
+| ``unknown command``     | The client sent an unknown or       |
+|                         | malformed command, so AMPS closed   |
+|                         | the connection.                     |
++-------------------------+-------------------------------------+
+| ``auth``                | The connection failed to            |
+|                         | authenticate.                       |
++-------------------------+-------------------------------------+
+| ``entitlement``         | The connection successfully         |
+|                         | authenticated, but the user does    |
+|                         | have permission to log in.          |
++-------------------------+-------------------------------------+
+
+These reasons are included in the ``07-0013`` log message
+that records that the connection has closed.
+
+
+Duplicate Client Name Disconnection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a client is disconnected due to another client with the same name
+logging on, the messages produced might look like:
+
+.. code::
+
+    2019-11-20T16:26:59.6408410-08:00 [5] warning: 02-0025 A client logon with an 'in use' client name for the same user id forced a disconnect of client: client[my-name] with user id:
+
+To resolve this issue, ensure that clients use unique names when
+connecting to instances that configure a transaction log.
+
+Missed Heartbeat Disconnection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When AMPS disconnects a client due to the client failing to heartbeat,
+the log messages produced look like the following:
+
+.. code::
+
+    2019-11-20T16:35:23.9185690-08:00 [6] error: 07-0042 AMPS heartbeat manager is disconnecting an unresponsive client: no-heartbeat-client
+
+This error most often arises from severe network congestion, a deadlock
+or similar problem in the application that is preventing the AMPS client
+library from producing heartbeats, or a problem in AMPS that prevents
+AMPS from servicing heartbeat requests.
+
+Slow Client Disconnection
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following shows sample log entries for slow client disconnection. If
+a client named ``sleepy-client`` was disconnected for being a slow
+client, the relevant entries in the transaction log might look like:
+
+.. code::
+
+    2019-11-20T15:33:06.8496430-08:00 [7] warning: 70-0011 client[sleepy-client] slow consumption detected, offline messages.
+    2019-11-20T15:33:06.8498130-08:00 [7] error: 70-0004 client[sleepy-client] is not consuming messages, disconnecting slow client
+
+Notice that there may be a considerable period of time between the
+client being offlined and the client being disconnected.
+
+There are several approaches to solving the problem:
+
+-  *Reduce the number of messages returned*. Clients most often fall
+   behind when a SOW query or a replay from the transaction log returns
+   a large number of messages. If possible, use content filtering to
+   return a more precise set of messages.
+
+-  *Improve the rate at which the client handles messages*. If the
+   client message handler takes a relatively long time to process the
+   message, moving message processing onto a different thread or
+   streamlining the processing may improve the speed of the client and
+   allow the client to keep up.
+
+-  *Adjust the client offlining threshold*. You can also increase the
+   capacity of messages that AMPS will buffer for clients connected to
+   a specific transport, as described in :ref:`#ug-slow-client-management`.
+
+Admin Console Client Disconnection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Disconnection from the admin console provides no additional information,
+and produces a log message like the following:
+
+.. code::
+
+    2019-11-20T15:33:06.8502350-08:00 [4] info: 07-0013 client[sleepy-client] disconnected.
+
+Admin Console Transport Disabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A transport being disabled through the admin console produces messages
+like the following:
+
+.. code::
+
+    2019-11-20T16:04:00.9548130-08:00 [10] info: 07-0047 Transport[json-tcp] being disabled.
+    2019-11-20T16:04:00.9550150-08:00 [4] info: 07-0013 client[amps-json-tcp-18] disconnected.
+
+.. index:: troubleshooting; regular expression subscriptions,
+
+Troubleshooting Regular Expression Subscriptions
+--------------------------------------------------
+
+When a regular expression subscription does not receive the messages that it
+expects, the two most common reasons are:
+
+* The regular expression does not match the topic, or topics, expected; _or_
+* The user submitting the subscription is not entitled to one or more of
+  the expected topics
+
+As with any other subscription, it would also be important to verify that
+the messages match any content or entitlement filters in place, and that
+messages are actively being published to the topic in question.
+
+Troubleshooting Whether Topics Match
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To determine whether the regular expression matches the topic in question,
+use an external regex tester to verify that the regular expression
+matches the topic names that the subscription intends to subscribe
+to. Keep in mind that AMPS regular expression matches are not limited
+to the beginning of the topic name unless the expression contains
+an explicit anchor (that is, ``^``).
+
+Troubleshooting Entitlement Issues
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There are two ways to troubleshoot entitlement issues:
+
+1. An entitlement module will typically log whether it allows or
+   denies an entitlement request. Check the AMPS logs for logging
+   indicating whether the entitlement request was allowed or
+   denied. Since AMPS caches the results of entitlement requests,
+   using ``amps-grep`` to quickly scan the logs for the name of
+   the topic is recommended.
+
+2. With a connection logged on with the same credentials as
+   the user, enter a subscription with the **exact** name of
+   the topic in question. That is, rather than using a regular
+   expression subscription, supply the literal topic name on
+   the subscription request. In this case, AMPS will refuse
+   the subscription and log an error if the user is not
+   entitled.
+
+In either case, if the user is not entitled to a topic that
+matches a regular expression subscription, no messages from
+that topic will be delivered to the user.

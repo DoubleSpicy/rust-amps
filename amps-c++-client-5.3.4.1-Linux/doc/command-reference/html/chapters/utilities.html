@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6. Utility Commands &#8212; Advanced Message Processing System (AMPS) Command Reference develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="7. Content Messages" href="content-messages.html" />
+    <link rel="prev" title="5. Removing Messages" href="removing.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. Utility Commands</a><ul>
+<li><a class="reference internal" href="#flush">flush</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#header-fields">Header Fields</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#heartbeat">heartbeat</a><ul>
+<li><a class="reference internal" href="#id1">Description</a></li>
+<li><a class="reference internal" href="#id2">Header Fields</a></li>
+<li><a class="reference internal" href="#id3">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="removing.html" title="previous chapter">5. Removing Messages</a></li>
+      <li>Next: <a href="content-messages.html" title="next chapter">7. Content Messages</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="utility-commands">
+<span id="ug-utility-commands"></span><h1>6. Utility Commands<a class="headerlink" href="#utility-commands" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="flush">
+<h2>flush<a class="headerlink" href="#flush" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
+<p>Sends a command to AMPS that returns an acknowledgment when all
+previous commands from this client have been processed. This command
+helps applications that use AMPS determine when AMPS has received all of
+the messages that have been sent, making it safe for the client to exit.</p>
+</div>
+<div class="section" id="header-fields">
+<h3>Header Fields<a class="headerlink" href="#header-fields" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-flush-headers"><span class="std std-ref">Table 6.1</span></a> contains the header
+fields available to a <code class="docutils literal"><span class="pre">flush</span></code> command.</p>
+<table border="1" class="docutils" id="command-flush-headers">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>The command to be executed. Value: <code class="docutils literal"><span class="pre">flush</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">ClientName</span>
+</pre></div>
+</div>
+</td>
+<td>A string identifier used to give a client a
+unique id.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated list of one or more of the
+following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">completed</span></code> or
+<code class="docutils literal"><span class="pre">processed</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 6.1:</strong> <em>Header fields supported by flush</em></p>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">flush</span></code> message specifying an <code class="docutils literal"><span class="pre">AckType</span></code> of <code class="docutils literal"><span class="pre">completed</span></code> or
+<code class="docutils literal"><span class="pre">processed</span></code> will receive an <code class="docutils literal"><span class="pre">ack</span></code> message when all previous messages
+from this client have been processed by AMPS.</p>
+<p><a class="reference internal" href="#command-flush-acks"><span class="std std-ref">Table 6.2</span></a> contains the acknowledgment
+messages that can be returned by a <code class="docutils literal"><span class="pre">logon</span></code> command.</p>
+<table border="1" class="docutils" id="command-flush-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No <code class="docutils literal"><span class="pre">ack</span></code> message is returned. This is the
+default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>All previous commands have been processed by
+AMPS.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>All previous commands from this publisher
+have been persisted by AMPS (or have failed and
+produced the requested acknowledgments).</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has processed the <code class="docutils literal"><span class="pre">flush</span></code> message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">flush</span></code> command has been received.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 6.2:</strong> <em>Acknowledgment messages supported by logon</em></p>
+</div>
+</div>
+<div class="section" id="heartbeat">
+<h2>heartbeat<a class="headerlink" href="#heartbeat" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Description<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Sends a command to AMPS that starts or refreshes a heartbeat timer. When
+a heartbeat timer is active, AMPS publishes periodic heartbeat messages
+to AMPS and expects the client to respond with a heartbeat message. If
+the client does not provide a heartbeat within the time specified, AMPS
+logs an error and disconnects the connection.</p>
+</div>
+<div class="section" id="id2">
+<h3>Header Fields<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-heartbeat-headers"><span class="std std-ref">Table 6.3</span></a>
+contains the header fields available to a <code class="docutils literal"><span class="pre">heartbeat</span></code> command.</p>
+<table border="1" class="docutils" id="command-heartbeat-headers">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>The command to be executed. Value:
+<code class="docutils literal"><span class="pre">heartbeat</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Options</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Specifies whether this command starts the timer
+or refreshes the timer. Valid options are:</p>
+<ul class="last simple">
+<li><code class="docutils literal"><span class="pre">start</span></code>, immediately followed by an
+interval. This option specifies that the
+command starts a timer, and sets the interval
+at which AMPS will expect heartbeat messages.
+For example, to specify an interval of 5
+seconds, the option is <code class="docutils literal"><span class="pre">start,5</span></code></li>
+<li><code class="docutils literal"><span class="pre">beat</span></code>. This option specifies that the
+command refreshes the heartbeat timer.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 6.3:</strong> <em>Header fields supported by heartbeat</em></p>
+</div>
+<div class="section" id="id3">
+<h3>Returns<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">heartbeat</span></code> message does not typically request an acknowledgment,
+and therefore does not receive a response. The command can, however,
+request acknowledgments as listed below.</p>
+<table border="1" class="docutils" id="command-heartbeat-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">parsed</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has processed the <code class="docutils literal"><span class="pre">heartbeat</span></code> message.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>AMPS has received the <code class="docutils literal"><span class="pre">heartbeat</span></code> message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 6.4:</strong> <em>Acknowledgment messages supported by heartbeat</em></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

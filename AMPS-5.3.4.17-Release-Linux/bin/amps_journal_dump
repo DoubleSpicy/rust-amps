@@ -1,0 +1,150 @@
+#! /usr/bin/env python
+###############################################################################
+##
+## Copyright (c) 2012-2024 60East Technologies Inc., All Rights Reserved.
+##
+## This computer software is owned by 60East Technologies Inc. and is
+## protected by U.S. copyright laws and other laws and by international
+## treaties.  This computer software is furnished by 60East Technologies
+## Inc. pursuant to a written license agreement and may be used, copied,
+## transmitted, and stored only in accordance with the terms of such
+## license agreement and with the inclusion of the above copyright notice.
+## This computer software or any other copies thereof may not be provided
+## or otherwise made available to any other person.
+##
+## U.S. Government Restricted Rights.  This computer software: (a) was
+## developed at private expense and is in all respects the proprietary
+## information of 60East Technologies Inc.; (b) was not developed with
+## government funds; (c) is a trade secret of 60East Technologies Inc.
+## for all purposes of the Freedom of Information Act; and (d) is a
+## commercial item and thus, pursuant to Section 12.212 of the Federal
+## Acquisition Regulations (FAR) and DFAR Supplement Section 227.7202,
+## Government's use, duplication or disclosure of the computer software
+## is subject to the restrictions set forth by 60East Technologies Inc..
+##
+###############################################################################
+import sys
+import os
+from signal import signal, SIGINT, SIGPIPE, SIG_DFL
+
+def die(error):
+    sys.stderr.write("Error: %s\n" % error)
+    sys.exit(1)
+
+# Before doing anything, check that we're running at least version 2.5
+if ''.join(map(str, sys.version_info[0:3])) < '250':
+    die('Error: %s requires Python 2.5 or greater.\n' % sys.argv[0])
+
+# Insert the lib directory into PYTHONPATH
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), "lib"))
+import amps_journal
+
+import optparse
+
+if __name__ == "__main__":
+    # Ignore SIGPIPE signal for valid use cases such as piping output to "head"
+    signal(SIGPIPE, SIG_DFL)
+    signal(SIGINT, SIG_DFL)
+
+    parser = optparse.OptionParser(usage="amps_journal_dump [--help] [options] [journal-files]")
+    parser.add_option("-l", "--limit",
+                      action="store", dest="limit", default='0:',
+                      help="limit range of output to entries N:M where N is the first " +
+                      "entry and M is the last entry. Passing in a single value, M, " +
+                      "will return the first M results.")
+    parser.add_option("--localtime",
+                      action="store_true", dest="is_localtime", default=False,
+                      help="display iso 8601 timestamp in localtime")
+    parser.add_option("--sow-expiration-iso",
+                      action="store_true", dest="is_sow_expiration_iso", default=False,
+                      help="display sow expiration in iso 8601 format")
+    parser.add_option("--extents",
+                      action="store_true", dest="is_extents", default=False,
+                      help="add local and replication extents info at end of journal dump")
+    parser.add_option("--journal-extents",
+                      action="store_true", dest="is_journal_extents", default=False,
+                      help="display journal extents info")
+    parser.add_option("--no-data",
+                      action="store_true", dest="omit_data", default=False,
+                      help="do not display data in the journal dump")
+    parser.add_option("--include-noops",
+                      action="store_true", dest="include_noops", default=False,
+                      help="include noops in the journal dump")
+    parser.add_option("--python",
+                      action="store_true", dest="is_python", default=False,
+                      help="use the python journal dump")
+    parser.add_option("--json",
+                      action="store_true", dest="is_json", default=False,
+                      help="print the journal records in json format")
+    (opts, args) = parser.parse_args()
+
+    # validate file args
+    if len(args) < 1:
+        parser.print_help()
+        die("Must provide AMPS journal file(s)")
+
+    if opts.is_python and opts.is_json:
+        parser.print_help()
+        die("Error: The --json option cannot be used with the --python option.")
+
+    if (not opts.is_python):
+        python_binary = sys.argv[0]
+        binary = python_binary.replace("amps_journal_dump", "amps_fast_journal_dump")
+        # Important to replace the first cmd-line arg after replace() above.
+        if sys.argv[0] != binary:
+            sys.argv[0] = binary
+        os.execvp(binary, sys.argv) # Never returns
+
+    missing_files = []
+    files = []
+    for jnl_file in args:
+        if not os.path.exists(jnl_file):
+            missing_files.append(jnl_file)
+        else:
+            if(len(jnl_file) > 0):
+                files.append(jnl_file)
+    if len(missing_files) > 0:
+        die("file(s) not found: %s" % "\n".join(args))
+
+    # parse limit arg
+    limit = opts.limit
+    if limit.find(':') > 0:
+        limit_start = limit[0:limit.find(':')].strip()
+        limit_stop = limit[limit.find(':') + 1:].strip()
+        try:
+            if len(limit_start) > 0:
+                limit_start = int(limit_start)
+            else:
+                limit_start = 0
+            if len(limit_stop) > 0:
+                limit_stop = int(limit_stop)
+            else:
+                limit_stop = None
+        except:
+            die("\nError: limit option must have proper format (N:M where " +
+                             "N and M are both positive integers).\n")
+    else:
+        limit_start = "0"
+        limit_stop = limit
+        try:
+            if len(limit_start) > 0:
+                limit_start = int(limit_start)
+            else:
+                limit_start = 0
+            if len(limit_stop) > 0:
+                limit_stop = int(limit_stop) - 1
+            else:
+                limit_stop = None
+        except:
+            die("\nError: limit option must be an integer")
+    # do the dump
+    # for file in args:
+    amps_journal.dump(files,
+                      limit_start,
+                      limit_stop,
+                      opts.is_localtime,
+                      opts.is_extents,
+                      opts.omit_data,
+                      opts.include_noops,
+                      opts.is_journal_extents,
+                      opts.is_sow_expiration_iso)

@@ -1,0 +1,47 @@
+.. index:: State of the World (SOW), SOW, AMPS; state, Last value cache,
+   Caching, storage,
+
+.. _#ug-sow:
+
+7. State of the World (SOW)
+============================
+
+One of the core features of AMPS is the ability to persist the most
+recent update for each distinct message published to a given topic. The
+State of the World (SOW) can be thought of as a database where messages
+published to AMPS are filtered into topics, and where the topics store
+the latest update to each distinct message. The SOW gives subscribers
+the ability to quickly resolve any differences between their data
+and updated data in the SOW by querying the current state of a topic
+or any set of messages inside a topic. Topics recorded in the SOW are
+also used for caching data, providing "point in time" snapshots of
+active data flows, providing key/value stores over data flows, and so on.
+Topics recorded in the SOW are the underlying sources for AMPS aggregation
+and analytics capabilities, and the ability to store the previous state
+of a message is the foundation of advanced messaging features such as
+delta messaging and out of focus notifications.
+
+AMPS also provides the ability to keep historical snapshots of the
+contents of the SOW, which allows subscribers to query the contents 
+of the SOW at a particular point in time and replay changes from
+that point in time.
+
+AMPS can maintain the SOW for a topic in a persistent file, which will
+be available across restarts of the AMPS server. The SOW can also be
+*transient*, in which case the state of the SOW does not persist across
+server restarts.
+
+Topics do not keep the current values in the SOW by default. To provide
+this capability for a topic, you must configure AMPS to maintain the
+topic in the SOW by adding a definition for the ``Topic`` to the
+``SOW`` section of the AMPS configuration file.
+
+.. include:: ./how_does_sow_work.inc
+.. include:: ./sow_queries.inc
+.. include:: ./sow_keys.inc
+.. include:: ./sow_indexing.inc
+.. include:: ./sow_delete.inc
+.. include:: ./expiration.inc
+.. include:: ./sow_maintenance.inc
+.. include:: ./sow_regex_topic.inc
+.. include:: ./sow-configuration.inc

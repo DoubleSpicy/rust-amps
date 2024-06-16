@@ -1,0 +1,60 @@
+#! /usr/bin/env bash
+############################################################################
+##
+## Copyright (c) 2012-2024 60East Technologies Inc., All Rights Reserved.
+##
+## This computer software is owned by 60East Technologies Inc. and is
+## protected by U.S. copyright laws and other laws and by international
+## treaties.  This computer software is furnished by 60East Technologies
+## Inc. pursuant to a written license agreement and may be used, copied,
+## transmitted, and stored only in accordance with the terms of such
+## license agreement and with the inclusion of the above copyright notice.
+## This computer software or any other copies thereof may not be provided
+## or otherwise made available to any other person.
+##
+## U.S. Government Restricted Rights.  This computer software: (a) was
+## developed at private expense and is in all respects the proprietary
+## information of 60East Technologies Inc; (b) was not developed with
+## government funds; (c) is a trade secret of 60East Technologies Inc.
+## for all purposes of the Freedom of Information Act; and (d) is a
+## commercial item and thus, pursuant to Section 12.212 of the Federal
+## Acquisition Regulations (FAR) and DFAR Supplement Section 227.7202,
+## Government's use, duplication or disclosure of the computer software
+## is subject to the restrictions set forth by 60East Technologies Inc.
+##
+############################################################################
+
+if (( $# != 2))
+then
+  echo "Usage:"
+  echo "    ./amps-sqlite3-report <amps-stats-db-file> <datetime>"
+  echo ""
+  echo "Example:"
+  echo "    ./amps-sqlite3-report amps-stats.db  20170511T000000"
+  exit 1
+fi
+
+# Get the source directory that contains this script and its fellow
+# amps-sqlite3 script, which it depends upon.
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ ! -e $1 ]
+then
+  echo "Error: No such file: $1"
+  exit 1
+fi
+
+if [ ! -r $1 ]
+then
+  echo "Error: Permission denied: $1"
+  exit 1
+fi
+
+echo "amps-sqlite3-report on $1 since $2"
+
+for table in HCPUS HDISKS HMEMORY HNET ICLIENTS ICONFLATEDTOPICS ICONSOLE_LOGGERS ICPUS IFILE_LOGGERS IGLOBALS IMEMORY IMEMORY_CACHES IPROCESSORS IQUEUES IREPLICATIONS ISOW ISTATISTICS ILIFETIMES ISUBSCRIPTIONS ISYSLOG_LOGGERS ITRANSPORTS IVIEWS
+do
+  echo "TABLE $table"
+  $SOURCE_DIR/amps-sqlite3 $1 "SELECT * FROM $table WHERE timestamp > timestamp('$2') ORDER BY timestamp"
+done
+

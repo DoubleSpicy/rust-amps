@@ -1,0 +1,332 @@
+
+34. The AMPS Statistics Database
+=================================
+
+AMPS provides the ability to record the statistics gathered from the
+AMPS instance and the host machine. This appendix describes working with
+the AMPS statistics database.
+
+The AMPS statistics database is stored in sqlite3 format, and can be
+used with any of the standard sqlite3 tools. This appendix assumes that
+you are using the standard ``sqlite3`` package installed on your local
+computer. While you may be able to run the SQL examples in this guide
+using other packages, this guide will assume that all SQL commands will
+be executed with ``sqlite3``.
+
+Notice that the statistics subsystem is independent of the other
+subsystems in AMPS, and is the only part of AMPS that uses the sqlite3
+format. You cannot use sqlite3 tools with SOW files, journal files, or
+.ack files: these files use formats specifically designed for high
+performance messaging.
+
+Configuring AMPS to Persist Statistics
+----------------------------------------
+
+By default, AMPS maintains statistics in memory. To configure AMPS to
+record the statistics to a file, the following configuration options are
+available in the AMPS configuration file to update the location and
+frequency of the statistics database file.
+
+.. code-block:: xml
+
+    <AMPSConfig>
+        <Name>AMPS-Sqlite</Name>
+        <Admin>
+            <InetAddr>localhost:9090</InetAddr>
+            <FileName>./stats.db</FileName>
+            <Interval>5s</Interval>
+        </Admin>
+     
+        <!-- [snip] -->
+    </AMPSConfig>
+
+In the example listed above, the AMPS administration interface is set to
+collect statistics every 5 seconds as indicated by the ``<Interval>``
+tag. In the example, the AMPS administration interface is additionally
+configured to save the statistics in the ``stats.db`` file, which will
+be created in the directory where AMPS was started.
+
+Introduction to SQLite3
+------------------------
+
+This section is a quick reference to sqlite3. It is intended to help get
+started in examining the statistics provided by AMPS. While this guide
+will be sufficient to execute the examples listed, a more comprehensive
+guide of the sqlite3 command line tool is available at
+http://www.sqlite.org/sqlite.html.
+
+The sqlite3 tools
+
+Starting sqlite3
+^^^^^^^^^^^^^^^^^
+
+To start sqlite3 with the stats.db file simply type:
+
+.. code-block:: bash
+
+     $> sqlite3 ./stats.db
+
+This will create a command prompt that looks like the following:
+
+.. code-block:: bash
+
+    $> sqlite3 ./stats.db
+    SQLite version 3.7.3
+    Enter ".help" for instructions
+    Enter SQL statements terminated with a ";"
+    sqlite>
+
+To exit the sqlite3 prompt at any time, use the Ctrl+d sequence.
+
+Simple SQLite3 commands
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Tables
+~~~~~~
+
+To get a listing of all available tables in the sqlite database type the
+``.table`` command.
+
+.. build note: the documentation repository contains a bash script that takes a database and produces nicely-formatted output of the tables in the script
+
+.. code-block:: bash
+
+    sqlite> .table
+    HCPUS_DYNAMIC                   IMEMORY_CACHES_DYNAMIC
+    HCPUS_STATIC                    IMEMORY_CACHES_STATIC
+    HDISKS_DYNAMIC                  IMEMORY_DYNAMIC
+    HDISKS_STATIC                   IMEMORY_STATIC
+    HMEMORY_DYNAMIC                 IPROCESSORS_DYNAMIC
+    HMEMORY_STATIC                  IPROCESSORS_STATIC
+    HNET_DYNAMIC                    IQUEUES_DYNAMIC
+    HNET_STATIC                     IQUEUES_STATIC
+    ICLIENTS_DYNAMIC                IREPLICATIONS_DYNAMIC
+    ICLIENTS_STATIC                 IREPLICATIONS_STATIC
+    ICONFLATEDTOPICS_DYNAMIC        ISOW_DYNAMIC
+    ICONFLATEDTOPICS_STATIC         ISOW_STATIC
+    ICONSOLE_LOGGERS_DYNAMIC        ISTATISTICS_DYNAMIC
+    ICONSOLE_LOGGERS_STATIC         ISTATISTICS_STATIC
+    ICPUS_DYNAMIC                   ISUBSCRIPTIONS_DYNAMIC
+    ICPUS_STATIC                    ISUBSCRIPTIONS_STATIC
+    IFILE_LOGGERS_DYNAMIC           ISYSLOG_LOGGERS_DYNAMIC
+    IFILE_LOGGERS_STATIC            ISYSLOG_LOGGERS_STATIC
+    IGLOBALS_DYNAMIC                ITRANSPORTS_DYNAMIC
+    IGLOBALS_STATIC                 ITRANSPORTS_STATIC
+    ILIFETIMES_DYNAMIC              IVIEWS_DYNAMIC
+    ILIFETIMES_STATIC               IVIEWS_STATIC
+
+
+Schema
+~~~~~~
+
+To view the schema for any table type: ``.schema <table name>``, where ``<table name>`` is the name of the table to inspect.
+
+.. code-block:: bash
+
+    sqlite> .schema IFILE_LOGGERS_DYNAMIC
+
+    CREATE TABLE IFILE_LOGGERS_DYNAMIC( timestamp integer,
+    static_id integer, bytes_written integer, PRIMARY
+    KEY( timestamp, static_id ) );
+
+Statistics Table Design
+-------------------------
+
+This section describes the philosophy of how the AMPS tables are
+designed within the statistics database. This chapter also includes some
+examples of some useful queries which can give an administrator more
+information than just the raw data would normally give them. Such
+information can be a powerful tool in diagnosing perceived problems in
+AMPS.
+
+Table Naming Scheme
+^^^^^^^^^^^^^^^^^^^
+
+Tables in the database use the following naming scheme:
+
+.. code-block:: bash
+
+    <I|H><STAT>_<STATIC|DYNAMIC>
+    Where:
+    I = AMPS instance statistics
+    H = Host statistics
+    STAT = The statistics that are collected (MEMORY, CPUS,
+    SUBSCRIPTIONS, etc)
+    STATIC = attributes that rarely change for an object
+    (such as client name, CPU #)
+    DYNAMIC = stats that are expected to change on every
+    sample (rates, counters, and so on)
+
+Example Queries
+^^^^^^^^^^^^^^^^
+
+To view which clients have fallen behind at one time, run:
+
+.. code-block:: bash
+
+    sqlite> SELECT s.client_name, MAX(d.queue_max_latency),
+    MAX(queued_bytes_out) FROM ICLIENTS_DYNAMIC d
+    JOIN ICLIENTS_STATIC s ON (s.static_id=d.static_id)
+    GROUP BY s.client_name;
+
+To view clients that are behind in the latest sample:
+
+.. code-block:: bash
+
+    sqlite> SELECT s.client_name, d.queue_max_latency,
+    queued_bytes_out FROM ICLIENTS_DYNAMIC d
+    JOIN ICLIENTS_STATIC s ON (s.static_id=d.static_id)
+    WHERE d.timestamp = (SELECT MAX(d.timestamp)
+    FROM ICLIENTS_DYNAMIC d) AND d.queue_max_latency > 0;
+
+Using the amps-sqlite3 Script
+-----------------------------
+
+The AMPS distribution includes a convenience script, ``amps-sqlite3``,
+for easily running queries against a statistics database. This script
+requires a Python 2.6 or 2.7 interpreter that includes the sqlite3
+module. Most Linux distributions meet this requirement in the default
+installation.
+
+The script takes two parameters, as shown below:
+
++-----------------+----------------------------------------------------------+
+| **Parameter**   | **Description**                                          |
++=================+==========================================================+
+| ::              | The sqlite3 database file to query.                      |
+|                 |                                                          |
+|     database    |                                                          |
++-----------------+----------------------------------------------------------+
+| ::              | The query to run. Notice that the query must be enclosed |
+|                 | in quotes.                                               |
+|     query       |                                                          |
++-----------------+----------------------------------------------------------+
+
+**Table 34.1:** *Parameters for amps-sqlite3*
+
+The ``amps-sqlite3`` script joins the ``STATIC`` and ``DYNAMIC`` tables
+together, making a single table that is easier to query on. For example,
+the script joins the ``ICLIENTS_DYNAMIC`` and ``ICLIENTS_STATIC`` tables
+together into a single ``ICLIENTS`` table.
+
+The ``amps-sqlite3`` wrapper also provides a set of convenience
+functions that can be included in the query. These functions are
+evaluated before the query is presented to the sqlite3 database engine.
+
++----------------------------+----------------------------------------------------------------+
+| **Option**                 | **Description**                                                |
++============================+================================================================+
+| ISO8601(*timestamp*)       | Convert ``timestamp`` to an ISO8601 format string.             |
++----------------------------+----------------------------------------------------------------+
+| ISO8601_local(*timestamp*) | Convert ``timestamp`` to an ISO8601 format                     |
+|                            | string in the local timezone.                                  |
++----------------------------+----------------------------------------------------------------+
+| timestamp(*string*)        | Convert the provided ISO8601 format ``string`` to a timestamp. |
++----------------------------+----------------------------------------------------------------+
+
+**Table 34.2:** *Convenience functions in amps-sqlite3*
+
+To use the ``amps-sqlite3`` script, simply provide the file name of the
+database to query and the query to run. For example, the following query
+returns the set of samples AMPS has recorded for the ``system_percent``
+consumed on each CPU while the instance has been running:
+
+.. code-block:: bash
+
+    $ amps-sqlite3 stats.db "select iso8601(timestamp),system_percent from hcpus order by timestamp"
+
+SQLite Tips and Troubleshooting
+--------------------------------
+
+This section includes information on SQLite tasks that may not be
+immediately obvious, and troubleshooting information on SQLite.
+
+Converting AMPS statistics time to an ISO8601 Datetime
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This Python function shows how to converts an AMPS timestamp to an
+ISO8601 datetime. You can use the equivalent in your language of choice
+to convert between the timestamps recorded in the statistics database
+and ISO8601 timestamps.
+
+.. code-block:: bash
+
+    def iso8601_time(amps_time):
+    """
+    Converts AMPS Stats time into an ISO8601 datetime.
+    """
+    pt = float(amps_time)/1000 - 210866803200 # subtract the unix epoch
+    it = int(pt)
+    ft = pt-it
+    return time.strftime("%Y%m%dT%H%M%S",time.localtime(it)) + ("%.6f" % ft)[1:]                
+
+
+Shrinking an AMPS Statistics Database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If the retention policy for an AMPS statistics database has changed such that
+there is unused space in the file at the maximum retention size, it may be
+helpful to shrink the size of the statistics database.
+
+Running this procedure will only reduce the size of the database if the
+database has been truncated.
+
+To do this:
+
+1. Take the AMPS instance offline.
+
+2. (Optional, but recommended) Make a backup copy of the AMPS statistics database
+   on another device.
+
+3. Run the sqlite ``VACUUM`` command to shrink the database::
+
+      sqlite3 stats.db 'VACUUM'
+
+   This operation may require free disk space equal to the current size
+   of the statistics database. If the operation fails, the vacuum rolls back without
+   changing the database.
+
+A database should not be vacuumed while AMPS is running.
+
+Troubleshooting "Database Disk Image is Malformed"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To repair this error, you need to extract the data from the SQLite
+datastore and create a new datastore. To do this:
+
+1. Open the sqlite datastore. For example, if the database store is
+   named ``stats.db``, the command would be:
+
+.. code-block:: xml
+
+    sqlite3 stats.db
+
+2. Dump the data into a SQL script.
+
+.. code-block:: bash
+
+    .mode insert
+    .output stats_data.sql
+    .dump
+    .exit
+
+This creates a series of SQL commands that recreate the data in the
+database.
+
+3. Make sure that the script commits updates (depending on the version
+   of sqlite3 and the state of the database, the script may roll back
+   the updates rather than committing them without this step).
+
+.. code-block:: bash
+
+   sed -i 's/^ROLLBACK;/COMMIT;/ig' stats_data.sql
+
+4. Now create a new database file using the SQL commands.
+
+.. code-block:: bash
+
+    sqlite3 good.db < stats_data.sql
+
+Finally, adjust the configuration of the Admin server to use the new
+database (in this example, ``good.db``) or copy the new database over
+the old database.

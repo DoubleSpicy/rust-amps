@@ -1,0 +1,258 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          ampServer
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: 60East Technologies AMPS Server
+# Description:       This is an init script for running and managing the
+#                    60East Technologies AMPS daemon.
+### END INIT INFO
+
+# Author: 60East Technologies, Inc. <support@crankuptheamps.com>
+#
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Advanced Message Processing System"
+NAME=ampServer
+DAEMON=/opt/amps/bin/$NAME
+CONFIGFILE=/opt/etc/amps/config.xml
+DAEMON_ARGS="--daemon $CONFIGFILE"
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/amps
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+
+# We need this to be present.
+
+. /etc/init.d/functions
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+# Note that some systems provide this without providing lsb_base:
+# so we just check for the existence of the file.
+
+if [ -e /lib/lsb/init-functions ]; then
+  . /lib/lsb/init-functions
+fi
+
+#  Utility functions
+#
+#  Normally, these are provided in either init.d/functions or
+#  the lsb/init-functions. If we don't get them (either because
+#  init-functions isn't present or for some reason didn't provide them),
+#  we can use some basic equivalents to run successfully.
+
+# Check to see if we have log_success_msg. If not, make the logging functions.
+
+# Some systems install the log_* functions as aliases, which means that this
+# block expands (to a syntax error) if we use the real function names.
+# So, in our possible replacement, we make internal functions
+# and set up aliases for the script to use.
+
+if [ ! `type -t log_success_msg`"" = 'function' ] && [ ! `type -t log_success_msg`"" = 'alias'  ]; then
+  log_success_msg_internal()
+   {
+     logger -is "[$NAME] $@"
+   }
+
+  log_warning_msg_internal()
+   {
+     logger -is "[$NAME] WARNING: $@"
+   }
+
+  log_failure_msg_internal()
+   {
+     logger -is "[$NAME] ERROR: $@"
+   }
+
+   alias log_success_msg="log_success_msg_internal"
+   alias log_failure_msg="log_failure_msg_internal"
+   alias log_warning_msg="log_warning_msg_internal"
+
+fi
+
+# Make a barebones status_of_proc if we don't have one
+if [ ! `type -t status_of_proc`"" = 'function' ] && [ ! `type -t status_of_proc`"" = 'alias'  ]; then
+
+  status_of_proc_internal()
+   {
+     daemon=$1
+     name=$2
+     pidofproc $daemon >/dev/null
+     status=$?
+     case "$status" in
+       0)
+         log_success_msg "$name is running."
+         return 0
+         ;;
+       4)
+         log_failure_msg "could not access PID file for $name"
+         return  $status
+         ;;
+       *)
+         log_failure_msg "$name is not running"
+         return $status
+         ;;
+     esac
+   }
+  alias status_of_proc="status_of_proc_internal"
+
+fi
+
+# Make a barebones start_daemon function if we don't already have it.
+#
+# If start_daemon is defined as an alias, it quite possibly
+# behaves in unusual or nonstandard ways (CentOS 4, we're looking at you),
+# so just redefine it.
+
+# Notice that on systems that use an alias, the underlying daemon()
+# is typically a bit different than systems that just omit the function. 
+
+if [ ! `type -t start_daemon`"" = 'function' ] ; then
+ 
+   start_daemon_internal ()
+    {
+      pid_arg=
+      check_arg=
+      # Normalize the commands we use.
+      while [ "$1" != "${1##[-+]}" ]; do
+         case $1 in
+            -p)
+              pid_arg="--pidfile $2"
+              shift
+              ;;
+            -c)
+              check_arg="--check $2"
+              shift
+              ;;
+         esac
+         shift 
+      done
+      # Unfortunately daemon --check doesn't return the
+      # value you might expect on all platforms.
+      # However, we can work around that.
+      if [ ! -z "$check_arg" ]; then
+         pidofproc $DAEMON >/dev/null
+         status=$?
+         if [ $status -eq 0 ]; then
+            log_failure_msg "$DAEMON is already running"
+            return 1; 
+         fi
+         return 0 
+      else
+         daemon $*
+      fi
+  }
+
+  alias start_daemon="start_daemon_internal"
+fi
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+        log_success_msg "starting $DAEMON"
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+        echo "checking for existing daemon."
+	start_daemon -p $PIDFILE -c $DAEMON  $DAEMON_ARGS\
+		|| return 1
+        echo "checked if we were running, starting now."
+	start_daemon -p $PIDFILE $DAEMON  \
+		$DAEMON_ARGS \
+		|| return 2
+	# Add code here, if necessary, that waits for the process to be ready
+	# to handle requests from services started subsequently which depend
+	# on this one.  As a last resort, sleep for some time.
+        log_success_msg "$DAEMON is started"
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	#   other if a failure occurred
+        # Get the PID
+	killproc $DAEMON
+	RETVAL="$?"
+	[ "$RETVAL" = 2 ] && return 2
+
+        # Wait for that PID to exit
+        status=0 
+        while [ $status -eq 0 ]
+        do
+           pidofproc $PIDFILE $DAEMON >/dev/null || status="$?"
+           sleep 1
+        done
+ 
+	# Many daemons don't delete their pidfiles when they exit.
+
+        if [ $status -eq 3 ]; then
+	  rm -f $PIDFILE
+        fi
+	return "$RETVAL"
+}
+
+case "$1" in
+  start)
+	[ "$VERBOSE" != no ] && log_success_msg "Starting $DESC" "$NAME"
+	do_start
+        ERR=$?
+	case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_success_msg "$DESC: start: Daemon is running" ;;
+		2) [ "$VERBOSE" != no ] && log_failure_msg "$DESC: start: unable to start daemon" ;;
+	esac
+	;;
+  stop)
+	[ "$VERBOSE" != no ] && log_success_msg "Stopping $DESC" "$NAME"
+	do_stop
+	case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_success_msg "$DESC: stop: daemon is stopped" ;;
+		2) [ "$VERBOSE" != no ] && log_failure_msg "$DESC: stop: could not stop daemon" ;;
+	esac
+	;;
+  status)
+	status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
+	;;
+  restart|force-reload)
+	log_success_msg "Restarting $DESC" "$NAME"
+	do_stop
+	case "$?" in
+	  0|1)
+		do_start
+		case "$?" in
+			0) log_warning_msg "Restarted" ;;
+			1) log_warning_msg "Old process is still running" ;;
+			*) log_warning_msg "Failed to start" ;;
+		esac
+		;;
+	  *)
+		# Failed to stop
+		log_failure_msg "Failed to stop"
+		;;
+	esac
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+	exit 3
+	;;
+esac
+
+

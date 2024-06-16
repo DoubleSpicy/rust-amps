@@ -1,0 +1,113 @@
+13. Advanced Topics
+=============================
+
+Transport Filtering
+-------------------
+
+The AMPS C/C++ client offers the ability to filter incoming and outgoing
+messages in the format they are sent and received on the network. This
+allows you to inspect or modify outgoing messages before they are sent
+to the network, and incoming messages as they arrive from the network.
+This can be especially useful when using SSL connections, since this
+gives you a way to monitor outgoing network traffic before it is
+encrypted, and incoming network traffic after it is decrypted.
+
+To create a transport filter, you create a function with the following
+signature
+
+.. code-block:: cpp
+
+    void amps_tcp_filter_function(const unsigned char* data,size_t len,short direction, void* userdata);
+
+
+You then register the filter by calling ``setTransportFilterFunction``
+with a pointer to the function and a pointer to the data to be provided
+in the userdata parameter of the callback.
+
+For example, the following filter function simply prints the data
+provided to the standard output:
+
+.. code-block:: cpp
+
+    void amps_tcp_trace_filter_function(const unsigned char* data,
+                                        size_t len,
+                                        short direction,
+                                        void* userdata)
+    {
+        /* Output the direction marker */
+        if (direction == 0) {
+            std::cout << "OUTGOING ---> ";
+        }
+        else {
+            std::cout << "INCOMING ---> ";
+        }
+
+        /* Output the data */
+        std::cout << std::string(data, len) << std::endl;
+    }
+
+Registering the function is a matter of calling
+``setTransportFilterFunction`` with this function and any callback
+data, as shown below:
+
+.. code-block:: cpp
+
+      /* client is an existing Client object */
+      client.setTransportFilterFunction(
+                                    &amps_tcp_trace_filter_function,
+                                    (void*)NULL); 
+
+The snippet above installs the filter function for the client.
+
+Notice that the transport filter function is called with the verbatim
+contents of data received from AMPS. This means that, for incoming data,
+the function may not be called precisely on message boundaries, and that
+the binary length encoding used by the client and server will be presented
+to the transport filter.
+
+.. index:: SSL,
+
+Using SSL
+---------
+
+The AMPS C++ client includes support for Secure Sockets Layer (SSL)
+connections to AMPS. The client automatically attempts to make an SSL
+connection when the transport in the connection string is set to
+``tcps``, as described in connection string is set to ``tcps``, as
+described in Chapter 3 Connection Strings.
+
+To use the ``tcps`` transport, your application must have an SSL library
+loaded before making the ``tcps`` connection. Notice that the AMPS C++
+client uses the OpenSSL implementation that you provide. The AMPS client
+distribution doesn't include OpenSSL, and doesn't provide facilities for
+certificate generation, certificate signing, key management, and so
+forth. Those facilities are provided by the OpenSSL implementation you choose.
+
+.. index:: SSL; loading,
+
+
+Loading the SSL Library
+-----------------------
+
+To make an SSL connection, the AMPS client must have an SSL library
+loaded before making the SSL connection.
+
+There are two common ways to load the library:
+
+1. At link time, specify the OpenSSL shared object file (Linux) or DLL
+   (Windows) to the linker. With this approach, the operating system
+   will load the SSL library for your application automatically when the
+   application starts up.
+
+2. Use the ``amps_ssl_init`` function to load the SSL library. This
+   function accepts either the library name, or a full path including
+   the library name. When called with the library name, the AMPS C++
+   client will search appropriate system paths for shared libraries (for
+   example, the ``LD_LIBRARY_PATH`` on Linux) and load the first object
+   found that matches the provided name. When called with a full path,
+   the AMPS C++ client will load exactly the object specified.
+
+Once the SSL library is loaded, you can connect using ``tcps`` as a
+transport type. The fact that the connection uses a secure socket is
+only important when making the connection, and does not affect the
+operation of the client once the connection has been made.

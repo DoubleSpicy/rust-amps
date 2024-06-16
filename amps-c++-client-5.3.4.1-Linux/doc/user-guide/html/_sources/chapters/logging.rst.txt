@@ -1,0 +1,23 @@
+.. index:: Logging, AMPS; logging,
+
+.. _#ug-logging:
+
+20. Logging
+===========
+
+AMPS supports logging to many different targets including the console,
+syslog, and files. Every error message within AMPS is uniquely
+identified and can be filtered out or explicitly included in the logger
+output. This chapter of the *AMPS User Guide* describes the AMPS logger
+configuration and the unique settings for each logging target.
+
+.. include:: ./logging-configuration.inc
+.. include:: ./log_messages.inc
+.. include:: ./log_levels.inc
+.. include:: ./logging_to_a_file.inc
+.. include:: ./logging_to_compressed_file.inc
+.. include:: ./logging_to_console.inc
+.. include:: ./logging_to_syslog.inc
+.. include:: ./error_categories.inc
+.. include:: ./log_finding_messages.inc
+.. include:: ./error_discovery_ampserr.inc

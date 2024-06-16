@@ -1,0 +1,8 @@
+
+.. _#ug-utility-commands:
+
+6. Utility Commands
+===================
+
+.. include:: ./flush.inc
+.. include:: ./heartbeat.inc

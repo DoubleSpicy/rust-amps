@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>19. Running AMPS as a Linux Service &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="20. Logging" href="logging.html" />
+    <link rel="prev" title="18. Transports" href="transports.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">19. Running AMPS as a Linux Service</a><ul>
+<li><a class="reference internal" href="#installing-the-service">Installing the Service</a></li>
+<li><a class="reference internal" href="#configuring-the-service">Configuring the Service</a><ul>
+<li><a class="reference internal" href="#amps-logging">AMPS Logging</a></li>
+<li><a class="reference internal" href="#file-paths">File Paths</a></li>
+<li><a class="reference internal" href="#configuration-file-location">Configuration File Location</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#managing-the-service">Managing the Service</a><ul>
+<li><a class="reference internal" href="#starting-the-amps-service">Starting the AMPS Service</a></li>
+<li><a class="reference internal" href="#stopping-the-amps-service">Stopping the AMPS Service</a></li>
+<li><a class="reference internal" href="#restarting-the-amps-service">Restarting the AMPS Service</a></li>
+<li><a class="reference internal" href="#view-status-for-the-amps-service">View Status for the AMPS Service</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uninstalling-the-service">Uninstalling the Service</a></li>
+<li><a class="reference internal" href="#upgrading-the-service">Upgrading the Service</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="transports.html" title="previous chapter">18. Transports</a></li>
+      <li>Next: <a href="logging.html" title="next chapter">20. Logging</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-amps-as-a-linux-service">
+<span id="ug-daemon"></span><span id="index-0"></span><h1>19. Running AMPS as a Linux Service<a class="headerlink" href="#running-amps-as-a-linux-service" title="Permalink to this headline">¶</a></h1>
+<p>AMPS is designed to be able to easily integrate into your existing
+infrastructure. AMPS includes all of the dependencies it needs to run
+and is configured easily with a single configuration file. Some
+deployments integrate AMPS into a third-party service management
+infrastructure. For those deployments, the needs of that infrastructure
+determine how to install AMPS.</p>
+<p>More typically, AMPS runs as a Linux service. This chapter describes how
+to install AMPS as a service.</p>
+<div class="section" id="installing-the-service">
+<h2>Installing the Service<a class="headerlink" href="#installing-the-service" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a shell script that installs the service. The shell script
+is included in the <code class="docutils literal"><span class="pre">bin</span></code> directory of your AMPS installation. Run the
+script with root permission, as follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ sudo ./install-amps-daemon.sh
+</pre></div>
+</div>
+<p>This script does the following installation work:</p>
+<ul class="simple">
+<li>Installs the AMPS distribution into <code class="docutils literal"><span class="pre">/opt/amps</span></code>.</li>
+<li>Creates the <code class="docutils literal"><span class="pre">/opt/etc/amps</span></code> directory if it does not already exist.
+By default, the daemon uses an AMPS configuration file at
+<code class="docutils literal"><span class="pre">/opt/etc/amps/config.xml</span></code>.</li>
+<li>Installs the service management scripts. Depending on the init system
+the script detects on your system, this will either be a System V
+style script located at <code class="docutils literal"><span class="pre">/etc/init.d/amps</span></code> or a SystemD service
+definition file named <code class="docutils literal"><span class="pre">amps.service</span></code> installed under
+<code class="docutils literal"><span class="pre">/usr/lib/systemd/</span></code>.</li>
+<li>Updates the service management infrastructure to register AMPS as a
+service and configure the service to start on startup. The exact
+steps that the script takes to do this depend on the init system
+detected.</li>
+</ul>
+<p>In addition, you must copy the AMPS configuration file for the instance
+to: <code class="docutils literal"><span class="pre">/opt/etc/amps/config.xml</span></code>.</p>
+<p>You can only run one instance of AMPS as a service on a system at a
+given time using this script. AMPS does not enforce any restriction on
+how many instances can be run on the system at the same time through
+other means, but this script is designed to manage a single instance
+running as a service.</p>
+</div>
+<div class="section" id="configuring-the-service">
+<h2>Configuring the Service<a class="headerlink" href="#configuring-the-service" title="Permalink to this headline">¶</a></h2>
+<p>When running as a service, the following considerations apply to the
+configuration file:</p>
+<div class="section" id="amps-logging">
+<h3>AMPS Logging<a class="headerlink" href="#amps-logging" title="Permalink to this headline">¶</a></h3>
+<p>60East recommends logging the most important AMPS messages to syslog
+when running as a service. For example, the following configuration file
+snippet logs messages of warning level and above to the system log:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Logging&gt;</span>
+    <span class="nt">&lt;Target&gt;</span>
+        <span class="nt">&lt;Protocol&gt;</span>syslog<span class="nt">&lt;/Protocol&gt;</span>
+        <span class="nt">&lt;Level&gt;</span>warning<span class="nt">&lt;/Level&gt;</span>
+        <span class="nt">&lt;Ident&gt;</span>amps<span class="nt">&lt;/Ident&gt;</span>
+        <span class="nt">&lt;Options&gt;</span>LOG_CONS,LOG_NDELAY,LOG_PID<span class="nt">&lt;/Options&gt;</span>
+        <span class="nt">&lt;Facility&gt;</span>LOG_USER<span class="nt">&lt;/Facility&gt;</span>
+    <span class="nt">&lt;/Target&gt;</span>
+<span class="nt">&lt;/Logging&gt;</span>
+</pre></div>
+</div>
+<p>60East does not recommend logging a level lower than warning to syslog,
+since an active AMPS instance can produce a large volume of messages.</p>
+</div>
+<div class="section" id="file-paths">
+<h3>File Paths<a class="headerlink" href="#file-paths" title="Permalink to this headline">¶</a></h3>
+<p>When running as a service, file paths in the configuration file also
+require attention. In particular:</p>
+<ul class="simple">
+<li>For simplicity, use absolute paths for all file paths in the
+configuration file.</li>
+<li>Consider startup order, and ensure that any devices that AMPS uses
+are mounted before AMPS starts.</li>
+<li>As with any other AMPS installation, it&#8217;s also important to estimate
+the amount of storage space AMPS requires and ensure that the device
+where AMPS stores files has the needed capacity.</li>
+</ul>
+</div>
+<div class="section" id="configuration-file-location">
+<h3>Configuration File Location<a class="headerlink" href="#configuration-file-location" title="Permalink to this headline">¶</a></h3>
+<p>The AMPS service scripts require the configuration file to be located at:
+<code class="docutils literal"><span class="pre">/opt/etc/amps/config.xml</span></code>.</p>
+</div>
+</div>
+<div class="section" id="managing-the-service">
+<h2>Managing the Service<a class="headerlink" href="#managing-the-service" title="Permalink to this headline">¶</a></h2>
+<p>The scripts that AMPS installs provide management functions for the AMPS
+service. The scripts are used in the same way scripts for other Linux
+services are used.</p>
+<div class="section" id="starting-the-amps-service">
+<h3>Starting the AMPS Service<a class="headerlink" href="#starting-the-amps-service" title="Permalink to this headline">¶</a></h3>
+<p>To start the AMPS service, use the following command if your system uses
+System V init scripts:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo /etc/init.d/amps start
+</pre></div>
+</div>
+<p>Many systems that use System V init scripts also provide convenience
+commands (such as <code class="docutils literal"><span class="pre">service</span></code>) to locate and run commands for working
+with daemons. Check your distribution&#8217;s documentation for details.</p>
+<p>If your system uses SystemD, you can use a command like:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo systemctl start amps
+</pre></div>
+</div>
+</div>
+<div class="section" id="stopping-the-amps-service">
+<h3>Stopping the AMPS Service<a class="headerlink" href="#stopping-the-amps-service" title="Permalink to this headline">¶</a></h3>
+<p>To stop the AMPS service, use the following command if your system uses
+System V init scripts:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo /etc/init.d/amps stop
+</pre></div>
+</div>
+<p>Many distributions that use System V init scripts also provide
+convenience commands (such as the <code class="docutils literal"><span class="pre">service</span></code> program) for working with
+daemons. Check your distribution&#8217;s documentation for details.</p>
+<p>If your system uses SystemD, you can use a command like:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo systemctl stop amps
+</pre></div>
+</div>
+</div>
+<div class="section" id="restarting-the-amps-service">
+<h3>Restarting the AMPS Service<a class="headerlink" href="#restarting-the-amps-service" title="Permalink to this headline">¶</a></h3>
+<p>To restart the AMPS service, use the following command if your system
+uses System V init scripts:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo /etc/init.d/amps restart
+</pre></div>
+</div>
+<p>Many distributions that use System V init scripts also provide
+convenience commands (such as the <code class="docutils literal"><span class="pre">service</span></code> program) for working with
+daemons. Check your distribution&#8217;s documentation for details.</p>
+<p>If your distribution uses SystemD, you can use a command like:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo systemctl restart amps
+</pre></div>
+</div>
+</div>
+<div class="section" id="view-status-for-the-amps-service">
+<h3>View Status for the AMPS Service<a class="headerlink" href="#view-status-for-the-amps-service" title="Permalink to this headline">¶</a></h3>
+<p>To see the status of the AMPS service, use the following command if your
+system uses System V init scripts:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo /etc/init.d/amps status
+</pre></div>
+</div>
+<p>Many distributions that use System V init scripts also provide
+convenience commands (such as the <code class="docutils literal"><span class="pre">service</span></code> program) for working with
+daemons. Check your distribution&#8217;s documentation for details.</p>
+<p>If your distribution uses SystemD, you can use a command like:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo systemctl status amps
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="uninstalling-the-service">
+<h2>Uninstalling the Service<a class="headerlink" href="#uninstalling-the-service" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a script that uninstalls AMPS as a service. The script
+reverses the changes that the install script makes to your system. Run
+the script with root permission, as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ sudo ./uninstall-amps-daemon.sh
+</pre></div>
+</div>
+<p>The uninstall script does not remove the configuration file or any files
+or data that AMPS creates at runtime.</p>
+</div>
+<div class="section" id="upgrading-the-service">
+<h2>Upgrading the Service<a class="headerlink" href="#upgrading-the-service" title="Permalink to this headline">¶</a></h2>
+<p>To upgrade the service to a new version of AMPS, follow these steps:</p>
+<ol class="arabic simple">
+<li>Stop the service.</li>
+<li>Uninstall the previous version of the service using the uninstall
+script included with that version.</li>
+<li>If necessary, upgrade any data files or configuration files that you
+want to retain. Note that data files, such as AMPS journal files and
+SOW files, as of version 5.0.0.0, are compatible with later releases
+and do not need to be upgraded.</li>
+<li>Install the new version of the service using the install script
+included with the new version. Ensure that the configuration file is
+at the appropriate path for the new installation.</li>
+<li>Start the service.</li>
+</ol>
+<p>For AMPS instances that participate in failover, you must coordinate
+your upgrades as you would for a standalone AMPS instance.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

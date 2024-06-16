@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>34. The AMPS Statistics Database &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="35. File Format Versions" href="file_format_versions.html" />
+    <link rel="prev" title="33. Auxiliary Modules" href="auxiliary_modules.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">34. The AMPS Statistics Database</a><ul>
+<li><a class="reference internal" href="#configuring-amps-to-persist-statistics">Configuring AMPS to Persist Statistics</a></li>
+<li><a class="reference internal" href="#introduction-to-sqlite3">Introduction to SQLite3</a><ul>
+<li><a class="reference internal" href="#starting-sqlite3">Starting sqlite3</a></li>
+<li><a class="reference internal" href="#simple-sqlite3-commands">Simple SQLite3 commands</a><ul>
+<li><a class="reference internal" href="#tables">Tables</a></li>
+<li><a class="reference internal" href="#schema">Schema</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#statistics-table-design">Statistics Table Design</a><ul>
+<li><a class="reference internal" href="#table-naming-scheme">Table Naming Scheme</a></li>
+<li><a class="reference internal" href="#example-queries">Example Queries</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-the-amps-sqlite3-script">Using the amps-sqlite3 Script</a></li>
+<li><a class="reference internal" href="#sqlite-tips-and-troubleshooting">SQLite Tips and Troubleshooting</a><ul>
+<li><a class="reference internal" href="#converting-amps-statistics-time-to-an-iso8601-datetime">Converting AMPS statistics time to an ISO8601 Datetime</a></li>
+<li><a class="reference internal" href="#shrinking-an-amps-statistics-database">Shrinking an AMPS Statistics Database</a></li>
+<li><a class="reference internal" href="#troubleshooting-database-disk-image-is-malformed">Troubleshooting &#8220;Database Disk Image is Malformed&#8221;</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="auxiliary_modules.html" title="previous chapter">33. Auxiliary Modules</a></li>
+      <li>Next: <a href="file_format_versions.html" title="next chapter">35. File Format Versions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-amps-statistics-database">
+<h1>34. The AMPS Statistics Database<a class="headerlink" href="#the-amps-statistics-database" title="Permalink to this headline">¶</a></h1>
+<p>AMPS provides the ability to record the statistics gathered from the
+AMPS instance and the host machine. This appendix describes working with
+the AMPS statistics database.</p>
+<p>The AMPS statistics database is stored in sqlite3 format, and can be
+used with any of the standard sqlite3 tools. This appendix assumes that
+you are using the standard <code class="docutils literal"><span class="pre">sqlite3</span></code> package installed on your local
+computer. While you may be able to run the SQL examples in this guide
+using other packages, this guide will assume that all SQL commands will
+be executed with <code class="docutils literal"><span class="pre">sqlite3</span></code>.</p>
+<p>Notice that the statistics subsystem is independent of the other
+subsystems in AMPS, and is the only part of AMPS that uses the sqlite3
+format. You cannot use sqlite3 tools with SOW files, journal files, or
+.ack files: these files use formats specifically designed for high
+performance messaging.</p>
+<div class="section" id="configuring-amps-to-persist-statistics">
+<h2>Configuring AMPS to Persist Statistics<a class="headerlink" href="#configuring-amps-to-persist-statistics" title="Permalink to this headline">¶</a></h2>
+<p>By default, AMPS maintains statistics in memory. To configure AMPS to
+record the statistics to a file, the following configuration options are
+available in the AMPS configuration file to update the location and
+frequency of the statistics database file.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>AMPS-Sqlite<span class="nt">&lt;/Name&gt;</span>
+    <span class="nt">&lt;Admin&gt;</span>
+        <span class="nt">&lt;InetAddr&gt;</span>localhost:9090<span class="nt">&lt;/InetAddr&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./stats.db<span class="nt">&lt;/FileName&gt;</span>
+        <span class="nt">&lt;Interval&gt;</span>5s<span class="nt">&lt;/Interval&gt;</span>
+    <span class="nt">&lt;/Admin&gt;</span>
+
+    <span class="c">&lt;!-- [snip] --&gt;</span>
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>In the example listed above, the AMPS administration interface is set to
+collect statistics every 5 seconds as indicated by the <code class="docutils literal"><span class="pre">&lt;Interval&gt;</span></code>
+tag. In the example, the AMPS administration interface is additionally
+configured to save the statistics in the <code class="docutils literal"><span class="pre">stats.db</span></code> file, which will
+be created in the directory where AMPS was started.</p>
+</div>
+<div class="section" id="introduction-to-sqlite3">
+<h2>Introduction to SQLite3<a class="headerlink" href="#introduction-to-sqlite3" title="Permalink to this headline">¶</a></h2>
+<p>This section is a quick reference to sqlite3. It is intended to help get
+started in examining the statistics provided by AMPS. While this guide
+will be sufficient to execute the examples listed, a more comprehensive
+guide of the sqlite3 command line tool is available at
+<a class="reference external" href="http://www.sqlite.org/sqlite.html">http://www.sqlite.org/sqlite.html</a>.</p>
+<p>The sqlite3 tools</p>
+<div class="section" id="starting-sqlite3">
+<h3>Starting sqlite3<a class="headerlink" href="#starting-sqlite3" title="Permalink to this headline">¶</a></h3>
+<p>To start sqlite3 with the stats.db file simply type:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$&gt; sqlite3 ./stats.db
+</pre></div>
+</div>
+<p>This will create a command prompt that looks like the following:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$&gt; sqlite3 ./stats.db
+SQLite version <span class="m">3</span>.7.3
+Enter <span class="s2">&quot;.help&quot;</span> <span class="k">for</span> instructions
+Enter SQL statements terminated with a <span class="s2">&quot;;&quot;</span>
+sqlite&gt;
+</pre></div>
+</div>
+<p>To exit the sqlite3 prompt at any time, use the Ctrl+d sequence.</p>
+</div>
+<div class="section" id="simple-sqlite3-commands">
+<h3>Simple SQLite3 commands<a class="headerlink" href="#simple-sqlite3-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="tables">
+<h4>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h4>
+<p>To get a listing of all available tables in the sqlite database type the
+<code class="docutils literal"><span class="pre">.table</span></code> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sqlite&gt; .table
+HCPUS_DYNAMIC                   IMEMORY_CACHES_DYNAMIC
+HCPUS_STATIC                    IMEMORY_CACHES_STATIC
+HDISKS_DYNAMIC                  IMEMORY_DYNAMIC
+HDISKS_STATIC                   IMEMORY_STATIC
+HMEMORY_DYNAMIC                 IPROCESSORS_DYNAMIC
+HMEMORY_STATIC                  IPROCESSORS_STATIC
+HNET_DYNAMIC                    IQUEUES_DYNAMIC
+HNET_STATIC                     IQUEUES_STATIC
+ICLIENTS_DYNAMIC                IREPLICATIONS_DYNAMIC
+ICLIENTS_STATIC                 IREPLICATIONS_STATIC
+ICONFLATEDTOPICS_DYNAMIC        ISOW_DYNAMIC
+ICONFLATEDTOPICS_STATIC         ISOW_STATIC
+ICONSOLE_LOGGERS_DYNAMIC        ISTATISTICS_DYNAMIC
+ICONSOLE_LOGGERS_STATIC         ISTATISTICS_STATIC
+ICPUS_DYNAMIC                   ISUBSCRIPTIONS_DYNAMIC
+ICPUS_STATIC                    ISUBSCRIPTIONS_STATIC
+IFILE_LOGGERS_DYNAMIC           ISYSLOG_LOGGERS_DYNAMIC
+IFILE_LOGGERS_STATIC            ISYSLOG_LOGGERS_STATIC
+IGLOBALS_DYNAMIC                ITRANSPORTS_DYNAMIC
+IGLOBALS_STATIC                 ITRANSPORTS_STATIC
+ILIFETIMES_DYNAMIC              IVIEWS_DYNAMIC
+ILIFETIMES_STATIC               IVIEWS_STATIC
+</pre></div>
+</div>
+</div>
+<div class="section" id="schema">
+<h4>Schema<a class="headerlink" href="#schema" title="Permalink to this headline">¶</a></h4>
+<p>To view the schema for any table type: <code class="docutils literal"><span class="pre">.schema</span> <span class="pre">&lt;table</span> <span class="pre">name&gt;</span></code>, where <code class="docutils literal"><span class="pre">&lt;table</span> <span class="pre">name&gt;</span></code> is the name of the table to inspect.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sqlite&gt; .schema IFILE_LOGGERS_DYNAMIC
+
+CREATE TABLE IFILE_LOGGERS_DYNAMIC<span class="o">(</span> timestamp integer,
+static_id integer, bytes_written integer, PRIMARY
+KEY<span class="o">(</span> timestamp, static_id <span class="o">)</span> <span class="o">)</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="statistics-table-design">
+<h2>Statistics Table Design<a class="headerlink" href="#statistics-table-design" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the philosophy of how the AMPS tables are
+designed within the statistics database. This chapter also includes some
+examples of some useful queries which can give an administrator more
+information than just the raw data would normally give them. Such
+information can be a powerful tool in diagnosing perceived problems in
+AMPS.</p>
+<div class="section" id="table-naming-scheme">
+<h3>Table Naming Scheme<a class="headerlink" href="#table-naming-scheme" title="Permalink to this headline">¶</a></h3>
+<p>Tables in the database use the following naming scheme:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>&lt;I<span class="p">|</span>H&gt;&lt;STAT&gt;_&lt;STATIC<span class="p">|</span>DYNAMIC&gt;
+Where:
+<span class="nv">I</span> <span class="o">=</span> AMPS instance statistics
+<span class="nv">H</span> <span class="o">=</span> Host statistics
+<span class="nv">STAT</span> <span class="o">=</span> The statistics that are collected <span class="o">(</span>MEMORY, CPUS,
+SUBSCRIPTIONS, etc<span class="o">)</span>
+<span class="nv">STATIC</span> <span class="o">=</span> attributes that rarely change <span class="k">for</span> an object
+<span class="o">(</span>such as client name, CPU <span class="c1">#)</span>
+<span class="nv">DYNAMIC</span> <span class="o">=</span> stats that are expected to change on every
+sample <span class="o">(</span>rates, counters, and so on<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-queries">
+<h3>Example Queries<a class="headerlink" href="#example-queries" title="Permalink to this headline">¶</a></h3>
+<p>To view which clients have fallen behind at one time, run:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sqlite&gt; SELECT s.client_name, MAX<span class="o">(</span>d.queue_max_latency<span class="o">)</span>,
+MAX<span class="o">(</span>queued_bytes_out<span class="o">)</span> FROM ICLIENTS_DYNAMIC d
+JOIN ICLIENTS_STATIC s ON <span class="o">(</span>s.static_id<span class="o">=</span>d.static_id<span class="o">)</span>
+GROUP BY s.client_name<span class="p">;</span>
+</pre></div>
+</div>
+<p>To view clients that are behind in the latest sample:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sqlite&gt; SELECT s.client_name, d.queue_max_latency,
+queued_bytes_out FROM ICLIENTS_DYNAMIC d
+JOIN ICLIENTS_STATIC s ON <span class="o">(</span>s.static_id<span class="o">=</span>d.static_id<span class="o">)</span>
+WHERE d.timestamp <span class="o">=</span> <span class="o">(</span>SELECT MAX<span class="o">(</span>d.timestamp<span class="o">)</span>
+FROM ICLIENTS_DYNAMIC d<span class="o">)</span> AND d.queue_max_latency &gt; <span class="m">0</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="using-the-amps-sqlite3-script">
+<h2>Using the amps-sqlite3 Script<a class="headerlink" href="#using-the-amps-sqlite3-script" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS distribution includes a convenience script, <code class="docutils literal"><span class="pre">amps-sqlite3</span></code>,
+for easily running queries against a statistics database. This script
+requires a Python 2.6 or 2.7 interpreter that includes the sqlite3
+module. Most Linux distributions meet this requirement in the default
+installation.</p>
+<p>The script takes two parameters, as shown below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Parameter</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">database</span>
+</pre></div>
+</div>
+</td>
+<td>The sqlite3 database file to query.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">query</span>
+</pre></div>
+</div>
+</td>
+<td>The query to run. Notice that the query must be enclosed
+in quotes.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 34.1:</strong> <em>Parameters for amps-sqlite3</em></p>
+<p>The <code class="docutils literal"><span class="pre">amps-sqlite3</span></code> script joins the <code class="docutils literal"><span class="pre">STATIC</span></code> and <code class="docutils literal"><span class="pre">DYNAMIC</span></code> tables
+together, making a single table that is easier to query on. For example,
+the script joins the <code class="docutils literal"><span class="pre">ICLIENTS_DYNAMIC</span></code> and <code class="docutils literal"><span class="pre">ICLIENTS_STATIC</span></code> tables
+together into a single <code class="docutils literal"><span class="pre">ICLIENTS</span></code> table.</p>
+<p>The <code class="docutils literal"><span class="pre">amps-sqlite3</span></code> wrapper also provides a set of convenience
+functions that can be included in the query. These functions are
+evaluated before the query is presented to the sqlite3 database engine.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ISO8601(<em>timestamp</em>)</td>
+<td>Convert <code class="docutils literal"><span class="pre">timestamp</span></code> to an ISO8601 format string.</td>
+</tr>
+<tr class="row-odd"><td>ISO8601_local(<em>timestamp</em>)</td>
+<td>Convert <code class="docutils literal"><span class="pre">timestamp</span></code> to an ISO8601 format
+string in the local timezone.</td>
+</tr>
+<tr class="row-even"><td>timestamp(<em>string</em>)</td>
+<td>Convert the provided ISO8601 format <code class="docutils literal"><span class="pre">string</span></code> to a timestamp.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 34.2:</strong> <em>Convenience functions in amps-sqlite3</em></p>
+<p>To use the <code class="docutils literal"><span class="pre">amps-sqlite3</span></code> script, simply provide the file name of the
+database to query and the query to run. For example, the following query
+returns the set of samples AMPS has recorded for the <code class="docutils literal"><span class="pre">system_percent</span></code>
+consumed on each CPU while the instance has been running:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ amps-sqlite3 stats.db <span class="s2">&quot;select iso8601(timestamp),system_percent from hcpus order by timestamp&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sqlite-tips-and-troubleshooting">
+<h2>SQLite Tips and Troubleshooting<a class="headerlink" href="#sqlite-tips-and-troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>This section includes information on SQLite tasks that may not be
+immediately obvious, and troubleshooting information on SQLite.</p>
+<div class="section" id="converting-amps-statistics-time-to-an-iso8601-datetime">
+<h3>Converting AMPS statistics time to an ISO8601 Datetime<a class="headerlink" href="#converting-amps-statistics-time-to-an-iso8601-datetime" title="Permalink to this headline">¶</a></h3>
+<p>This Python function shows how to converts an AMPS timestamp to an
+ISO8601 datetime. You can use the equivalent in your language of choice
+to convert between the timestamps recorded in the statistics database
+and ISO8601 timestamps.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>def iso8601_time<span class="o">(</span>amps_time<span class="o">)</span>:
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Converts AMPS Stats time into an ISO8601 datetime.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="nv">pt</span> <span class="o">=</span> float<span class="o">(</span>amps_time<span class="o">)</span>/1000 - <span class="m">210866803200</span> <span class="c1"># subtract the unix epoch</span>
+<span class="nv">it</span> <span class="o">=</span> int<span class="o">(</span>pt<span class="o">)</span>
+<span class="nv">ft</span> <span class="o">=</span> pt-it
+<span class="k">return</span> time.strftime<span class="o">(</span><span class="s2">&quot;%Y%m%dT%H%M%S&quot;</span>,time.localtime<span class="o">(</span>it<span class="o">))</span> + <span class="o">(</span><span class="s2">&quot;%.6f&quot;</span> % ft<span class="o">)[</span><span class="m">1</span>:<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="shrinking-an-amps-statistics-database">
+<h3>Shrinking an AMPS Statistics Database<a class="headerlink" href="#shrinking-an-amps-statistics-database" title="Permalink to this headline">¶</a></h3>
+<p>If the retention policy for an AMPS statistics database has changed such that
+there is unused space in the file at the maximum retention size, it may be
+helpful to shrink the size of the statistics database.</p>
+<p>Running this procedure will only reduce the size of the database if the
+database has been truncated.</p>
+<p>To do this:</p>
+<ol class="arabic">
+<li><p class="first">Take the AMPS instance offline.</p>
+</li>
+<li><p class="first">(Optional, but recommended) Make a backup copy of the AMPS statistics database
+on another device.</p>
+</li>
+<li><p class="first">Run the sqlite <code class="docutils literal"><span class="pre">VACUUM</span></code> command to shrink the database:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sqlite3</span> <span class="n">stats</span><span class="o">.</span><span class="n">db</span> <span class="s1">&#39;VACUUM&#39;</span>
+</pre></div>
+</div>
+<p>This operation may require free disk space equal to the current size
+of the statistics database. If the operation fails, the vacuum rolls back without
+changing the database.</p>
+</li>
+</ol>
+<p>A database should not be vacuumed while AMPS is running.</p>
+</div>
+<div class="section" id="troubleshooting-database-disk-image-is-malformed">
+<h3>Troubleshooting &#8220;Database Disk Image is Malformed&#8221;<a class="headerlink" href="#troubleshooting-database-disk-image-is-malformed" title="Permalink to this headline">¶</a></h3>
+<p>To repair this error, you need to extract the data from the SQLite
+datastore and create a new datastore. To do this:</p>
+<ol class="arabic simple">
+<li>Open the sqlite datastore. For example, if the database store is
+named <code class="docutils literal"><span class="pre">stats.db</span></code>, the command would be:</li>
+</ol>
+<div class="highlight-xml"><div class="highlight"><pre><span></span>sqlite3 stats.db
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Dump the data into a SQL script.</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>.mode insert
+.output stats_data.sql
+.dump
+.exit
+</pre></div>
+</div>
+<p>This creates a series of SQL commands that recreate the data in the
+database.</p>
+<ol class="arabic simple" start="3">
+<li>Make sure that the script commits updates (depending on the version
+of sqlite3 and the state of the database, the script may roll back
+the updates rather than committing them without this step).</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sed -i <span class="s1">&#39;s/^ROLLBACK;/COMMIT;/ig&#39;</span> stats_data.sql
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Now create a new database file using the SQL commands.</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sqlite3 good.db &lt; stats_data.sql
+</pre></div>
+</div>
+<p>Finally, adjust the configuration of the Admin server to use the new
+database (in this example, <code class="docutils literal"><span class="pre">good.db</span></code>) or copy the new database over
+the old database.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

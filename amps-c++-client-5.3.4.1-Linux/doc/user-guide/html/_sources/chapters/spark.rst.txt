@@ -1,0 +1,678 @@
+.. _#utilities-spark:
+
+32. Spark
+============
+
+.. index:: spark, Utilities; spark,
+
+AMPS contains a basic command-line client, ``spark``, which can be used
+to run queries, place subscriptions, and publish data. While ``spark``
+provides support for each of these functions, ``spark`` is provided as
+a useful tool for informal testing and troubleshooting of AMPS instances
+and is not intended to be a replacement for a client library. For example, you
+can use ``spark`` to test whether an AMPS instance is reachable from a
+particular system, or use ``spark`` to perform *ad hoc* queries to
+inspect the data in AMPS. ``spark`` does not support all of the
+features available in AMPS client libraries, and does not display
+the headers or metadata returned by AMPS.
+
+This chapter describes the commands available in the ``spark`` utility.
+For more information on the features available in AMPS, see the
+relevant chapters in the *AMPS User Guide*.
+
+The ``spark`` utility is included in the ``bin`` directory of the AMPS
+install location. The ``spark`` client is written in Java, so running
+``spark`` requires a Java Virtual Machine for Java 1.7 or later.
+
+To run this client, simply type ``./bin/spark`` at the command line from
+the AMPS installation directory. AMPS will output the help screen as
+shown below, with a brief description of the ``spark`` client features.
+
+.. code-block:: bash
+
+    %> ./bin/spark
+    ===============================
+    - Spark - AMPS client utility -
+    ===============================
+    Usage:
+
+        spark help [command]
+
+    Supported Commands:
+
+        help
+        ping 
+        publish
+        sow
+        sow_and_subscribe
+        sow_delete
+        subscribe
+
+    Example:
+
+        %> ./spark help sow
+
+    Returns the help and usage information for the 'sow' command.
+
+**Example 32.1:** *Spark screen usage*
+
+Getting help with spark
+-------------------------
+
+Spark requires that a supported command is passed as an argument. Within
+each supported command, there are additional unique requirements and
+options available to change the behavior of Spark and how it interacts
+with the AMPS engine.
+
+For example, if more information was needed to run a ``publish`` command
+in Spark, the following would display the help screen for the Spark
+client's ``publish`` feature.
+
+.. code-block:: bash
+
+    %>./spark help publish
+    ===============================
+    - Spark - AMPS client utility -
+    ===============================
+    Usage:
+
+      spark publish [options]
+
+    Required Parameters:
+
+      server    -- AMPS server to connect to
+      topic     -- topic to publish to
+
+    Options:
+
+      authenticator -- Custom AMPS authenticator factory to use
+      delimiter     -- decimal value of message separator character
+                       (default 10)
+      delta         -- use delta publish
+      file          -- file to publish records from, standard in when omitted
+      proto         -- protocol to use (amps, fix, nvfix, xml)
+                       (type, prot are synonyms for backward compatibility)
+                       (default: amps)
+      rate          -- decimal value used to send messages
+                       at a fixed rate.  '.25' implies 1 message every
+                       4 seconds. '1000' implies 1000 messages per second.
+
+    Example:
+
+      % ./spark publish -server localhost:9003 -topic Trades -file data.fix 
+
+        Connects to the AMPS instance listening on port 9003 and publishes records
+        found in the 'data.fix' file to topic 'Trades'.
+
+**Example 32.2:** *Usage of Spark publish command*
+
+Spark Commands
+--------------
+
+Below, the commands supported by ``spark`` will be shown, along with
+some examples of how to use the various commands and descriptions of the
+most commonly-used options. For the full range of options provided by
+``spark``, including options provided for compatibility with previous
+``spark`` releases, use the ``spark help`` command as described above.
+
+publish
+^^^^^^^^^
+
+.. index:: spark; publish,
+
+The ``publish`` command is used to publish data to a topic on an AMPS
+server.
+
+Common Options - Spark Publish
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+--------------------------------------------------------------+
+| **Option**  | **Definition**                                               |
++=============+==============================================================+
+| ::          | AMPS server to connect to.                                   |
+|             |                                                              |
+|     server  |                                                              |
++-------------+--------------------------------------------------------------+
+| ::          | Topic to publish to.                                         |
+|             |                                                              |
+|     topic   |                                                              |
++-------------+--------------------------------------------------------------+
+| delimiter   | Decimal value of message separator character (default 10).   |
++-------------+--------------------------------------------------------------+
+| delta       | Use delta publish (sends a ``delta_publish`` command to      |
+|             | AMPS).                                                       |
++-------------+--------------------------------------------------------------+
+| file        | File to publish messages from, stdin when omitted. ``spark`` |
+|             | interprets each line in the input as a message. The file     |
+|             | provided to this argument can be either uncompressed or      |
+|             | compressed in ZIP format.                                    |
++-------------+--------------------------------------------------------------+
+| proto       | Protocol to use. In this release, ``spark`` supports         |
+|             | ``amps``, ``fix``, ``nvfix`` and ``xml``. Defaults to        |
+|             | ``amps``.                                                    |
+|             |                                                              |
+|             | ``spark`` also supports ``json`` as a synonym for ``amps``   |
+|             | in this release.                                             |
++-------------+--------------------------------------------------------------+
+| rate        | Messages to publish per second. This is a decimal value, so  |
+|             | values less than 1 can be provided to create a delay of more |
+|             | than a second between messages. '.25' implies 1 message      |
+|             | every 4 seconds. '1000' implies 1000 messages per second.    |
++-------------+--------------------------------------------------------------+
+| type        | For protocols and transports that accept multiple message    |
+|             | types on a given transport, specifies the message type to    |
+|             | use.                                                         |
++-------------+--------------------------------------------------------------+
+
+**Table 32.1:** *Spark publish options*
+
+Examples
+^^^^^^^^
+
+The examples in this guide will demonstrate how to publish records to
+AMPS using the ``spark`` client in one of the three following ways: a
+single record, a python script or by file.
+
+.. _#spark-publish-single-record:
+
+.. code-block:: bash
+
+     %> echo '{ "id" : 1, "data": "hello, world!" }' |  \
+        ./spark publish -server localhost:9007 -type json -topic order
+
+        total messages published: 1 (50.00/s)
+
+**Example 32.3:** *Publishing a single XML message*
+
+In :ref:`Example 32.3 <#spark-publish-single-record>` 
+a single record is published to AMPS using the
+``echo`` command. If you are comfortable with creating records by hand
+this is a simple and effective way to test publishing in AMPS.
+
+In the example, the JSON message is published to the topic *order* on
+the AMPS instance. This publish can be followed with a ``sow`` command
+in ``spark`` to test if the record was indeed published to the
+*order* topic.
+
+.. _#spark-publish-python:
+
+.. code-block:: bash
+
+     %> python -c "for n in xrange(100): print '{\"id\":%d}' % n" | \ 
+        ./spark publish -topic disorder -type json -rate 50 \
+        -server localhost:9007
+
+        total messages published: 100 (50.00/s)
+
+**Example 32.4:** *Publish multiple messages using Python*
+
+In :ref:`Example 32.4<#spark-publish-python>` 
+the ``-c`` flag is used to pass in a simple loop and print command to the python interpreter and 
+have it print the results to ``stdout``.
+
+The python script generates 100 JSON messages of the form ``{"id":0}``,
+``{"id":1}`` ... ``{"id":99}``. The output of this command is then
+*piped* to spark using the ``|`` character, which will publish the
+messages to the *disorder* topic inside the AMPS instance.
+
+.. _#spark-publish-file:
+
+.. code-block:: bash
+
+     %> ./spark publish -server localhost:9007 -type json -topic chaos \
+        -file data.json 
+
+        total messages published: 50 (12000.00/s)
+
+**Example 32.5:** *Spark publish from a file*
+
+Generating a file of test data is a common way to test AMPS
+functionality. :ref:`Example 32.5<#spark-publish-file>` 
+demonstrates how to publish a file of data to the topic *chaos* in an AMPS server. As mentioned above,
+``spark`` interprets each line of the file as a distinct message.
+
+sow
+^^^^
+
+.. index:: spark; sow,
+
+The ``sow`` command allows a ``spark`` client to query the latest
+messages which have been persisted to a topic. The SOW in AMPS acts as a
+database last update cache, and the ``sow`` command in ``spark`` is one
+of the ways to query the database. This ``sow`` command supports regular
+expression topic matching and content filtering, which allow a query to
+be very specific when looking for data.
+
+For the ``sow`` command to succeed, the topic queried must provide a
+SOW. This includes SOW topics and views, queues, and conflated topics.
+These features of AMPS are discussed in more detail in the *User Guide*.
+
+Common Options - Spark SOW
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+--------------------------------------------------------------+
+| **Option**  | **Definition**                                               |
++=============+==============================================================+
+| ::          | AMPS server to connect to.                                   |
+|             |                                                              |
+|     server  |                                                              |
++-------------+--------------------------------------------------------------+
+| ::          | Topic to query.                                              |
+|             |                                                              |
+|     topic   |                                                              |
++-------------+--------------------------------------------------------------+
+| batchsize   | Batch Size to use during query. A batch size > 1 can help    |
+|             | improve performance, as described in the chapter of the      |
+|             | *User Guide* discussing the SOW.                             |
++-------------+--------------------------------------------------------------+
+| filter      | The content filter to use.                                   |
++-------------+--------------------------------------------------------------+
+| proto       | Protocol to use. In this release, ``spark`` supports         |
+|             | ``amps``, ``fix``, ``nvfix`` and ``xml``. Defaults to        |
+|             | ``amps``.                                                    |
+|             |                                                              |
+|             | ``spark`` also supports ``json`` as a synonym for ``amps``   |
+|             | in this release.                                             |
++-------------+--------------------------------------------------------------+
+| orderby     | An expression that AMPS will use to order the results.       |
++-------------+--------------------------------------------------------------+
+| topn        | Request AMPS to limit the query response to the first N      |
+|             | records returned.                                            |
++-------------+--------------------------------------------------------------+
+| type        | For protocols and transports that accept multiple message    |
+|             | types on a given transport, specifies the message type to    |
+|             | use.                                                         |
++-------------+--------------------------------------------------------------+
+| format      | Optional format used for displaying messages. May contain    |
+|             | literal separator characters mixed with format tags. Allowed |
+|             | tags are: ``{bookmark}``, ``{command}``,                     |
+|             | ``{correlation_id}``, ``{data}``, ``{expiration}``,          |
+|             | ``{lease_period}``, ``{length}``, ``{sowkey}``,              |
+|             | ``{user_id}``, ``{timestamp}``, ``{topic}``                  |
+|             |                                                              |
+|             | Notice that not all headers may be available on every        |
+|             | request, depending on the options provided to the request.   |
+|             | See the AMPS Command Reference for details.                  |
+|             |                                                              |
+|             | Example: ``-format "{command}:{data}"``                      |
++-------------+--------------------------------------------------------------+
+
+**Table 32.2:** *Spark sow options*
+
+Examples
+^^^^^^^^^
+
+.. code-block:: bash
+
+    %> ./spark sow -server localhost:9007 -type json -topic order -filter "/id = '1'"
+       
+    { "id" : 1, "data" : "hello, world" }
+    Total messages received: 1 (Infinity/s)
+
+**Example 32.6:** *Spark SOW Query*
+
+This ``sow`` command will query the *order* topic and filter results
+which match the xpath expression ``/id = '1'``. This query will return
+the result published in 
+:ref:`Example 32.3 <#spark-publish-single-record>`.
+
+If the topic does not provide a SOW, the command returns an error
+indicating that the command is not valid for that topic.
+
+subscribe
+^^^^^^^^^^
+
+.. index:: spark; subscribe,
+
+The ``subscribe`` command allows a ``spark`` client to query all
+incoming messages to a topic in real time. Similar to the ``sow``
+command, the ``subscribe`` command supports regular expression topic
+matching and content filtering, which allow a query to be very specific
+when looking for data as it is published to AMPS. Unlike the ``sow``
+command, a subscription can be placed on a topic which does not have a
+persistent SOW cache configured. This allows a subscribe command to be
+very flexible in the messages it can be configured to receive.
+
+Common Options - Spark Subscribe
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+--------------------------------------------------------------+
+| **Option**  | **Definition**                                               |
++=============+==============================================================+
+| ::          | AMPS server to connect to.                                   |
+|             |                                                              |
+|     server  |                                                              |
++-------------+--------------------------------------------------------------+
+| ::          | Topic to subscribe to.                                       |
+|             |                                                              |
+|     topic   |                                                              |
++-------------+--------------------------------------------------------------+
+| delta       | Use delta subscription (sends a ``delta_subscribe`` command  |
+|             | to AMPS).                                                    |
++-------------+--------------------------------------------------------------+
+| filter      | Content filter to use.                                       |
++-------------+--------------------------------------------------------------+
+| proto       | Protocol to use. In this release, ``spark`` supports         |
+|             | ``amps``, ``fix``, ``nvfix`` and ``xml``. Defaults to        |
+|             | ``amps``.                                                    |
+|             |                                                              |
+|             | ``spark`` also supports ``json`` as a synonym for ``amps``   |
+|             | in this release.                                             |
++-------------+--------------------------------------------------------------+
+| ack         | Enable acknowledgments when receiving from a queue. Notice   |
+|             | that, when this option is provided, ``spark`` acknowledges   |
+|             | messages from the queue, signalling to AMPS that the message |
+|             | has been fully processed. (See the *User Guide* chapter on   |
+|             | AMPS message queues for more information.)                   |
++-------------+--------------------------------------------------------------+
+| backlog     | Request a ``max_backlog`` of greater than 1 when receiving   |
+|             | from a queue. (See the *User Guide* chapter on AMPS message  |
+|             | queues for more information.)                                |
++-------------+--------------------------------------------------------------+
+| type        | For protocols and transports that accept multiple message    |
+|             | types on a given transport, specifies the message type to    |
+|             | use.                                                         |
++-------------+--------------------------------------------------------------+
+| format      | Optional format used for displaying messages. May contain    |
+|             | literal separator characters mixed with format tags. Allowed |
+|             | tags are: ``{bookmark}``, ``{command}``,                     |
+|             | ``{correlation_id}``, ``{data}``, ``{expiration}``,          |
+|             | ``{lease_period}``, ``{length}``, ``{sowkey}``,              |
+|             | ``{user_id}``, ``{timestamp}``, ``{topic}``                  |
+|             |                                                              |
+|             | Notice that not all headers may be available on every        |
+|             | request, depending on the options provided to the request.   |
+|             | See the AMPS Command Reference for details.                  |
+|             |                                                              |
+|             | Example: ``-format "{command}:{data}"``                      |
++-------------+--------------------------------------------------------------+
+
+**Table 32.3:** *Spark subscribe options*
+
+Examples
+^^^^^^^^
+
+.. _#spark-subscribe:
+
+.. code-block:: bash
+
+     %> ./spark subscribe -server localhost:9007 -topic chaos \
+                            -type json -filter "/name = 'cup'" 
+
+    { "name" : "cup", "place" : "cupboard" }
+
+**Example 32.7:** *Spark subscribe Example*
+
+:ref:`Example 32.7 <#spark-subscribe>` 
+places a subscription on the *chaos* topic with a filter that will only return results for messages where
+``/name = 'cup'``. If we place this subscription before the ``publish`` command in 
+:ref:`Example 32.5 <#spark-publish-file>` 
+is executed, then we will get the results listed above.
+
+sow_and_subscribe
+^^^^^^^^^^^^^^^^^^
+
+.. index:: spark; sow_and_subscribe,
+
+The ``sow_and_subscribe`` command is a combination of the ``sow``
+command and the ``subscribe`` command. When a ``sow_and_subscribe`` is
+requested, AMPS will first return all messages which match the query and
+are stored in the SOW. Once this has completed, all messages which match
+the subscription query will then be sent to the client.
+
+The ``sow_and_subscribe`` command is a powerful tool to use when it is necessary
+to examine both the contents of the SOW, and the live subscription stream.
+
+Common Options - Spark sow_and_subscribe
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+--------------------------------------------------------------+
+| **Option**  | **Definition**                                               |
++=============+==============================================================+
+| ::          | AMPS server to connect to.                                   |
+|             |                                                              |
+|     server  |                                                              |
++-------------+--------------------------------------------------------------+
+| ::          | Topic to query and subscribe to.                             |
+|             |                                                              |
+|     topic   |                                                              |
++-------------+--------------------------------------------------------------+
+| batchsize   | Batch Size to use during query.                              |
++-------------+--------------------------------------------------------------+
+| delta       | Request delta for subscriptions (sends a                     |
+|             | ``sow_and_delta_subscribe`` command to AMPS)                 |
++-------------+--------------------------------------------------------------+
+| filter      | Content filter to use.                                       |
++-------------+--------------------------------------------------------------+
+| proto       | Protocol to use. In this release, ``spark`` supports         |
+|             | ``amps``, ``fix``, ``nvfix`` and ``xml``. Defaults to        |
+|             | ``amps``.                                                    |
+|             |                                                              |
+|             | ``spark`` also supports ``json`` as a synonym for ``amps``   |
+|             | in this release.                                             |
++-------------+--------------------------------------------------------------+
+| orderby     | An expression that AMPS will use to order the SOW query      |
+|             | results.                                                     |
++-------------+--------------------------------------------------------------+
+| topn        | Request AMPS to limit the SOW query results to the first N   |
+|             | records returned.                                            |
++-------------+--------------------------------------------------------------+
+| type        | For protocols and transports that accept multiple message    |
+|             | types on a given transport, specifies the message type to    |
+|             | use.                                                         |
++-------------+--------------------------------------------------------------+
+| format      | Optional format used for displaying messages. May contain    |
+|             | literal separator characters mixed with format tags. Allowed |
+|             | tags are: ``{bookmark}``, ``{command}``,                     |
+|             | ``{correlation_id}``, ``{data}``, ``{expiration}``,          |
+|             | ``{lease_period}``, ``{length}``, ``{sowkey}``,              |
+|             | ``{user_id}``, ``{timestamp}``, ``{topic}``                  |
+|             |                                                              |
+|             | Notice that not all headers may be available on every        |
+|             | request, depending on the options provided to the request.   |
+|             | See the AMPS Command Reference for details.                  |
+|             |                                                              |
+|             | Example: ``-format "{command}:{data}"``                      |
++-------------+--------------------------------------------------------------+
+
+**Table 32.4:** *Spark sow_and_subscribe options*
+
+Examples
+^^^^^^^^^^
+
+.. _#spark-sow-and-subscribe:
+
+.. code:: bash
+
+     %> ./spark sow_and_subscribe -server localhost:9007 -type json \
+                                    -topic chaos -filter "/name = 'cup'" 
+
+     { "name" : "cup", "place" : "cupboard" }
+
+**Example 32.8:** *Spark SOW and subscribe example*
+
+In :ref:`Example 32.8 <#spark-sow-and-subscribe>` 
+the same topic and filter are being used as in the ``subscribe`` example in 
+:ref:`Example 32.7 <#spark-subscribe>`. 
+The results of this query initially are similar also, since only the messages which are
+stored in the SOW are returned. If a publisher were started that
+published data to the topic that matched the content filter, then those
+messages would then be printed out to the screen in the same manner as a
+``subscription``.
+
+sow_delete
+^^^^^^^^^^
+
+.. index:: spark; sow_delete,
+
+The ``sow_delete`` command is used to remove records from the SOW topic
+in AMPS. If a filter is specified, only messages which match the filter
+will be removed. If a file is provided, the command reads messages from
+the file and sends those messages to AMPS. AMPS will delete the matching
+messages from the SOW. If no filter or file is specified, the command
+reads messages from standard input (one per line) and sends those
+messages to AMPS for deletion.
+
+It can be useful to test a filter by first using the desired filter in a
+``sow`` command and make sure the recorded returned match what is
+expected. If that is successful, then it is safe to use the filter for a
+``sow_delete``. Once records are deleted from the SOW, they are not
+recoverable.
+
+Common Options - sow_delete
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+--------------------------------------------------------------+
+| **Option**  | **Definition**                                               |
++=============+==============================================================+
+| ::          | AMPS server to connect to.                                   |
+|             |                                                              |
+|     server  |                                                              |
++-------------+--------------------------------------------------------------+
+| ::          | Topic to delete records from.                                |
+|             |                                                              |
+|     topic   |                                                              |
++-------------+--------------------------------------------------------------+
+| filter      | Content filter to use. Notice that a filter of ``1=1`` is    |
+|             | true for every message, and will delete the entire set of    |
+|             | records in the SOW.                                          |
++-------------+--------------------------------------------------------------+
+| file        | File from which to read messages to be deleted.              |
++-------------+--------------------------------------------------------------+
+| proto       | Protocol to use. In this release, ``spark`` supports         |
+|             | ``amps``, ``fix``, ``nvfix`` and ``xml``. Defaults to        |
+|             | ``amps``.                                                    |
+|             |                                                              |
+|             | ``spark`` also supports ``json`` as a synonym for ``amps``   |
+|             | in this release.                                             |
++-------------+--------------------------------------------------------------+
+| type        | For protocols and transports that accept multiple message    |
+|             | types on a given transport, specifies the message type to    |
+|             | use.                                                         |
++-------------+--------------------------------------------------------------+
+
+**Table 32.5:** *Spark sow_delete options*
+
+Examples
+^^^^^^^^^^
+
+.. _#spark-sow-delete:
+
+.. code-block:: bash
+
+     %> ./spark sow_delete -server localhost:9007 \
+        -topic order -type json -filter "/name = 'cup'"
+
+        Deleted 1 records in 10ms.
+
+**Example 32.9:** *Spark SOW delete example*
+
+With the ``spark`` command in 
+:ref:`Example 32.9 <#spark-sow-delete>`, 
+we are asking for AMPS to delete records in the topic *order* which match the filter
+``/name = 'cup'``. In this example, we delete the record we published
+and queried previously in the ``publish`` and ``sow`` spark examples,
+respectively. ``spark`` reports that one matching message was removed
+from the SOW topic.
+
+ping
+^^^^^
+
+.. index:: spark; ping,
+
+The spark ``ping`` command is used to connect to the amps instance and
+attempt to logon. This tool is useful to determine if an AMPS instance
+is running and responsive.
+
+Common Options - spark ping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+--------------------------------------------------------------+
+| **Option**  | **Definition**                                               |
++=============+==============================================================+
+| ::          | AMPS server to connect to.                                   |
+|             |                                                              |
+|     server  |                                                              |
++-------------+--------------------------------------------------------------+
+| proto       | Protocol to use. In this release, ``spark`` supports         |
+|             | ``amps``, ``fix``, ``nvfix`` and ``xml``. Defaults to        |
+|             | ``amps``.                                                    |
+|             |                                                              |
+|             | ``spark`` also supports ``json`` as a synonym for ``amps``   |
+|             | in this release.                                             |
++-------------+--------------------------------------------------------------+
+
+**Table 32.6:** *Spark ping options*
+
+Examples
+^^^^^^^^
+
+.. _#spark-ping:
+
+.. code-block:: bash
+
+     %> ./spark ping -server localhost:9007 -type json
+     Successfully connected to tcp://user@localhost:9007/amps/json
+
+**Example 32.10:** *Successful ping using Spark*
+
+In :ref:`Example 32.10 <#spark-ping>`, 
+spark was able to successfully log onto the AMPS instance that was located on port ``9007``.
+
+.. _#spark-ping-error:
+
+.. code-block:: bash
+
+     %> ./spark ping -server localhost:9119
+     Unable to connect to AMPS
+     (com.crankuptheamps.client.exception.ConnectionRefusedException: Unable to
+     connect to AMPS at localhost:9119).
+
+**Example 32.11:** *Unsuccessful ping using spark*
+
+In :ref:`Example 32.11 <#spark-ping-error>`, 
+spark was not able to successfully log onto the AMPS instance that was located on port ``9119``. 
+The error shows the exception thrown by spark, which in this case was a
+``ConnectionRefusedException`` from Java.
+
+Spark Authentication
+---------------------
+
+Spark includes a way to provide credentials to AMPS for use with
+instances that are configured to require authentication. For example, to
+use a specific user ID and password to authenticate to AMPS, simply
+provide them in the URI in the format ``user:password@host:port``.
+
+The command below shows how to use spark to subscribe to a server,
+providing the specified username and password to AMPS.
+
+.. code-block:: bash
+
+    $AMPS_HOME/bin/spark subscribe -type json \
+                                   -server username:password@localhost:9007
+
+AMPS also provides the ability to implement custom authentication, and
+many production deployments use customized authentication methods. To
+support this, the ``spark`` authentication scheme is customizable. By
+default, the authentication scheme ``spark`` uses simply provides the
+user name and password from the ``-server`` parameter, as described
+above.
+
+Authentication schemes for ``spark`` are implemented in Java as classes
+that implement ``Authenticator`` -- the same method used by the AMPS
+Java client. To use a different authentication scheme with ``spark``,
+you implement the ``AuthenticatorFactory`` interface in ``spark`` to
+return your custom authenticator, adjust the CLASSPATH to include the
+``.jar`` file that contains the authenticator, and then provide the name
+of your ``AuthenticatorFactory`` on the command line. See the *AMPS Java
+Client* API documentation for details on implementing a custom
+``Authenticator``.
+
+The command below explicitly loads the default factory, found in the
+``spark`` package, without adjusting the CLASSPATH.
+
+.. code-block:: bash
+
+    $AMPS_HOME/bin/spark subscribe –server username:password@localhost:9007 \
+                                   -type json -topic foo \
+          -authenticator com.crankuptheamps.spark.DefaultAuthenticatorFactory

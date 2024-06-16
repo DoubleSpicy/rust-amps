@@ -1,0 +1,78 @@
+.. index:: Content filtering, Query; filters, SOW; content filters, SOW;
+   query filters, Filters, expressions,
+
+.. _#ug-amps-expressions:
+
+4. AMPS Expressions
+====================
+
+AMPS includes an expression language that combines elements of XPath and
+SQL-92's ``WHERE`` clause. This expression language is used whenever the
+AMPS server refers to the contents of a message, including:
+
+-  Content filtering
+
+-  Constructing fields for message enrichment
+
+-  Creating projected fields for views
+
+AMPS uses a common syntax for each of these purposes, and provides a
+common set of operators and functions. AMPS also provides special
+directives for message enrichment, and aggregation functions for
+projecting views.
+
+For example, when an expression is used as a content filter, any message
+for which the expression returns ``true`` matches the content filter.
+When an expression is used to construct a field for message enrichment
+or view projection, the expression is evaluated and the result that the
+expression returns is used as the content of the field.
+
+Expressions Overview
+--------------------
+
+The quickest way to learn AMPS expressions is to think of each as a
+combination of identifiers that tell AMPS where to find data in a
+message, and operators that tell AMPS what to do with that data. Each
+AMPS expression produces a value. The way AMPS uses that value depends
+on where the expression is used. For example, in a content filter, AMPS
+uses the value of the expression to determine whether a message matches
+the filter. When constructing a field, AMPS uses the value of the
+expression as the contents of the field.
+
+Consider a simple example of an expression used as a filter. Imagine
+AMPS receives the following JSON message:
+
+.. code-block:: javascript
+
+    {"name":"Gyro", "job":"kitten"}
+
+Using an AMPS expression, you can easily construct a content filter that
+matches the message:
+
+.. code::
+
+    /name = 'Gyro'
+
+There are three parts to this expression. The first part, ``/name``, is
+an *identifier* that tells AMPS to look for the contents of the ``name``
+field at the top level of the JSON document. The second part of the
+filter, ``=``, is the equality *operator*, which tells AMPS to compare
+the values on either side of the operator and return ``true`` if the
+values match. The final part of the filter, ``'Gyro'``, is a string
+*literal* for the equality operator to use in the comparison. When an
+expression is used in a content filter, a message matches the filter
+when the expression returns ``true``. The expression returns ``true``
+for the sample message, so the sample messages matches the filter.
+
+The identifier syntax is a subset of XPath, as described in
+:ref:`Identifiers<#ug-expression-identifiers>`. The comparison syntax
+is similar to SQL-92.
+
+Notice that AMPS makes no rigid guarantees as to the number of times
+a given expression is evaluated or when that evaluation will take
+place. AMPS will evaluate the expression as needed.
+
+.. include:: ./syntax.inc
+
+.. include:: ./perf.inc
+.. include:: ./constructing-fields.inc

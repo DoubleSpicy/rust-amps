@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>18. Transports &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="19. Running AMPS as a Linux Service" href="daemon.html" />
+    <link rel="prev" title="17. Command Acknowledgment" href="acks.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">18. Transports</a><ul>
+<li><a class="reference internal" href="#client-connections">Client Connections</a><ul>
+<li><a class="reference internal" href="#tcp-connections">TCP Connections</a></li>
+<li><a class="reference internal" href="#ssl-connections">SSL Connections</a></li>
+<li><a class="reference internal" href="#ipv6-connections">IPv6 Connections</a></li>
+<li><a class="reference internal" href="#unix-domain-sockets">Unix Domain Sockets</a></li>
+<li><a class="reference internal" href="#websocket-protocol-connections">WebSocket Protocol Connections</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#replication-connections">Replication Connections</a></li>
+<li><a class="reference internal" href="#transport-filters">Transport Filters</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="acks.html" title="previous chapter">17. Command Acknowledgment</a></li>
+      <li>Next: <a href="daemon.html" title="next chapter">19. Running AMPS as a Linux Service</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="transports">
+<span id="ug-transports"></span><span id="index-0"></span><h1>18. Transports<a class="headerlink" href="#transports" title="Permalink to this headline">¶</a></h1>
+<p>In order to send and receive messages, an AMPS server must allow
+incoming connections. <em>Transports</em> configure incoming
+connections to AMPS. Transports are configured in the <code class="docutils literal"><span class="pre">Transports</span></code>
+element of the AMPS configuration file.</p>
+<p>AMPS provides two distinct kinds of incoming connections:</p>
+<ul class="simple">
+<li><em>Client connections</em>, for use by the AMPS clients to support external
+applications</li>
+<li><em>Replication connections</em>, to receive replicated messages from other AMPS instances</li>
+</ul>
+<p>Each transport controls how authentication and entitlements are enforced
+for that transport. The transport can either accept the defaults for the
+instance as a whole, or choose settings unique to that transport.</p>
+<div class="section" id="client-connections">
+<h2>Client Connections<a class="headerlink" href="#client-connections" title="Permalink to this headline">¶</a></h2>
+<p>To accept connections from publishers or subscribers, an AMPS instance
+must have at least one <code class="docutils literal"><span class="pre">Transport</span></code> configured for client connections.
+The transport must specify:</p>
+<ul class="simple">
+<li>The network protocol used for the transport, called the transport
+<em>type</em></li>
+<li>The network address, such as IP address and port, that the AMPS
+server will listen to for incoming connections</li>
+<li>Optionally, the AMPS command header format, called the <em>protocol</em>.
+The <code class="docutils literal"><span class="pre">amps</span></code> protocol is the default if no protocol is provided
+and is the protocol used by most applications.
+Websocket connections use the <code class="docutils literal"><span class="pre">websocket</span></code> protocol.</li>
+</ul>
+<p>A transport can <em>optionally</em> set other parameters on the transport. This
+includes setting the authentication and entitlements that apply to
+connections for this transport, setting slow client parameters for the
+transport, and so forth.</p>
+<div class="section" id="tcp-connections">
+<h3>TCP Connections<a class="headerlink" href="#tcp-connections" title="Permalink to this headline">¶</a></h3>
+<p>This is the most commonly used connection type for AMPS clients.</p>
+<p>With this option, communication occurs over a standard TCP/IP
+connection.</p>
+</div>
+<div class="section" id="ssl-connections">
+<h3>SSL Connections<a class="headerlink" href="#ssl-connections" title="Permalink to this headline">¶</a></h3>
+<p>AMPS supports SSL connections between clients and servers. To enable SSL
+on a transport, you must:</p>
+<ul class="simple">
+<li>Specify a Transport type of <code class="docutils literal"><span class="pre">tcp</span></code> or <code class="docutils literal"><span class="pre">tcps</span></code>, <em>and</em></li>
+<li>Provide a certificate and private key for the connection</li>
+</ul>
+<p>You can optionally set other parameters for SSL connections, as
+described in the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p>60East recommends using the <code class="docutils literal"><span class="pre">tcps</span></code> transport type for SSL
+connections for clarity. However, AMPS uses SSL connections for
+a <code class="docutils literal"><span class="pre">tcp</span></code> connection whenever a PrivateKey and Certificate are
+provided for a Transport, regardless of whether the transport
+<code class="docutils literal"><span class="pre">Type</span></code> is specified as <code class="docutils literal"><span class="pre">tcp</span></code> or <code class="docutils literal"><span class="pre">tcps</span></code>.</p>
+<p class="last">AMPS clients require that the connection string use <code class="docutils literal"><span class="pre">tcps</span></code> for
+SSL connections, even if the AMPS Transport configuration uses
+<code class="docutils literal"><span class="pre">tcp</span></code>.</p>
+</div>
+</div>
+<div class="section" id="ipv6-connections">
+<h3>IPv6 Connections<a class="headerlink" href="#ipv6-connections" title="Permalink to this headline">¶</a></h3>
+<p>Starting with version 5.3.3, AMPS supports connections over both
+IPv4 and IPv6 IP protocols if the host has IPv6 support enabled.</p>
+<p>Both IPv4 and IPv6 IP address formats are fully supported for use
+with specifying the network address of a transport.
+The IP protocol version used for a transport is determined by the
+network address format specified for the transport.
+If only a port is specified and the host supports IPv6, AMPS will
+listen for incoming connections over both IPv4 and IPv6 protocols.</p>
+<p>For outgoing connections, such as Replication Connections, AMPS fully
+supports both IPv4 and IPv6 IP address formats.
+AMPS will prefer to resolve a URI to IPv4 addresses by default.
+The DNS resolution behavior can be specified as part of the configuration
+of the Replication Destination.</p>
+<p>Specific parameters and behavior related to IPv4 vs IPv6 connections
+are described in the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>.</p>
+</div>
+<div class="section" id="unix-domain-sockets">
+<h3>Unix Domain Sockets<a class="headerlink" href="#unix-domain-sockets" title="Permalink to this headline">¶</a></h3>
+<p>AMPS provides transports that use unix domain sockets for applications
+that run on the same system as the AMPS server and require extremely
+low-latency messaging. Unix domain sockets are not supported by all AMPS
+clients, since some programming environments do not support these
+sockets.</p>
+<p>With this transport type, many of the configuration settings that apply
+to TCP/IP sockets are not relevant. Instead, the transport requires the
+name of a file on the local filesystem as the location at which to
+create the socket.</p>
+</div>
+<div class="section" id="websocket-protocol-connections">
+<h3>WebSocket Protocol Connections<a class="headerlink" href="#websocket-protocol-connections" title="Permalink to this headline">¶</a></h3>
+<p>To allow AMPS to be used directly from within
+browser-based applications, the AMPS server supports
+communication over WebSockets. An AMPS client
+<code class="docutils literal"><span class="pre">Transport</span></code> that uses <code class="docutils literal"><span class="pre">tcp</span></code> or <code class="docutils literal"><span class="pre">tcps</span></code> as the
+underlying <code class="docutils literal"><span class="pre">Type</span></code> can be configured to use
+the websocket <code class="docutils literal"><span class="pre">Protocol</span></code> for communication.
+The AMPS JavaScript client library supports <code class="docutils literal"><span class="pre">websocket</span></code>
+protocol connections to AMPS (while the other client
+libraries support <code class="docutils literal"><span class="pre">amps</span></code> protocol connections).</p>
+<p>When a transport is configured to use the <code class="docutils literal"><span class="pre">websocket</span></code>
+protocol, a client that connects to that transport
+sends an HTTP upgrade header indicating
+that further communication should use the WebSocket
+protocol. The AMPS server returns a response
+indicating that it is switching protocols to WebSocket,
+and further communication between the client and server
+uses the proprietary AMPS protocol exchanged within
+WebSocket frames. The contents of the frames are
+AMPS messages, as described in the <a class="reference external" href="../../../command-reference/html/index.html">AMPS Command Reference</a>.
+There is no difference in capability between connections
+that use the <code class="docutils literal"><span class="pre">websocket</span></code> protocol and connections that
+use the AMPS protocol. The commands exchanged between
+the AMPS server and client are the same, although the
+&#8220;on wire&#8221; format within which the commands are
+exchanged is different.</p>
+<p>A WebSocket connection to AMPS is a persistent,
+full-duplex connection to the server. A
+WebSocket connection is not a RESTful interface to
+AMPS, nor does the connection support HTTP
+beyond the initial upgrade request.</p>
+</div>
+</div>
+<div class="section" id="replication-connections">
+<h2>Replication Connections<a class="headerlink" href="#replication-connections" title="Permalink to this headline">¶</a></h2>
+<p>To receive replicated messages from other AMPS instances, an AMPS
+instance must have a transport configured as Type <code class="docutils literal"><span class="pre">amps-replication</span></code>.</p>
+<p>Replication connections accept any message type, and can service
+multiple upstream AMPS instances.</p>
+<p>Replication connections are configured as part of an overall High
+Availability plan. See <a class="reference internal" href="ha.html#common-ha-overview"><span class="std std-ref">High Availability</span></a> and the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a> for details.</p>
+</div>
+<div class="section" id="transport-filters">
+<h2>Transport Filters<a class="headerlink" href="#transport-filters" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides the ability for incoming commands to be modified, or <em>filtered</em>.</p>
+<p>When one or more transport filters are specified, AMPS provides each incoming
+command to those filters as soon as the header for the message is parsed. Each
+filter can modify the message data or a subset of the headers, and can choose
+to have AMPS stop processing the command (or can request that AMPS disconnect
+the connection that submitted the command).</p>
+<p>The filters for a <code class="docutils literal"><span class="pre">Transport</span></code>, if any, are defined in the configuration for
+the transport.  When more than one filter is specified, AMPS runs each filter
+in the order in which they appear in the configuration file.</p>
+<p>Transport filters are implemented as extension modules. To create an extension
+module, contact AMPS support for the server SDK.</p>
+<p>AMPS loads the following transport filters by default:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Module</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps-topic-translator</span></code></td>
+<td><p class="first">Translates topic names on incoming commands.</p>
+<p>This module requires one or more of the following
+options:</p>
+<p><code class="docutils literal"><span class="pre">Topic</span></code></p>
+<p>Specifies the translation to use. This option
+takes the following format:
+<em>original</em> <code class="docutils literal"><span class="pre">:</span></code> <em>translated</em>.</p>
+<p>The <em>original</em> parameter can be a literal topic
+name or a PCRE regex. Any topic on any command that
+matches that parameter will be converted to the
+translated topic.</p>
+<p>For example, to convert the topic <code class="docutils literal"><span class="pre">legacy</span></code> to the
+topic <code class="docutils literal"><span class="pre">new</span></code>, you would specify the following
+option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Options</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">Topic</span><span class="o">&gt;</span><span class="n">legacy</span><span class="p">:</span><span class="n">new</span><span class="o">&lt;/</span><span class="n">Topic</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Options</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>To translate any topic beginning with
+<code class="docutils literal"><span class="pre">/orders/northamerica</span></code> to  <code class="docutils literal"><span class="pre">NAorders</span></code>, you would
+specify the following option:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Options</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">Topic</span><span class="o">&gt;^/</span><span class="n">orders</span><span class="o">/</span><span class="n">northamerica</span><span class="p">:</span><span class="n">NAorders</span><span class="o">&lt;/</span><span class="n">Topic</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Options</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps-conflated-topic-translator</span></code></td>
+<td><p class="first">Translates an incoming <code class="docutils literal"><span class="pre">subscribe</span></code>,
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>, <code class="docutils literal"><span class="pre">delta_subscribe</span></code>, or
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command for a specific
+topic name as follows:</p>
+<ul class="simple">
+<li>Translates the topic name on the command to a
+different topic name.</li>
+<li>Adds a conflation interval to the command, if
+there is no conflation interval specified on the
+incoming command.</li>
+</ul>
+<p>This module can be useful for removing a conflated
+topic that is infrequently-used, or for which
+subscribers only monitor a small number of
+messages out of the overall topic.</p>
+<p>This module requires one or more of the following
+options:</p>
+<p><code class="docutils literal"><span class="pre">Topic</span></code></p>
+<p>Specifies the translation to use. This option
+takes the following format:
+<em>original</em> <code class="docutils literal"><span class="pre">:</span></code> <em>translated</em> <code class="docutils literal"><span class="pre">:</span></code> <em>interval</em></p>
+<p>The <em>interval</em> specifies the conflation interval to
+apply to the translated commands if one is not
+provided.</p>
+<p>For example, to convert all subscriptions to the
+topic <code class="docutils literal"><span class="pre">orders-C</span></code> to the topic <code class="docutils literal"><span class="pre">orders</span></code>, and
+guarantee that each translated subscription has a
+conflation specified, with a 500 millisecond default
+for conflation, you would use the following
+options:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Options</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">Topic</span><span class="o">&gt;</span><span class="n">orders</span><span class="o">-</span><span class="n">C</span><span class="p">:</span><span class="n">orders</span><span class="p">:</span><span class="mi">500</span><span class="n">ms</span><span class="o">&lt;/</span><span class="n">Topic</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Options</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>To convert all subscriptions to the topics
+<code class="docutils literal"><span class="pre">slowUpdates</span></code> and <code class="docutils literal"><span class="pre">verySlowUpdates</span></code> to
+the topic <code class="docutils literal"><span class="pre">updates</span></code> and guarantee that each
+translated subscription has a conflation specified,
+with a 2 second default for conflation, you would
+use the following options:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Options</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">Topic</span><span class="o">&gt;</span><span class="n">slowUpdates</span><span class="p">:</span><span class="n">updates</span><span class="p">:</span><span class="mi">2</span><span class="n">s</span><span class="o">&lt;/</span><span class="n">Topic</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">Topic</span><span class="o">&gt;</span><span class="n">verySlowUpdates</span><span class="p">:</span><span class="n">updates</span><span class="p">:</span><span class="mi">2</span><span class="n">s</span><span class="o">&lt;/</span><span class="n">Topic</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Options</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 18.1:</strong> <em>Transport Filters</em></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

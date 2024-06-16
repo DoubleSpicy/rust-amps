@@ -1,0 +1,82 @@
+2. Installing the AMPS Client
+=============================
+
+Obtaining the Client
+--------------------
+
+Before using the client, you will need to download and install it on
+your development computer. The client is packaged into a single file,
+``amps-c++-client-<version>.tar.gz``, where <version> is replaced by the
+version of the client, such as ``amps-c++-client-3.3.0.zip``. In the
+following examples, the version number is omitted from the filename.
+
+Once expanded, the ``amps-c++-client`` directory will be created,
+containing sources, samples and makefiles for the C++ client. You’re
+welcome to locate this directory anywhere that seems convenient; but for
+the remainder of this book, we’ll simply refer to this directory as the
+``amps-c++-client`` directory.
+
+Explore the client
+------------------
+
+The client is organized into a number of directories that you’ll be
+using through this book. Understanding this organization now will save
+you time in the future. The top level directories are:
+
+lib
+^^^
+
+The directory that contains built libraries. The distribution contains a
+set of pre-built libraries from 60East. You can use the prebuilt library
+or rebuild the library using the provided makefiles. Many applications
+rebuild the library using the exact compiler version and flags that they
+will use for the overall project.
+
+src
+^^^
+
+Sources and makefile for the AMPS C++ client library.
+
+include
+^^^^^^^
+
+Location of ``include`` files for C and C++ programs. When building your
+own program, you’ll add the ``include`` directory to your ``include``
+path.
+
+samples
+^^^^^^^
+
+Getting started with a new C/C++ library can be challenging. For your
+reference, we provide a number of small samples, along with a makefile.
+
+Build the Client
+----------------
+
+After unpacking the ``amps-c++-client`` directory, you must build the
+client library for your platform. To do so, change to the
+``amps-c++-client`` directory and, from a command prompt, type:
+
+.. code:: cpp
+
+    make
+
+to make a static library, or
+
+.. code:: cpp
+
+   SHARED=1 make
+
+to make a shared object.
+
+On Windows, from a Visual Studio Command Prompt, type:
+
+.. code:: cpp
+
+    msbuild 
+
+Upon successful completion, the AMPS libraries and  samples
+are built in the ``lib`` and ``samples`` directories,
+respectively.
+
+.. include:: ./test-connectivity-to-amps.inc

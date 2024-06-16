@@ -1,0 +1,151 @@
+#!/usr/bin/env python
+
+############################################################################
+##
+# Copyright (c) 2012-2023 60East Technologies Inc., All Rights Reserved.
+##
+# This computer software is owned by 60East Technologies Inc. and is
+# protected by U.S. copyright laws and other laws and by international
+# treaties.  This computer software is furnished by 60East Technologies
+# Inc. pursuant to a written license agreement and may be used, copied,
+# transmitted, and stored only in accordance with the terms of such
+# license agreement and with the inclusion of the above copyright notice.
+# This computer software or any other copies thereof may not be provided
+# or otherwise made available to any other person.
+##
+# U.S. Government Restricted Rights.  This computer software: (a) was
+# developed at private expense and is in all respects the proprietary
+# information of 60East Technologies Inc; (b) was not developed with
+# government funds; (c) is a trade secret of 60East Technologies Inc.
+# for all purposes of the Freedom of Information Act; and (d) is a
+# commercial item and thus, pursuant to Section 12.212 of the Federal
+# Acquisition Regulations (FAR) and DFAR Supplement Section 227.7202,
+# Government's use, duplication or disclosure of the computer software
+# is subject to the restrictions set forth by 60East Technologies Inc.
+##
+############################################################################
+
+"""
+This is the AMPS minidump reporting utility. It may be used as an alternative
+to emailing minidumps for analysis. Provide one or more minidumps to be
+analyzed by the 60East Technologies team.
+"""
+
+import sys
+import tarfile
+import glob
+import argparse
+from io import BytesIO as TarIO
+import requests
+
+URL = "https://services.crankuptheamps.com/amps/minidump"
+
+
+def get_params():
+    """Parse and validate command line arguments.
+
+    :returns: dictionary of command line arguments.
+    """
+    cl_params = {}
+    usage = "amps-report-minidump [options] [minidumps]"
+    description = "This is the AMPS minidump reporting utility. It may be used " +\
+                  "as an alternative to emailing minidumps for analysis. " +\
+                  "Provide one or more minidumps to be analyzed by the 60East " +\
+                  "Technologies team. Minidumps may be specified individually or " +\
+                  "as a glob."
+    parser = argparse.ArgumentParser(prog="amps-report-minidump", usage=usage, description=description)
+    parser.add_argument("-e", "--email", dest='sender_email',
+                        help="Email address to be used as sender.")
+    parser.add_argument("-s", "--subject", dest='subject',
+                        help="The subject field of the email.")
+    parser.add_argument("-b", "--body", dest='body',
+                        help="The body of the email.")
+    parser.add_argument("-c", "--compress", dest='compress', action='store_true',
+                        help="Create tar.gz before sending multiple minidumps.")
+    parser.add_argument("-t", "--ticket", dest='ticket',
+                        help="The ticket number you are submitting a minidump for.")
+    (options, args) = parser.parse_known_args()
+
+    if not options.subject or not options.sender_email or not args:
+        parser.print_help()
+        print("Error: please provide an email address, subject, and minidump file(s).")
+        sys.exit(1)
+
+    minidump_files = []
+    for arg in args:
+        file_list = glob.glob(arg)
+        if len(file_list) == 0:
+            print("Error: could not locate file: {}".format(arg))
+            sys.exit(1)
+        minidump_files.extend(file_list)
+
+    cl_params['sender_email'] = options.sender_email
+    cl_params['subject'] = options.subject
+    cl_params['body'] = options.body
+    cl_params['minidumps'] = minidump_files
+    cl_params['compress'] = options.compress
+    cl_params['ticket'] = options.ticket
+
+    return cl_params
+
+
+def add_minidump_files(params):
+    """ Convenience method to bundle the minidump files depending on whether
+    there is more than one minidump, the user requests the minidumps are
+    compressed, or any combination of the above.
+
+    :returns: Dictionary of files to be submitted in the form.
+    """
+    # Only compress if enabled and more than one file is given.
+    minidump_files = {}
+    if len(params["minidumps"]) > 1 and params["compress"]:
+        targz_file = TarIO()
+        with tarfile.open(fileobj=targz_file, mode='w:gz') as tar_out:
+            try:
+                for minidump in params["minidumps"]:
+                    tar_out.add(minidump)
+            except:
+                print("Error: Could not add file to compress: {}".format(minidump))
+                sys.exit(1)
+        try:
+            minidump_files["minidumps.tar.gz"] = targz_file.getbuffer()
+        except:
+            print("Error: tar.gz file could not be added to form.")
+            sys.exit(1)
+    else:
+        for minidump in params["minidumps"]:
+            try:
+                filename = minidump.split("/")[-1]
+                minidump_files[filename] = open(minidump, 'rb')
+            except:
+                print("Error: Could not add file: {}".format(minidump))
+                sys.exit(1)
+    return minidump_files
+
+
+def main():
+    params = get_params()
+    skip_params = ["minidumps", "compress"]  # params that do not need to be
+
+    # Add the data fileds.
+    data_fields = {}
+    for param in params.items():
+        # we only need to add the set data fields.
+        if param[0] in skip_params or params[param[0]] is None:
+            continue
+        data_fields[param[0]] = param[1]
+
+    # Add minidump files.
+    minidump_files = add_minidump_files(params)
+    try:
+        r = requests.post(URL, data=data_fields, files=minidump_files)
+        print(r.text)
+    except:
+        print("Error: Application could not be reached. This could be due to " +\
+            "network or proxy issues. If you are unable to resolve this issue," +\
+            "contact support@crankuptheamps.com")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

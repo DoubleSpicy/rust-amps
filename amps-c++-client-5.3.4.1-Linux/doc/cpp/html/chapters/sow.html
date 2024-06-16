@@ -1,0 +1,553 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6. State of the World &#8212; Advanced Message Processing System (AMPS) C++ Developer Guide develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="7. Using Queues" href="queues.html" />
+    <link rel="prev" title="5. Error Handling" href="error-handling.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. State of the World</a><ul>
+<li><a class="reference internal" href="#performing-sow-queries">Performing SOW Queries</a><ul>
+<li><a class="reference internal" href="#samples-of-querying-a-topic-in-the-sow">Samples of Querying a Topic in the SOW</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-and-subscribe">SOW and Subscribe</a><ul>
+<li><a class="reference internal" href="#samples-of-sow-and-subscribe">Samples of SOW and Subscribe</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#setting-batch-size">Setting Batch Size</a></li>
+<li><a class="reference internal" href="#client-side-conflation">Client-Side Conflation</a></li>
+<li><a class="reference internal" href="#managing-sow-contents">Managing SOW Contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="error-handling.html" title="previous chapter">5. Error Handling</a></li>
+      <li>Next: <a href="queues.html" title="next chapter">7. Using Queues</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="state-of-the-world">
+<h1>6. State of the World<a class="headerlink" href="#state-of-the-world" title="Permalink to this headline">¶</a></h1>
+<p>The AMPS State of the World (SOW) allows you to automatically keep and
+query the latest information about a topic on the AMPS server, without
+building a separate database. Using SOW lets you build impressively
+high-performance applications that provide rich experiences to users.
+The AMPS C++ client lets you query SOW topics and subscribe to changes
+with ease. AMPS SOW topics can be used as a current value cache to
+provide the most recently published value for each record, as a
+key/value object store, as the source for an aggregate or conflated
+topic, or all of the above uses. For more information on State of the
+World topics, see the <em>AMPS User Guide</em>.</p>
+<div class="section" id="performing-sow-queries">
+<h2>Performing SOW Queries<a class="headerlink" href="#performing-sow-queries" title="Permalink to this headline">¶</a></h2>
+<p>To begin, we will look at a simple example of issuing a SOW query.</p>
+<div class="highlight-cpp" id="basic-sow-query"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">ampsClient</span><span class="p">.</span><span class="n">sow</span><span class="p">(</span><span class="s">&quot;orders&quot;</span> <span class="p">,</span><span class="s">&quot;/symbol == &#39;ROL&#39;&quot;</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;group_begin&quot;</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Receiving messages from the SOW.&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;group_end&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done receiving messages from SOW.&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Received message: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span> <span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 6.1:</strong> <em>Basic SOW query</em></p>
+<p>In listing
+<a class="reference internal" href="#basic-sow-query"><span class="std std-ref">Example 6.1</span></a>
+the program invokes <code class="docutils literal"><span class="pre">ampsClient.sow()</span></code> to initiate a SOW query on the <code class="docutils literal"><span class="pre">orders</span></code> topic,
+for all entries that have a symbol of ’ROL’. The SOW query is requested
+with a batch size of 100, meaning that AMPS will attempt to send 100
+messages at a time as results are returned.</p>
+<p>As the query executes, each matching entry in the topic at the time of
+the query is returned. Messages containing the data of matching entries
+have a <code class="docutils literal"><span class="pre">Command</span></code> of value <code class="docutils literal"><span class="pre">sow</span></code>, so as those arrive, we write them
+to the console. AMPS sends a &#8220;group_begin&#8221; message before the first SOW
+result, and a &#8220;group_end&#8221; message after the last SOW result.</p>
+<p>When the SOW query is complete, the <code class="docutils literal"><span class="pre">MessageStream</span></code> completes
+iteration and the loop completes. There&#8217;s no need to explicitly break
+out of the loop.</p>
+<p>As with subscribe, the sow function also provides an asynchronous
+version. In this case, you provide a message handler that will be called
+on a background thread:</p>
+<div class="highlight-cpp" id="asynchronous-sow"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">HandleSOW</span><span class="p">(</span><span class="k">const</span> <span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;sow&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kt">void</span> <span class="nf">ExecuteSOWQuery</span><span class="p">(</span><span class="n">Client</span> <span class="n">client</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Command</span> <span class="n">command</span><span class="p">(</span><span class="s">&quot;sow&quot;</span><span class="p">);</span>
+    <span class="n">command</span><span class="p">.</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;orders&quot;</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">setFilter</span><span class="p">(</span><span class="s">&quot;/symbol=&#39;ROL&#39;&quot;</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">setBatchSize</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+
+    <span class="n">client</span><span class="p">.</span><span class="n">execute_async</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s">&quot;sow&quot;</span><span class="p">)</span>
+                         <span class="p">.</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;orders&quot;</span><span class="p">)</span>
+                         <span class="p">.</span><span class="n">setFilter</span><span class="p">(</span><span class="s">&quot;/symbol = &#39;ROL&#39;&quot;</span><span class="p">)</span>
+                         <span class="p">.</span><span class="n">setBatchSize</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+                         <span class="n">bind</span><span class="p">(</span><span class="n">HandleSOW</span><span class="p">,</span> <span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 6.2:</strong> <em>Asynchronous SOW</em></p>
+<p>In the listing for
+<a class="reference internal" href="#asynchronous-sow"><span class="std std-ref">Example 6.2</span></a>,
+the <code class="docutils literal"><span class="pre">ExecuteSOWQuery()</span></code> function invokes <code class="docutils literal"><span class="pre">client.sow()</span></code> to initiate a SOW
+query on the orders topic, for all entries that have a symbol of
+<code class="docutils literal"><span class="pre">ROL</span></code>. The SOW query is requested with a batch size of 100, meaning
+that AMPS will attempt to send 100 messages at a time as results are
+returned.</p>
+<p>As the query executes, the <code class="docutils literal"><span class="pre">HandleSOW()</span></code> method is invoked for each
+matching entry in the topic. Messages containing the data of matching
+entries have a <code class="docutils literal"><span class="pre">Command</span></code> of <code class="docutils literal"><span class="pre">sow</span></code>, so as those arrive, we write them
+to the console.</p>
+<div class="section" id="samples-of-querying-a-topic-in-the-sow">
+<h3>Samples of Querying a Topic in the SOW<a class="headerlink" href="#samples-of-querying-a-topic-in-the-sow" title="Permalink to this headline">¶</a></h3>
+<p>The C++ client includes the following samples that demonstrate
+how to query a topic in the State-of-the-World.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sample Name</th>
+<th class="head">Demonstrates</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_publish_sow.cpp</span></code></td>
+<td>Publishing messages to a
+State-of-the-World topic.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_query_sow.cpp</span></code></td>
+<td>Querying messages from a
+State-of-the-World topic.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="sow-and-subscribe">
+<h2>SOW and Subscribe<a class="headerlink" href="#sow-and-subscribe" title="Permalink to this headline">¶</a></h2>
+<p>Imagine an application that displays real-time information about the
+position and status of a fleet of delivery vans. When the application
+starts, it should display the current location of each of the vans along
+with their current status. As vans move around the city and post other
+status updates, the application should keep its display up to date. Vans
+upload information to the system by posting message to a van
+<code class="docutils literal"><span class="pre">location</span></code> topic, configured with a key of <code class="docutils literal"><span class="pre">van_id</span></code> on the AMPS
+server.</p>
+<p>In this application, it is important to not only stay up-to-date on the
+latest information about each van, but to ensure all of the active vans
+are displayed as soon as the application starts. Combining a SOW with a
+subscription to the topic is exactly what is needed, and that is
+accomplished by the <code class="docutils literal"><span class="pre">Client.sowAndSubscribe()</span></code> method. Now we will
+look at an example:</p>
+<div class="highlight-cpp" id="sow-and-sub-example"><div class="highlight"><pre><span></span><span class="cm">/* processSOWMessage</span>
+<span class="cm"> *</span>
+<span class="cm"> * Processes a message during SOW query. Returns</span>
+<span class="cm"> * false if the SOW query is complete, true</span>
+<span class="cm"> * if there is no more SOW processing.</span>
+<span class="cm"> */</span>
+<span class="kt">bool</span> <span class="nf">processSOWMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;group_begin&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Receiving messages from the SOW.&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;group_end&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done receiving messages from SOW.&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;SOW message: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">addVan</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="cm">/* processSubscriptionMessage</span>
+<span class="cm"> *</span>
+<span class="cm"> * Process messages received on a subscription, after the SOW</span>
+<span class="cm"> * query is complete.</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">processSubscribeMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;oof&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;OOF : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getReason</span><span class="p">()</span>
+                  <span class="o">&lt;&lt;</span> <span class="s">&quot; message to remove : &quot;</span>
+                  <span class="o">&lt;&lt;</span>  <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">removeVan</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+   <span class="p">}</span>
+   <span class="k">else</span> <span class="p">{</span>
+       <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;New or updated message: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+       <span class="n">addOrUpdateVan</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+
+<span class="kt">void</span> <span class="n">doSowAndSubscribe</span><span class="p">(</span><span class="n">AMPS</span><span class="o">::</span><span class="n">Client</span><span class="o">&amp;</span> <span class="n">ampsClient</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">sowDone</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;about to subscribe...&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+
+    <span class="cm">/* we issue a sowAndSubscribe() to begin receiving information about all of the</span>
+<span class="cm">     * open orders in the system for the symbol ROL. These orders are now are returned</span>
+<span class="cm">     * as Messages whose Command returns SOW.</span>
+<span class="cm">     *</span>
+<span class="cm">     * notice here that we specified true for the oofEnabled parameter.</span>
+<span class="cm">     * Setting this parameter to true causes us to receive Out-of-Focus(&quot;OOF&quot;)</span>
+<span class="cm">     * messages for the topic. OOF messages are sent when an entry that was sent</span>
+<span class="cm">     * to us in the past no longer matches our query. This happens when an entry</span>
+<span class="cm">     * is removed from the SOW cache via a sowDelete() operation,</span>
+<span class="cm">     * when the entry expires (as specified by the expiration time on the message</span>
+<span class="cm">     * or by the configuration of that topic on the AMPS server),</span>
+<span class="cm">     * or when the entry no longer matches the content filter</span>
+<span class="cm">     * specified. In our case, when an order is processed or canceled</span>
+<span class="cm">     * (or if the symbol changes), a Message is sent with Command set to OOF.</span>
+<span class="cm">     * The content of that message is the message sent previously.</span>
+<span class="cm">     * We use OOF messages to remove orders from our display as they are</span>
+<span class="cm">     * completed or canceled.</span>
+<span class="cm">     */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">ampsClient</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s">&quot;sow_and_subscribe&quot;</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;van_location&quot;</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="n">setFilter</span><span class="p">(</span><span class="s">&quot;/status = &#39;ACTIVE&#39;&quot;</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="n">setBatchSize</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="n">setOptions</span><span class="p">(</span><span class="s">&quot;oof&quot;</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sowDone</span> <span class="o">==</span> <span class="nb">false</span><span class="p">)</span>
+        <span class="p">{</span>
+           <span class="n">sowDone</span> <span class="o">=</span> <span class="n">processSOWMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+           <span class="n">processSubscribeMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 6.3:</strong> <em>Using sowAndSubscribe</em></p>
+<p>Now we will look at an example that uses the asynchronous form of
+sowAndSubscribe:</p>
+<div class="highlight-cpp" id="asynchronous-sow-and-subscribe"><div class="highlight"><pre><span></span><span class="c1">// handleMessage</span>
+<span class="c1">//</span>
+<span class="c1">// Handles messages for both SOW query and subscription.</span>
+
+<span class="kt">void</span> <span class="nf">processSOWMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;group_begin&quot;</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Receiving messages from the SOW.&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;group_end&quot;</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done receiving messages from SOW.&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>  <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;oof&quot;</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;OOF : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getReason</span><span class="p">()</span>
+                  <span class="o">&lt;&lt;</span> <span class="s">&quot; message to remove : &quot;</span>
+                  <span class="o">&lt;&lt;</span>  <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">removeVan</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;New or updated message: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">message</span><span class="p">.</span><span class="n">getData</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">addOrUpdateVan</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">trackVanPositions</span><span class="p">(</span><span class="n">AMPS</span><span class="o">::</span><span class="n">Client</span><span class="o">&amp;</span> <span class="n">ampsClient</span><span class="p">)</span>
+<span class="p">{</span>
+
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;about to subscribe...&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">ampsClient</span><span class="p">.</span><span class="n">execute_async</span><span class="p">(</span>
+          <span class="n">Command</span><span class="p">(</span><span class="s">&quot;sow_and_subscribe&quot;</span><span class="p">)</span>
+           <span class="p">.</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;van_location&quot;</span><span class="p">)</span>
+           <span class="p">.</span><span class="n">setFilter</span><span class="p">(</span><span class="s">&quot;/status = &#39;ACTIVE&#39;&quot;</span><span class="p">)</span>
+           <span class="p">.</span><span class="n">setBatchSize</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+           <span class="p">.</span><span class="n">setOptions</span><span class="p">(</span><span class="s">&quot;oof&quot;</span><span class="p">),</span>
+          <span class="n">bind</span><span class="p">(</span><span class="n">processSOWMessage</span><span class="p">(</span><span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example 6.4:</strong> <em>Asynchronous SOW and Subscribe</em></p>
+<p>In <a class="reference internal" href="#asynchronous-sow-and-subscribe"><span class="std std-ref">Example 6.4</span></a>,
+the <code class="docutils literal"><span class="pre">trackVanPositions</span></code> function invokes <code class="docutils literal"><span class="pre">sowAndSubscribe</span></code> to begin
+tracking vans, and returns the subscription ID. The application can
+later use this to unsubscribe.</p>
+<p>The two forms have the same result. However, one form performs
+processing on a background thread, and blocks the client from receiving
+messages while that processing happens, while the other form processes
+messages on the calling thread and allows the background thread to
+continue to receive messages while processing occurs. In both cases, the
+application receives and processes the same messages.</p>
+<div class="section" id="samples-of-sow-and-subscribe">
+<h3>Samples of SOW and Subscribe<a class="headerlink" href="#samples-of-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>The C++ client includes the following samples that demonstrate
+how to query a topic in the State-of-the-World and enter
+a subscription to receive updates to the topic.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sample Name</th>
+<th class="head">Demonstrates</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_publish_sow.cpp</span></code></td>
+<td>Publishing messages to a
+State-of-the-World topic.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_sow_and_subscribe.cpp</span></code></td>
+<td>Querying messages from a
+State-of-the-World topic and entering
+a subscription to receive updates.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="setting-batch-size">
+<h2>Setting Batch Size<a class="headerlink" href="#setting-batch-size" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS clients include a batch size parameter that specifies how many
+messages the AMPS server will return to the client in a single batch
+when returning the results of a SOW query. The 60East clients set a
+batch size of 10 by default. This batch size works well for common
+message sizes and network configurations.</p>
+<p>Adjusting the batch size may produce better network utilization and
+produce better performance overall for the application. The larger the
+batch size, the more messages AMPS will send to the network layer at a
+time. This can result in fewer packets being sent, and therefore less
+overhead in the network layer. The effect on performance is generally
+most noticeable for small messages, where setting a larger batch size
+will allow several messages to fit into a single packet. For larger
+messages, a batch size may still improve performance, but the
+improvement is less noticeable.</p>
+<p>In general, 60East recommends setting a batch size that is large enough
+to produce few partially-filled packets. Bear in mind that AMPS holds
+the messages in memory while batching them, and the client must also
+hold the messages in memory while receiving the messages. Using batch
+sizes that require large amounts of memory for these operations can
+reduce overall application performance, even if network utilization is
+good.</p>
+<p>For smaller message sizes, 60East recommends using the default batch
+size, and experimenting with tuning the batch size if performance
+improvements are necessary. For relatively large messages (especially
+messages with sizes over 1MB), 60East recommends explicitly setting a
+batch size of 1 as an initial value, and increasing the batch size only
+if performance testing with a larger batch size shows improved network
+utilization or faster overall performance.</p>
+</div>
+<div class="section" id="client-side-conflation">
+<h2>Client-Side Conflation<a class="headerlink" href="#client-side-conflation" title="Permalink to this headline">¶</a></h2>
+<p>In many cases, applications that use SOW topics only need the current
+value of a message at the time the message is processed, rather than
+processing each change that lead to the current value. On the server
+side, AMPS provides <em>conflated topics</em> to meet this need. Conflated
+topics are described in more detail in the AMPS <em>User Guide</em>, and
+require no special handling on the client side.</p>
+<p>In some cases, though, it&#8217;s important to conflate messages on the client
+side. This can be particularly useful for applications that do expensive
+processing on each message, applications that are more efficient when
+processing batches of messages, or for situations where you cannot
+provide an appropriate conflation interval for the server to use.</p>
+<p>A <code class="docutils literal"><span class="pre">MessageStream</span></code> has the ability to conflate messages received for a
+subscription to a SOW topic, view, or conflated topic. When conflation
+is enabled, for each message received, the client checks to see whether
+it has already received an unprocessed message with the same <code class="docutils literal"><span class="pre">SowKey</span></code>.
+If so, the client replaces the unprocessed message with the new message.
+The application never receives the message that has been replaced.</p>
+<p>To enable client-side conflation, you call <code class="docutils literal"><span class="pre">conflate()</span></code> on the
+<code class="docutils literal"><span class="pre">MessageStream</span></code>, and then use the <code class="docutils literal"><span class="pre">MessageStream</span></code> as usual:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cm">/* Query and subscribe */</span>
+<span class="n">MessageStream</span> <span class="n">results</span> <span class="o">=</span> <span class="n">ampsClient</span><span class="p">.</span><span class="n">sowAndSubscribe</span><span class="p">(</span><span class="s">&quot;orders&quot;</span><span class="p">,</span> <span class="s">&quot;/symbol == &#39;ROL&#39;&quot;</span><span class="p">);</span>
+
+<span class="cm">/* Turn on conflation */</span>
+<span class="n">results</span><span class="p">.</span><span class="n">conflate</span><span class="p">();</span>
+
+<span class="cm">/* Process the results */</span>
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">message</span> <span class="p">:</span> <span class="n">results</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="c1">// Process message here</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice that if the <code class="docutils literal"><span class="pre">MessageStream</span></code> is used for a subscription that
+does not include <code class="docutils literal"><span class="pre">SowKeys</span></code> (such as a subscription to a topic that
+does not have a SOW), no conflation will occur.</p>
+<p>When using client-side conflation with delta subscriptions, bear in mind
+that client-side conflation replaces the whole message, and does not
+attempt to merge deltas. This means that updates can be lost when
+messages are replaced. For some applications (for example, a ticker
+application that simply sends delta updates that replace the current
+price), this causes no problems. For other applications (for example,
+when several processors may be updating different fields of a message
+simultaneously), using conflation with deltas could result in lost data,
+and server-side conflation is a safer alternative.</p>
+</div>
+<div class="section" id="managing-sow-contents">
+<h2>Managing SOW Contents<a class="headerlink" href="#managing-sow-contents" title="Permalink to this headline">¶</a></h2>
+<p>AMPS allows applications to manage the contents of the SOW by explicitly
+deleting messages that are no longer relevant. For example, if a
+particular delivery van is retired from service, the application can
+remove the record for the van by deleting the record for the van.</p>
+<p>The client provides the following functions for deleting records from
+the SOW.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">sowDelete</span></code> accepts a filter, and deletes all messages that match
+the filter</li>
+<li><code class="docutils literal"><span class="pre">sowDeleteByKeys</span></code> accepts a set of SOW keys as a comma-delimited
+string and deletes messages for those keys, regardless of the
+contents of the messages. SOW keys are provided in the header of a
+SOW message, and is the internal identifier AMPS uses for that SOW
+message</li>
+<li><code class="docutils literal"><span class="pre">sowDeleteByData</span></code> accepts a topic and message, and deletes the SOW
+record that would be updated by that message</li>
+</ul>
+<p>The most efficient way to remove messages from the SOW is to use
+<code class="docutils literal"><span class="pre">sowDeleteByKeys</span></code> or <code class="docutils literal"><span class="pre">sowDeleteByData</span></code>, since those options
+allow AMPS to exactly target the message or messages to be removed.
+Many applications use <code class="docutils literal"><span class="pre">sowDelete</span></code>, since this is the most
+flexible method for removing items from the SOW when the application
+does not have information on the exact messages to be removed.</p>
+<p>In either case, AMPS sends an OOF message to all subscribers who have
+received updates for the messages removed, as described in the previous
+section.</p>
+<p>The simple form of the sowDelete command returns a MessageStream that
+receives the response. This response is an acknowledgment message that
+contains information on the delete command. For example, the following
+snippet simply prints informational text with the number of messages
+deleted:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">msg</span> <span class="p">:</span> <span class="n">client</span><span class="p">.</span><span class="n">sowDelete</span><span class="p">(</span><span class="s">&quot;sow_topic&quot;</span><span class="p">,</span> <span class="s">&quot;/id in (42, 64, 37)&quot;</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Got a &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot; message containing &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="p">.</span><span class="n">getAckType</span><span class="p">()</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot;: deleted &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="p">.</span><span class="n">getMatches</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; entries.&quot;</span>
+              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">sowDelete</span></code> command can also be sent asynchronously, in a version
+that requires a message handler. The message handler is written to
+receive <code class="docutils literal"><span class="pre">sow_delete</span></code> response messages from AMPS:.</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">HandleSOWDelete</span><span class="p">(</span><span class="k">const</span> <span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Got a &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="p">.</span><span class="n">getCommand</span><span class="p">()</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot; message containing &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="p">.</span><span class="n">getAckType</span><span class="p">()</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot;: deleted &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">msg</span><span class="p">.</span><span class="n">getMatches</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; entries.&quot;</span>
+              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">....</span>
+
+<span class="n">client</span><span class="p">.</span><span class="n">execute_async</span><span class="p">(</span><span class="n">Command</span><span class="p">(</span><span class="s">&quot;sow_delete&quot;</span><span class="p">)</span>
+                     <span class="p">.</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;sow_topic&quot;</span><span class="p">)</span>
+                     <span class="p">.</span><span class="n">setFilter</span><span class="p">(</span><span class="s">&quot;/id in (42, 64, 37)&quot;</span><span class="p">),</span>
+                     <span class="n">bind</span><span class="p">(</span><span class="n">HandleSOWDelete</span><span class="p">,</span> <span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Acknowledging messages from a queue uses a form of the <code class="docutils literal"><span class="pre">sow_delete</span></code>
+command that is only supported for queues. Acknowledgment is discussed
+in the chapter on queues.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,23 @@
+
+7. Content Messages
+====================
+
+AMPS provides three types of message that contain message content
+
+-  ``publish`` messages return data from a topic as it is published, in
+   order, whether the data is being published live, or is the result of
+   a replay
+
+-  ``sow`` messages return data from a SOW query. These messages return
+   the state of messages that are current as of the time for the query.
+   By default, the messages are returned without regard to the order in
+   which the messages were published. A query can specify the order of
+   the returned messages based on the data within the message by
+   including the OrderBy header on the SOW query.
+
+-  ``oof`` messages indicate that a content message no longer matches a
+   subscription. These messages are sent to a client in order.
+
+.. include:: ./content_publish.inc
+.. include:: ./content-messages-sow.inc
+.. include:: ./oof.inc

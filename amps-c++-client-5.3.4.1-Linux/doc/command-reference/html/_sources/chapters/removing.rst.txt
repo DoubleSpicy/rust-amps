@@ -1,0 +1,7 @@
+
+.. _#ug-removing-messages:
+
+5. Removing Messages
+====================
+
+.. include:: ./sow-delete.inc

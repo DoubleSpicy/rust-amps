@@ -1,0 +1,1275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>16. Message Types &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="17. Command Acknowledgment" href="acks.html" />
+    <link rel="prev" title="15. Message Queues" href="queues.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">16. Message Types</a><ul>
+<li><a class="reference internal" href="#default-message-types">Default Message Types</a></li>
+<li><a class="reference internal" href="#bflat-messages">BFlat Messages</a><ul>
+<li><a class="reference internal" href="#bflat-data-types">BFlat Data Types</a><ul>
+<li><a class="reference internal" href="#representing-data-in-bflat">Representing Data in BFlat</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#messagepack-messages">MessagePack Messages</a></li>
+<li><a class="reference internal" href="#composite-messages">Composite Messages</a><ul>
+<li><a class="reference internal" href="#configuring-composite-message-types">Configuring Composite Message Types</a><ul>
+<li><a class="reference internal" href="#unparsed-payload-section">Unparsed Payload Section</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#content-filtering-with-composite-message-types">Content Filtering with Composite Message Types</a><ul>
+<li><a class="reference internal" href="#composite-global">composite-global</a></li>
+<li><a class="reference internal" href="#composite-local">composite-local</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#choosing-a-composite-type">Choosing A Composite Type</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#protobuf-message-types">Protobuf Message Types</a><ul>
+<li><a class="reference internal" href="#configuring-protobuf-message-types">Configuring Protobuf Message Types</a></li>
+<li><a class="reference internal" href="#filtering-with-protobuf-messages">Filtering with Protobuf Messages</a></li>
+<li><a class="reference internal" href="#working-with-multiple-protocol-buffer-types">Working With Multiple Protocol Buffer Types</a></li>
+<li><a class="reference internal" href="#union-types">Union Types</a></li>
+<li><a class="reference internal" href="#limitations-of-the-protobuf-message-type">Limitations of the Protobuf Message Type</a></li>
+<li><a class="reference internal" href="#working-with-optional-default-values">Working with Optional Default Values</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#struct-message-types">Struct Message Types</a><ul>
+<li><a class="reference internal" href="#configuring-a-struct-message-type">Configuring a Struct Message Type</a></li>
+<li><a class="reference internal" href="#limitations-of-struct-message-types">Limitations of Struct Message Types</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#loading-additional-message-types">Loading Additional Message Types</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="queues.html" title="previous chapter">15. Message Queues</a></li>
+      <li>Next: <a href="acks.html" title="next chapter">17. Command Acknowledgment</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="message-types">
+<span id="ug-messagetypes"></span><span id="index-0"></span><h1>16. Message Types<a class="headerlink" href="#message-types" title="Permalink to this headline">¶</a></h1>
+<p>Message communication between the publisher and subscriber in AMPS is
+managed through the use of message types. Message types define the data
+contained within an AMPS message. Each topic has a specific message
+type. Transports used for publishers and subscribers can also define
+specific message types. For a given transport, AMPS will only process
+messages of the type or types that the transport accepts.</p>
+<p>When AMPS needs to use the data within a message, AMPS uses the message
+type to parse the message into an internal representation. AMPS uses the
+same internal representation for all message types. Likewise, if AMPS
+needs to create a new message from a set of values (for example, for a
+view), AMPS uses the message type to serialize that set of values into
+the correct format. AMPS filters, commands, processing flow, and so
+forth are the same for every message type. Message types do not change
+how AMPS processes messages. A message type simply allows AMPS to work
+with data of a particular format.</p>
+<p>In some cases, a given message type cannot support all of the
+capabilities in AMPS. For example, the unparsed <code class="docutils literal"><span class="pre">binary</span></code> message type
+allows arbitrary payloads. This can be extremely useful, but because
+there is no set format for that message type, none of the capabilities
+that rely on parsing data are supported by the <code class="docutils literal"><span class="pre">binary</span></code> message type.
+Where a message type cannot provide a specific capability to AMPS, those
+limitations are described below.</p>
+<p>Except where limitations are described in this section, all message
+types provided with the AMPS server support all AMPS features. The AMPS
+engine itself is message-type agnostic. There is no difference in
+configuring a SOW that uses a composite type than there is configuring a
+SOW that uses JSON, or BFlat, or Google Protocol buffers.</p>
+<p>Message types in AMPS are implemented as plug-in modules. For more
+information on plug-in modules, contact 60East support for access to the
+AMPS Server SDK.</p>
+<div class="section" id="default-message-types">
+<h2>Default Message Types<a class="headerlink" href="#default-message-types" title="Permalink to this headline">¶</a></h2>
+<p>AMPS automatically loads modules for the following message types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Message Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">bson</span></code></td>
+<td>Binary JSON (BSON) messages. See <a class="reference external" href="http://www.bsonspec.org">http://www.bsonspec.org</a> for information on this format.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bflat</span></code></td>
+<td>BFlat, a schemaless message format based on key-value pairs that includes support for binary
+representations of numeric data. See <a class="reference external" href="http://bflat.io">http://bflat.io</a> for information on this format.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">fix</span></code></td>
+<td>FIX messages using numeric tags. FIX is a standard format widely used in the financial
+industry. See <a class="reference external" href="https://www.fixtrading.org/what-is-fix/">https://www.fixtrading.org/what-is-fix/</a> for more information on
+this format.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">json</span></code></td>
+<td>JSON (JavaScript Object Notation) messages. See <a class="reference external" href="http://www.json.org">http://www.json.org</a> for information on this
+format.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">msgpack</span></code></td>
+<td>MessagePack messages. MessagePack is a schemaless serialization format designed to
+efficiently encode data. See <a class="reference external" href="http://msgpack.org/index.html">http://msgpack.org/index.html</a> for more information on
+MessagePack.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">nvfix</span></code></td>
+<td>NVFIX (name/value FIX) messages. NVFIX uses the same basic format as FIX, but allows tags to
+contain any byte that is not <code class="docutils literal"><span class="pre">=</span></code> or the configured field separator character (by default,
+the ASCII <code class="docutils literal"><span class="pre">SOH</span></code> character.) By contrast, FIX requires that tags are numeric.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">xml</span></code></td>
+<td>XML messages (of any schema)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">binary</span></code></td>
+<td>Uninterpreted binary payload. Because this module does not attempt to parse the payload, it
+does not support content filtering, views and aggregates. Likewise, because there is no set
+format for the payload, this message type cannot support features that construct messages
+(such as delta messaging, <code class="docutils literal"><span class="pre">/AMPS/.*</span></code> topic subscriptions and <code class="docutils literal"><span class="pre">stats</span></code> acks).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">protobuf</span></code></td>
+<td>Google protocol buffer messages. To use this message type, you must configure a
+<code class="docutils literal"><span class="pre">MessageType</span></code> with the format of the messages (the <code class="docutils literal"><span class="pre">.proto</span></code> files).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.1:</strong> <em>AMPS Default Message Types</em></p>
+<p>With these message types, AMPS automatically loads the module that
+provides the message type. AMPS declares message types for all of the
+above message types except for <code class="docutils literal"><span class="pre">protobuf</span></code>.</p>
+<p id="index-1">For efficiency, AMPS only parses the content of a message if required,
+and only to the extent required. For example, if AMPS only needs to find
+the <code class="docutils literal"><span class="pre">id</span></code> tag in an NVFIX message, AMPS will not fully parse the
+message, but will stop parsing the message after finding the <code class="docutils literal"><span class="pre">id</span></code> tag.
+This provides significant performance improvements, and also means that
+AMPS does not verify the format or validity of messages unless it needs
+to parse the messages. When AMPS parses a message, it may only partially
+parse a message, and may not detect corruption or invalid format in a
+message if that corruption occurs after the point at which AMPS has all
+of the required information from the message.</p>
+<p>The FIX and NVFIX message types support configuration of the field and
+message delimiters.</p>
+<p>AMPS also allows you to create new message types by assembling existing
+message types into a composite message. Composite message types are
+described in <a class="reference internal" href="#ug-messagetypes-composite"><span class="std std-ref">Composite Messages</span></a>, and
+require additional configuration:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Message Type Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">composite-global</span></code></td>
+<td>Composite message type that combines message parts for content filtering. This
+message type combines one or more existing message types into a message. This
+type is described in more detail in
+<a class="reference internal" href="#ug-messagetypes-composite"><span class="std std-ref">Composite Messages</span></a>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">composite-local</span></code></td>
+<td>Composite message type, filterable by individual parts. This message type
+combines one or more existing message types into a message. This type is
+described in more detail in
+<a class="reference internal" href="#ug-messagetypes-composite"><span class="std std-ref">Composite Messages</span></a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.2:</strong> <em>AMPS Composite Message Types</em></p>
+</div>
+<div class="section" id="bflat-messages">
+<span id="index-2"></span><h2>BFlat Messages<a class="headerlink" href="#bflat-messages" title="Permalink to this headline">¶</a></h2>
+<p>The BFlat message format combines the simplicity and efficiency of
+simple, schemaless data formats such as FIX and NVFIX with the ability
+to manage binary data and preserve the full precision of numeric values.
+BFlat is especially useful for applications that deal with binary data
+or precise numeric values while demanding high levels of throughput.</p>
+<p>A BFlat message is composed of any number of tag/value pairs, similar to
+FIX and NVFIX messages. Tags and values can contain any value and can
+be of any length. Unlike formats such as FIX, there are no reserved
+characters. In practical terms, the name of a tag must be a valid XPath
+identifier to filter the message in AMPS. However, this is a limitation
+of XPath and not of the BFlat message format.</p>
+<p>The BFlat message type supports all AMPS features and there are no
+special considerations when using the BFlat message type.</p>
+<p>Open-source libraries for producing and parsing BFlat messages are available
+from the <a class="reference external" href="http://bflat.io">BFlat project</a> site.</p>
+<div class="section" id="bflat-data-types">
+<h3>BFlat Data Types<a class="headerlink" href="#bflat-data-types" title="Permalink to this headline">¶</a></h3>
+<p>BFlat messages are strongly typed.  For numeric values, BFlat can preserve
+the precise value of the following numeric types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>int8</td>
+<td>8-bit integer</td>
+</tr>
+<tr class="row-odd"><td>int16</td>
+<td>16-bit integer</td>
+</tr>
+<tr class="row-even"><td>int32</td>
+<td>32-bit integer</td>
+</tr>
+<tr class="row-odd"><td>int64</td>
+<td>64-bit integer</td>
+</tr>
+<tr class="row-even"><td>double</td>
+<td>64-bit IEEE 754 floating point
+number</td>
+</tr>
+<tr class="row-odd"><td>datetime</td>
+<td>UTC datetime containing milliseconds
+since Unix epoch (64-bit
+representation)</td>
+</tr>
+<tr class="row-even"><td>leb128</td>
+<td>Signed LEB128 integer (variable
+length)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.3:</strong> <em>BFlat Numeric Types</em></p>
+<p>BFlat also includes the following non-numeric types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>null</td>
+<td>Empty field</td>
+</tr>
+<tr class="row-odd"><td>string</td>
+<td><p class="first">String of bytes</p>
+<p class="last">BFlat does not specify the encoding
+of a string; this is up to the
+application to determine.</p>
+</td>
+</tr>
+<tr class="row-even"><td>binary</td>
+<td>Untyped sequence of bytes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.4:</strong> <em>BFlat Non-numeric Types</em></p>
+<p>BFlat includes the ability to represent arrays of values.</p>
+<div class="section" id="representing-data-in-bflat">
+<h4>Representing Data in BFlat<a class="headerlink" href="#representing-data-in-bflat" title="Permalink to this headline">¶</a></h4>
+<p>By convention, BFlat serializers should choose the most compact representation of a
+given value. For example, if an integer value can fit into 8 bits, it should be
+serialized as a value of type <code class="docutils literal"><span class="pre">int8</span></code>. An application that parses BFlat should
+assume that a serializer may use different types for values in the same field,
+to optimize for a compact representation, and should not rely on a value being
+of a specific type.</p>
+<p>For example, a <code class="docutils literal"><span class="pre">TotalValue</span></code> field that can have any integer value could
+be serialized with a type of <code class="docutils literal"><span class="pre">int8</span></code> for values that fit in 8 bits, but could
+be serialized with a integer type that includes more bits if the value is larger,
+and could be serialized with the <code class="docutils literal"><span class="pre">leb128</span></code> type for integer values that cannot
+be represented in 64 bits.</p>
+<p>When the AMPS server must serialize a BFlat message (for example, when projecting
+a view or as a result of enrichment), AMPS tries to optimize for the most compact message size,
+which could change the representation if the serializer did not choose the most
+compact type for a value.</p>
+</div>
+</div>
+</div>
+<div class="section" id="messagepack-messages">
+<span id="index-3"></span><h2>MessagePack Messages<a class="headerlink" href="#messagepack-messages" title="Permalink to this headline">¶</a></h2>
+<p>AMPS fully supports MessagePack messages, with the following
+implementation decisions to represent MessagePack messages in
+the AMPS type system. See <a class="reference internal" href="amps_expressions.html#ug-expressions-data-types"><span class="std std-ref">AMPS Data Types</span></a> for
+information on the AMPS data types. Notice, in particular, that
+the AMPS expression language supports automatic type conversion,
+so while this table shows the default AMPS representation for
+a given MessagePack type, AMPS will convert a value as needed
+once the message has been parsed.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">MessagePack Type</th>
+<th class="head">AMPS Representation</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>nil</td>
+<td>NULL</td>
+</tr>
+<tr class="row-odd"><td>bool</td>
+<td>Boolean</td>
+</tr>
+<tr class="row-even"><td>int (all widths)</td>
+<td>Integer</td>
+</tr>
+<tr class="row-odd"><td>float (all widths)</td>
+<td>Float</td>
+</tr>
+<tr class="row-even"><td>str (all widths)</td>
+<td>String</td>
+</tr>
+<tr class="row-odd"><td>bin (all widths)</td>
+<td>String</td>
+</tr>
+<tr class="row-even"><td>array (all widths)</td>
+<td>array of AMPS values</td>
+</tr>
+<tr class="row-odd"><td>map (all widths)</td>
+<td>nested AMPS values</td>
+</tr>
+<tr class="row-even"><td>ext (all widths)</td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.5:</strong> <em>MessagePack Types and AMPS Types</em></p>
+<p>Notice that AMPS does not attempt to interpret extension types, and instead
+represents them as arrays of bytes (a String in the AMPS type system).</p>
+</div>
+<div class="section" id="composite-messages">
+<span id="ug-messagetypes-composite"></span><h2>Composite Messages<a class="headerlink" href="#composite-messages" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes, applications only need to filter on a small subset of the
+fields in a message. Sometimes applications need to send and receive
+messages that cannot be meaningfully parsed by AMPS, such as images or
+audio files. For these cases, AMPS provides a composite message type
+that lets you create a new message type by combining existing message
+types.</p>
+<p>For example, you might create a message type that includes three parts:
+the metadata for an image as a <code class="docutils literal"><span class="pre">json</span></code> document, a small JPG thumbnail
+as a <code class="docutils literal"><span class="pre">binary</span></code> message part, and a full size PNG image as another
+<code class="docutils literal"><span class="pre">binary</span></code> message part.</p>
+<p>Composite messages can also be useful when the message itself is large
+or resource-intensive to parse. In this case, you can create a message
+type that includes the information needed to filter messages in a JSON
+or NVFIX part, and include the full message in the unparsed payload of
+the composite message, as described below.</p>
+<p>AMPS provides two different types of composite messages. Messages
+created using the <code class="docutils literal"><span class="pre">composite-local</span></code> module preserve information about
+the individual parts for filtering, aggregation, and projection.
+Messages created using the <code class="docutils literal"><span class="pre">composite-global</span></code> module treat the
+individual parts as elements of a single document.</p>
+<div class="section" id="configuring-composite-message-types">
+<span id="index-4"></span><h3>Configuring Composite Message Types<a class="headerlink" href="#configuring-composite-message-types" title="Permalink to this headline">¶</a></h3>
+<p>To use a composite message type, you must first configure the type by
+declaring it in the <code class="docutils literal"><span class="pre">MessageTypes</span></code> section of the AMPS configuration
+file. The declaration contains the name of the new composite message
+type, specifies that the new type is composite, and lists the parts of
+the composite message type.</p>
+<p>For example, the <code class="docutils literal"><span class="pre">MessageType</span></code> element below declares a new composite
+message type named <code class="docutils literal"><span class="pre">images</span></code>. The new type contains a <code class="docutils literal"><span class="pre">json</span></code> document
+at the beginning of the message, followed by two uninterpreted binary
+message parts. AMPS will combine the XPath identifiers for all message
+parts into a single set of identifiers. Notice that, because only one
+part of the message type is parsable, using <code class="docutils literal"><span class="pre">composite-global</span></code>
+simplifies the identifiers for the message.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;MessageTypes&gt;</span>
+    ...
+
+    <span class="nt">&lt;MessageType&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>images<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Module&gt;</span>composite-global<span class="nt">&lt;/Module&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>binary<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>binary<span class="nt">&lt;/MessageType&gt;</span>
+    <span class="nt">&lt;/MessageType&gt;</span>
+
+    ...
+
+<span class="nt">&lt;/MessageTypes&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">MessageType</span></code> entries for the composite message can be any AMPS
+message type, including both the built-in types and any previously
+defined message type.</p>
+<p>Once the new composite message type is created, you can use the new type
+in the configuration file.</p>
+<p>Composite message types have the following restrictions:</p>
+<ul class="simple">
+<li>Delta subscribe and delta publish are not supported for message types
+that use <code class="docutils literal"><span class="pre">composite-global</span></code>.</li>
+<li>Views, joins, and aggregation cannot project message types that use
+<code class="docutils literal"><span class="pre">composite-global</span></code>. (However, composite message types that use
+<code class="docutils literal"><span class="pre">composite-global</span></code> <em>can</em> be an <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> or one of the
+topics in a <code class="docutils literal"><span class="pre">Join</span></code>.)</li>
+<li>Composite message types do not support features that automatically
+construct messages, such as subscriptions to the <code class="docutils literal"><span class="pre">AMPS/.*</span></code> topics and
+stats acks, regardless of the module the type uses.</li>
+</ul>
+<div class="section" id="unparsed-payload-section">
+<h4>Unparsed Payload Section<a class="headerlink" href="#unparsed-payload-section" title="Permalink to this headline">¶</a></h4>
+<p>All composite message types, regardless of how they are defined, provide
+an <em>unparsed payload</em> section. The unparsed payload section does not
+need to be declared in the <code class="docutils literal"><span class="pre">MessageType</span></code> declaration. As the name
+suggests, AMPS does not parse or interpret this section, so the unparsed
+payload can contain any content of any type. In an AMPS client,
+the unparsed payload section is represented as bytes that appear
+at the end of the message, after the last defined part.</p>
+<p>The unparsed payload is included to simplify the common technique where
+a message type contains a header that is used for filtering followed by
+an unparsed binary. If your composite message type contains a single
+binary part, consider using the unparsed payload section in your
+application rather than declaring a binary message part. Notice,
+however, that since AMPS does not parse or interpret this section,
+it may not appear in serialized representations of the message
+(for example, log messages, Galvanometer display, and so on).</p>
+</div>
+</div>
+<div class="section" id="content-filtering-with-composite-message-types">
+<h3>Content Filtering with Composite Message Types<a class="headerlink" href="#content-filtering-with-composite-message-types" title="Permalink to this headline">¶</a></h3>
+<p>Composite message types support filtering on the contents of the
+composite message. There are some simple conventions to remember when
+constructing expressions to filter on. For more details about content
+filtering, see <a class="reference internal" href="pub_sub.html#pub-sub-content"><span class="std std-ref">Filtering Subscriptions by Content</span></a>.</p>
+<p>These conventions are consistent anywhere that AMPS needs to find a
+value within the composite message type. That includes content filters
+for client subscriptions, identifying SOW keys, creating views and
+aggregates, creating conflated topics, and so on.</p>
+<div class="section" id="composite-global">
+<h4>composite-global<a class="headerlink" href="#composite-global" title="Permalink to this headline">¶</a></h4>
+<p>When using the <code class="docutils literal"><span class="pre">composite-global</span></code> message type, AMPS combines all
+parts of the message into a unified set of XPath identifiers. AMPS
+creates the set of identifiers for each part of the message. If
+different parts of the message contain the same identifier, AMPS treats
+that identifier as though the identifier contained an array of values:
+AMPS creates an array that contains all of the values in the different
+parts of the message. Message types that do not support content
+filtering do not provide XPath identifiers.</p>
+<p>For example, consider the message below for a <code class="docutils literal"><span class="pre">composite-global</span></code>
+message type that includes two <code class="docutils literal"><span class="pre">json</span></code> parts and a <code class="docutils literal"><span class="pre">binary</span></code> part:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;data&quot;</span><span class="p">:</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span><span class="s2">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;part one message&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;another part&quot;</span><span class="p">,</span><span class="s2">&quot;customer&quot;</span><span class="p">:</span><span class="s2">&quot;Awesome Amalgamated, Ltd.&quot;</span><span class="p">}</span>
+<span class="mh">0xDEEA0934DF23A37780934</span><span class="o">...</span>
+</pre></div>
+</div>
+<p>AMPS constructs the following set of XPath identifiers and values:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Identifier</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/id</span></code></td>
+<td><code class="docutils literal"><span class="pre">1</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/data</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;sample&quot;</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/message</span></code></td>
+<td><code class="docutils literal"><span class="pre">[&quot;part</span> <span class="pre">one</span> <span class="pre">message&quot;,</span> <span class="pre">&quot;another</span> <span class="pre">part</span>
+<span class="pre">&quot;]</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/customer</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;Awesome</span> <span class="pre">Amalgamated,</span> <span class="pre">Ltd.&quot;</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.6:</strong> <em>Composite-global Message Identifiers</em></p>
+<p>In short, when using <code class="docutils literal"><span class="pre">composite-global</span></code>, AMPS combines the parsable
+parts of the message into a single global set of XPath values, and
+ignores any part of the message that cannot be parsed.</p>
+</div>
+<div class="section" id="composite-local">
+<h4>composite-local<a class="headerlink" href="#composite-local" title="Permalink to this headline">¶</a></h4>
+<p>When using the <code class="docutils literal"><span class="pre">composite-local</span></code> message type, AMPS creates a distinct
+set of XPath identifiers for each part of the message. AMPS adds an
+XPath step with the position of the message part at the beginning of the
+identifier. Message types that do not support content filtering do not
+provide XPath identifiers, and AMPS skips over them.</p>
+<p>For example, consider the message below for a <code class="docutils literal"><span class="pre">composite-local</span></code>
+message type that includes two <code class="docutils literal"><span class="pre">json</span></code> parts and a <code class="docutils literal"><span class="pre">binary</span></code> part:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;data&quot;</span><span class="p">:</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span><span class="s2">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;part one message&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;another part&quot;</span><span class="p">,</span><span class="s2">&quot;customer&quot;</span><span class="p">:</span><span class="s2">&quot;Awesome Amalgamated, Ltd.&quot;</span><span class="p">}</span>
+<span class="mh">0xDEEA0934DF23A37780934</span><span class="o">...</span>
+</pre></div>
+</div>
+<p>AMPS constructs the following set of XPath identifiers and values:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Identifier</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/0/id</span></code></td>
+<td><code class="docutils literal"><span class="pre">1</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/0/data</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;sample&quot;</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/0/message</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;part</span> <span class="pre">one</span> <span class="pre">message&quot;</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/1/message</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;another</span> <span class="pre">part&quot;</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/1/customer</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;Awesome</span> <span class="pre">Amalgamated,</span> <span class="pre">Ltd.&quot;</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.7:</strong> <em>Composite-local Message Identifiers</em></p>
+<p>In short, when using <code class="docutils literal"><span class="pre">composite-local</span></code>, AMPS creates XPath identifiers
+for each part of the message, using the position of the message part
+within the composite as the first part of the identifier. AMPS skips
+over any part of the message that cannot be parsed, and simply produces
+no values for that part of the message.</p>
+</div>
+</div>
+<div class="section" id="choosing-a-composite-type">
+<h3>Choosing A Composite Type<a class="headerlink" href="#choosing-a-composite-type" title="Permalink to this headline">¶</a></h3>
+<p>To choose which composite type best fits your application, consider the
+following factors:</p>
+<ul class="simple">
+<li>If you need to use delta messaging with this message type, use
+<code class="docutils literal"><span class="pre">composite-local</span></code>.</li>
+<li>If there may be redundant field names in the parts of the message,
+and it is important to be able to filter based on which part contains
+the field, use <code class="docutils literal"><span class="pre">composite-local</span></code>.</li>
+<li>If you need to be able to create views of this type, use
+<code class="docutils literal"><span class="pre">composite-local</span></code>.</li>
+</ul>
+<p>Otherwise, <code class="docutils literal"><span class="pre">composite-global</span></code> may be easier and more straightforward
+for client filtering, since clients do not need to know the detailed
+structure of the message type to be able to filter on the message.</p>
+</div>
+</div>
+<div class="section" id="protobuf-message-types">
+<h2>Protobuf Message Types<a class="headerlink" href="#protobuf-message-types" title="Permalink to this headline">¶</a></h2>
+<p>Protocol buffers, or protobufs for short, is an efficient, automated
+mechanism for serializing structured data. AMPS supports Google protobuf
+messages (version 2 and version 3) as a message format.</p>
+<p>Because Google protocol buffers use a fixed format for messages, to use
+protobuf, you must configure AMPS with the definition of the messages
+AMPS will process. This involves defining a <code class="docutils literal"><span class="pre">MessageType</span></code>. You must
+define a <code class="docutils literal"><span class="pre">MessageType</span></code> for AMPS to be able to parse protobuf messages.</p>
+<p>60East recommends that the <code class="docutils literal"><span class="pre">.proto</span></code> files used with AMPS explicitly
+declare the protocol buffer syntax version used. If there is no explicit
+declaration, AMPS assumes the file uses protocol buffer 2 syntax.</p>
+<p>The AMPS engine is message-type agnostic. Except for the limitations
+described in this section, there is no difference to the AMPS engine
+between message types that use protocol buffers and other message types
+such as JSON or XML or FIX.</p>
+<div class="section" id="configuring-protobuf-message-types">
+<h3>Configuring Protobuf Message Types<a class="headerlink" href="#configuring-protobuf-message-types" title="Permalink to this headline">¶</a></h3>
+<p>To use a protobuf message, you must first edit the configuration file to
+include a new <code class="docutils literal"><span class="pre">MessageType</span></code>. Then, specify the path to the protobuf
+file and the name of the protobuf file itself inside the
+<code class="docutils literal"><span class="pre">MessageType</span></code>. Below is a sample configuration of a protobuf message
+type:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span>...
+
+<span class="nt">&lt;MessageType&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>my-protobuf-messages<span class="nt">&lt;/Name&gt;</span>
+    <span class="nt">&lt;Module&gt;</span>protobuf<span class="nt">&lt;/Module&gt;</span>
+    <span class="nt">&lt;ProtoPath&gt;</span>proto-archive;/mnt/shared/protofiles<span class="nt">&lt;/ProtoPath&gt;</span>
+    <span class="nt">&lt;ProtoFile&gt;</span>proto-archive/person.proto<span class="nt">&lt;/ProtoFile&gt;</span>
+    <span class="nt">&lt;Type&gt;</span>MyNamespace.Message<span class="nt">&lt;/Type&gt;</span>
+<span class="nt">&lt;/MessageType&gt;</span>
+
+...
+</pre></div>
+</div>
+<p>Each message type references a <code class="docutils literal"><span class="pre">ProtoFile</span></code>, and specifies a single
+top-level type from the file. The <code class="docutils literal"><span class="pre">ProtoFile</span></code> may include other files
+through the standard protocol buffer include mechanism. Likewise, the
+top-level type may be any valid protocol buffer definition, including
+definitions that contain other types.</p>
+<p>Once the protocol buffer <code class="docutils literal"><span class="pre">MessageType</span></code> is created as described
+above, you must either create a <code class="docutils literal"><span class="pre">Transport</span></code> that specifies that
+message type exactly, or you must create a <code class="docutils literal"><span class="pre">Transport</span></code> that can
+accept any known message type and ensure that the client specifies the
+new message type (in the example case, <code class="docutils literal"><span class="pre">my-protobuf-message</span></code>) in the
+connect string.</p>
+<p>When creating a <code class="docutils literal"><span class="pre">protobuf</span></code> message type, you must provide the
+following parameters:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Name</span>
+</pre></div>
+</div>
+</td>
+<td>The name of the new, customized message type. The rest of the configuration file will
+use this name to refer to the message type.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Module</span>
+</pre></div>
+</div>
+</td>
+<td>The module that contains the message type. Use <code class="docutils literal"><span class="pre">protobuf</span></code> for protocol buffer
+messages.</td>
+</tr>
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">ProtoPath</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">The path in which to search for <code class="docutils literal"><span class="pre">.proto</span></code> files. The content of this element has the
+following syntax:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">alias</span> <span class="p">;</span> <span class="n">full</span><span class="o">-</span><span class="n">path</span>
+</pre></div>
+</div>
+<p>The alias provides a short identifier to use when searching for .proto files. The
+full path is the path that is substituted for that identifier.</p>
+<p>For example, in the sample above, <code class="docutils literal"><span class="pre">proto-archive</span></code> is an alias for
+<code class="docutils literal"><span class="pre">/mnt/shared/protofiles</span></code>.</p>
+<p>A configuration may omit the alias and simply provide the path. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">;</span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">repository</span><span class="o">/</span><span class="n">protodefs</span>
+</pre></div>
+</div>
+<p class="last">You may specify any number of <code class="docutils literal"><span class="pre">ProtoPath</span></code> declarations.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">ProtoFile</span>
+</pre></div>
+</div>
+</td>
+<td>The name of the <code class="docutils literal"><span class="pre">.proto</span></code> file to use for this message type. To use an alias, prefix
+the name of the file with the alias, as shown in the example above.</td>
+</tr>
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Type</span>
+</pre></div>
+</div>
+</td>
+<td>The name of the type inside the <code class="docutils literal"><span class="pre">.proto</span></code> file to use for this message type. AMPS
+requires a single type.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 16.8:</strong> <em>Protobuf Message Type Parameters</em></p>
+</div>
+<div class="section" id="filtering-with-protobuf-messages">
+<h3>Filtering with Protobuf Messages<a class="headerlink" href="#filtering-with-protobuf-messages" title="Permalink to this headline">¶</a></h3>
+<p>To filter protobuf messages, there are a couple of conventions you must
+remember. AMPS XPath identifiers begin at the outermost message, so you
+can simply use member names for that message. If you have nested
+messages, you use the name of the nested message and the member name
+when creating an XPath identifier.</p>
+<p>For example, suppose you have the following definition in a
+<code class="docutils literal"><span class="pre">.proto</span></code> file:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="n">person</span> <span class="p">{</span>
+    <span class="n">required</span> <span class="n">string</span> <span class="n">name</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">required</span> <span class="n">int32</span> <span class="n">personID</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To access the <code class="docutils literal"><span class="pre">personID</span></code> data member, you simply use the name of the
+data member as the XPath identifier. An example filter that verifies
+that a <code class="docutils literal"><span class="pre">personID</span></code> is greater than 1000 would be:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">personID</span> <span class="o">&gt;</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+<p>If you have nested messages, you simply provide the path to the nested
+message you want to access.</p>
+<p>Let&#8217;s assume that the <code class="docutils literal"><span class="pre">person</span></code> message from the above example was
+nested inside another message with the name of <code class="docutils literal"><span class="pre">record</span></code>. The example
+filter below shows how to access the nested <code class="docutils literal"><span class="pre">person</span></code> message, and then
+filter to the <code class="docutils literal"><span class="pre">personID</span></code>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">person</span><span class="o">/</span><span class="n">personID</span> <span class="o">&gt;</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+<p>In this case, the first part of the identifier (<code class="docutils literal"><span class="pre">/person</span></code>) specifies
+the sub-message. The second part of the identifier (<code class="docutils literal"><span class="pre">/personID</span></code>)
+specifies the field within that sub-message. Notice that, as always,
+there is no need to specify the name of the message for the outermost
+message.</p>
+</div>
+<div class="section" id="working-with-multiple-protocol-buffer-types">
+<h3>Working With Multiple Protocol Buffer Types<a class="headerlink" href="#working-with-multiple-protocol-buffer-types" title="Permalink to this headline">¶</a></h3>
+<p>Some applications require messages of different types: for example, an
+inventory management system may work with customer records,
+inventory records, and shipping order records.</p>
+<p>When using protocol buffers, each of these messages would use a
+different <code class="docutils literal"><span class="pre">.proto</span></code> file, and therefore would be a different
+message type. Unlike a self-describing format such as JSON or
+XML, the serialized form of a protocol buffer message type
+does not automatically contain any information about the type
+of message or the fields that the message contains. Therefore,
+each protocol buffer message type is best considered as a
+completely distinct type. For example, the parser created for
+an order record and the parser created for a customer record
+are different. Unlike self-describing formats, it is not possible
+to use a single parser for these types, or for a parser to
+correctly handle a previously-unknown message structure.</p>
+<p>There are two approaches to working with multiple protocol
+buffer types in an AMPS application:</p>
+<ol class="arabic simple">
+<li>Keep the message types distinct. Each message type requires
+a separate connection to AMPS. The advantage of this approach
+is that the <code class="docutils literal"><span class="pre">.proto</span></code> files can be maintained and updated
+separately. Each connection has a distinct type and only
+needs to handle messages of that type. The disadvantage of
+this approach is that the application must make a connection
+to AMPS for each type of message received.</li>
+<li>Create a &#8220;container&#8221; type that can
+<em>optionally</em> contain any of the needed message types. The
+advantage of this approach is that this requires only a
+single connection to AMPS. Since there is a single
+&#8220;container&#8221; type, a topic can hold this &#8220;container&#8221; type
+and have heterogeneous actual contents. The disadvantage
+to this approach is that it requires a consumer to
+understand the &#8220;container&#8221; type and changes to the
+contained types may need to be carefully managed across
+the consumers that use the container. A &#8220;container&#8221; type
+is typically a <code class="docutils literal"><span class="pre">oneof</span></code> of the contained types.</li>
+</ol>
+<p>For example, you might define a container as follows:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="n">Container</span> <span class="p">{</span>
+
+    <span class="n">oneof</span> <span class="p">{</span>
+      <span class="n">Order</span>      <span class="n">order_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="n">Payment</span>    <span class="n">payment_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">message</span> <span class="n">Order</span> <span class="p">{</span>
+    <span class="n">required</span> <span class="n">string</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="n">message</span> <span class="n">Payment</span> <span class="p">{</span>
+    <span class="n">required</span> <span class="n">string</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this case, the container type will include <strong>either</strong> an
+<code class="docutils literal"><span class="pre">Order</span></code> or a <code class="docutils literal"><span class="pre">Payment</span></code>.</p>
+</div>
+<div class="section" id="union-types">
+<span id="ug-protobuf-union-types"></span><h3>Union Types<a class="headerlink" href="#union-types" title="Permalink to this headline">¶</a></h3>
+<p>When using a protocol buffer message type that contains a union, you can
+navigate the union using the names defined in the top-level element. For
+example, given the union defined below:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="n">MyUnion</span> <span class="p">{</span>
+    <span class="n">optional</span> <span class="n">Order</span>      <span class="n">order_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">optional</span> <span class="n">Payment</span>    <span class="n">payment_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">message</span> <span class="n">Order</span> <span class="p">{</span>
+    <span class="n">required</span> <span class="n">string</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="n">message</span> <span class="n">Payment</span> <span class="p">{</span>
+    <span class="n">required</span> <span class="n">string</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Providing a filter of <code class="docutils literal"><span class="pre">/order_type</span> <span class="pre">IS</span> <span class="pre">NOT</span> <span class="pre">NULL</span></code> will return all of the
+<code class="docutils literal"><span class="pre">MyUnion</span></code> messages that contain an <code class="docutils literal"><span class="pre">Order</span></code>, while providing a filter
+of <code class="docutils literal"><span class="pre">/payment_type/customer_id</span> <span class="pre">=</span> <span class="pre">'42'</span></code> will return only the <code class="docutils literal"><span class="pre">MyUnion</span></code>
+messages that contain a <code class="docutils literal"><span class="pre">Payment</span></code> message with a <code class="docutils literal"><span class="pre">customer_id</span></code> of
+<code class="docutils literal"><span class="pre">42</span></code>.</p>
+</div>
+<div class="section" id="limitations-of-the-protobuf-message-type">
+<h3>Limitations of the Protobuf Message Type<a class="headerlink" href="#limitations-of-the-protobuf-message-type" title="Permalink to this headline">¶</a></h3>
+<p>Because the <code class="docutils literal"><span class="pre">protobuf</span></code> message type requires a specific, fixed
+definition for messages, AMPS does not support operations that construct
+messages that may contain arbitrary values. In particular, protobuf does
+not support:</p>
+<ul class="simple">
+<li>Creating a View with a <code class="docutils literal"><span class="pre">protobuf</span></code> type as the <code class="docutils literal"><span class="pre">MessageType</span></code>. AMPS
+allows you to aggregate protobuf messages and project the results as
+another type, but the destination <code class="docutils literal"><span class="pre">MessageType</span></code> for a View cannot be a
+<code class="docutils literal"><span class="pre">protobuf</span></code> message type.</li>
+<li>Creating an aggregated subscription for a topic that contains messages
+of  a <code class="docutils literal"><span class="pre">protobuf</span></code> message type.</li>
+<li>Subscriptions to AMPS internal topics. Protobuf message types do not
+support creating messages for AMPS internal topics, such as
+<code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code>.</li>
+<li>Enriching or preprocessing <code class="docutils literal"><span class="pre">protobuf</span></code> message types. AMPS does
+not support enrichment or preprocessing of <code class="docutils literal"><span class="pre">protobuf</span></code> messages.</li>
+</ul>
+<p>Protocol buffer version 3 messages provide fixed default values for
+omitted fields. This means that there is no reliable way for AMPS to
+determine if a missing field has been intentionally left out of the
+message, or simply contains the fixed default value. The result
+is an additional limitation for protocol buffer version 3 message types:</p>
+<ul class="simple">
+<li>Protocol buffer version 3 message types do not support delta publish
+or delta subscribe.</li>
+</ul>
+<p>Protocol buffer version 2 message types can require that specific
+fields are provided in a message (that is, fields can be marked
+required). The result is an additional limitation for
+protocol buffer version 2 message types:</p>
+<ul class="simple">
+<li>Protocol buffer version 2 message types do not support providing a
+subset of fields in a message by specifying a select list.</li>
+</ul>
+<p>There are no other limitations in working with protocol buffer message
+types.</p>
+</div>
+<div class="section" id="working-with-optional-default-values">
+<h3>Working with Optional Default Values<a class="headerlink" href="#working-with-optional-default-values" title="Permalink to this headline">¶</a></h3>
+<p>Google protocol buffers provide the ability for a message to have fields
+that are both <em>optional</em>, so they need not be provided in the serialized
+message, and <em>defaulted</em>, so that there is a specific value interpreted
+when there is no value provided.</p>
+<p>When no value is provided in the serialized message for an optional
+default value, AMPS interprets the message differently depending on the
+context:</p>
+<ul class="simple">
+<li>For most uses, AMPS interprets the message as though the value is
+<em>present and set to the default value</em>. This means that you can
+filter on optional default values, use them as SOW keys, and
+aggregate optional default values regardless of whether a value is
+present in the serialized message.</li>
+<li>For <em>delta messaging</em> with protocol buffer version 2, AMPS treats an
+optional default value as though there is <em>no value present</em>. AMPS does
+not provide the default value. This means that a delta update must provide
+the default value <em>explicitly</em> in the serialized message to set the field to the
+default value. This also means that, if the value present in the
+message is not the default value, but was not changed on the current
+update, AMPS will not emit that value in messages to delta
+subscribers. (Since delta messaging is not supported with protocol
+buffer version 3, this issue does not arise with that version.)</li>
+</ul>
+</div>
+</div>
+<div class="section" id="struct-message-types">
+<h2>Struct Message Types<a class="headerlink" href="#struct-message-types" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes a message type that allows the server to parse and interpret
+binary data in a fixed format. When configuring the message type, you must
+include a definition of the format.</p>
+<p>This format is designed to allow AMPS to process messages serialized from
+raw memory, such as would be specified in a C-language <code class="docutils literal"><span class="pre">struct</span></code>.</p>
+<div class="section" id="configuring-a-struct-message-type">
+<h3>Configuring a Struct Message Type<a class="headerlink" href="#configuring-a-struct-message-type" title="Permalink to this headline">¶</a></h3>
+<p>To configure a <code class="docutils literal"><span class="pre">struct</span></code> message type, you must define each field that
+AMPS will use. This does not necessarily have to match the original definition
+of the data.  It is possible to &#8220;skip over&#8221; parts of the binary data
+that AMPS should ignore by declaring that data to be padding.</p>
+<p>A <code class="docutils literal"><span class="pre">struct</span></code> message type definition must include one or more <code class="docutils literal"><span class="pre">Field</span></code> elements,
+specified in the order in which the data appears in the message. Each <code class="docutils literal"><span class="pre">Field</span></code> specifies
+the name of the field, and the type and length of the data to be used for that
+<code class="docutils literal"><span class="pre">Field</span></code>.  The specifier for a field is composed of: <em>field name</em> <code class="docutils literal"><span class="pre">=</span></code> <em>data format specifier</em>
+where the field name is the XPath identifier that AMPS will use for this field and the
+data format specifier is a specifier for the type of data and number of bytes for this field.</p>
+<p>The data format specifier is modeled after the specifiers for the Python
+<code class="docutils literal"><span class="pre">struct</span></code> module. The format requires a data type specifier. The data
+type specifier may be preceded by an optional byte order specifier. For
+variable-width data types (for example, strings), include
+an optional byte order specifier and an optional count specifier.</p>
+<p>The following data type specifiers are recognized by the module:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="26%" />
+<col width="29%" />
+<col width="34%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Specifier</td>
+<td>C Type</td>
+<td>Size (bytes)</td>
+<td>AMPS Type</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">x</span></code></td>
+<td><em>n/a</em></td>
+<td>(number of
+bytes must
+be specified)</td>
+<td>Padding bytes, ignored by AMPS</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">c</span></code></td>
+<td><code class="docutils literal"><span class="pre">char</span></code></td>
+<td>1
+(number of bytes may
+be specified)</td>
+<td>string</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">b</span></code></td>
+<td><code class="docutils literal"><span class="pre">signed</span> <span class="pre">char</span></code></td>
+<td>1</td>
+<td>integer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">B</span></code></td>
+<td><code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">char</span></code></td>
+<td>1</td>
+<td>integer</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">?</span></code></td>
+<td><p class="first"><code class="docutils literal"><span class="pre">bool</span></code></p>
+<p class="last">(as though
+<code class="docutils literal"><span class="pre">stdbool.h</span></code> were
+included)</p>
+</td>
+<td>1</td>
+<td>boolean</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">h</span></code></td>
+<td><code class="docutils literal"><span class="pre">short</span></code></td>
+<td>2</td>
+<td>integer</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">H</span></code></td>
+<td><code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">short</span></code></td>
+<td>2</td>
+<td>integer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">i</span></code></td>
+<td><code class="docutils literal"><span class="pre">int</span></code></td>
+<td>4</td>
+<td>integer</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">I</span></code></td>
+<td><code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">int</span></code></td>
+<td>4</td>
+<td>integer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">l</span></code></td>
+<td><code class="docutils literal"><span class="pre">long</span></code></td>
+<td>4</td>
+<td>integer</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">L</span></code></td>
+<td><code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span></code></td>
+<td>4</td>
+<td>integer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">q</span></code></td>
+<td><code class="docutils literal"><span class="pre">long</span> <span class="pre">long</span></code></td>
+<td>8</td>
+<td>integer</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Q</span></code></td>
+<td><code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></code></td>
+<td>8</td>
+<td>integer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">n</span></code></td>
+<td><code class="docutils literal"><span class="pre">ssize_t</span></code></td>
+<td>&#160;</td>
+<td>integer</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">N</span></code></td>
+<td><code class="docutils literal"><span class="pre">size_t</span></code></td>
+<td>&#160;</td>
+<td>integer</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">f</span></code></td>
+<td><code class="docutils literal"><span class="pre">float</span></code></td>
+<td>4</td>
+<td>double</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">d</span></code></td>
+<td><code class="docutils literal"><span class="pre">double</span></code></td>
+<td>8</td>
+<td>double</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">s</span></code></td>
+<td><code class="docutils literal"><span class="pre">char[]</span></code></td>
+<td>number of bytes
+must be specified,
+AMPS will interpret
+the specified number of
+bytes as the string</td>
+<td>string</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">S</span></code></td>
+<td><code class="docutils literal"><span class="pre">char[]</span></code></td>
+<td>number of bytes
+must be specified,
+AMPS will interpret
+the string up to the
+first NULL character
+or the number of
+bytes specified</td>
+<td>string</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">p</span></code></td>
+<td><code class="docutils literal"><span class="pre">uint8_t</span></code>
+followed by
+<code class="docutils literal"><span class="pre">char[]</span></code></td>
+<td><p class="first">number of bytes
+must be specified</p>
+<p class="last">AMPS will consume the
+number of bytes
+specified in the
+<code class="docutils literal"><span class="pre">Field</span></code> configuration.
+The first byte of data
+specifies the length of
+the string. Only that
+number of bytes, starting
+with the second byte of
+the data, will be
+interpreted as the value.</p>
+</td>
+<td>string</td>
+</tr>
+</tbody>
+</table>
+<p>The byte order specifiers are as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Specifier</td>
+<td>Byte order</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">&#64;</span></code></td>
+<td>Native (little-endian for AMPS server)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">=</span></code></td>
+<td>Native (little-endian for AMPS server)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">&lt;</span></code></td>
+<td>Little-endian</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">&gt;</span></code></td>
+<td>Big-endian</td>
+</tr>
+</tbody>
+</table>
+<p>If no byte order is specified, AMPS assumes a little-endian byte order to
+match the native byte order of the AMPS server.</p>
+<p>For example, given the following C struct:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">data_type</span>
+<span class="p">{</span>
+   <span class="kt">int32_t</span>  <span class="n">id</span><span class="p">;</span>
+   <span class="kt">int32_t</span>  <span class="n">internal_id</span><span class="p">;</span>
+   <span class="kt">float</span>    <span class="n">price</span><span class="p">;</span>
+   <span class="kt">char</span>     <span class="n">label</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+   <span class="kt">char</span>     <span class="n">code</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+   <span class="kt">char</span>     <span class="n">routing_instructions</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>A message type declaration that would make the <cite>id</cite>, <cite>price</cite>, and <cite>code</cite>
+members available to AMPS could be constructed as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;MessageType&gt;</span>
+   <span class="nt">&lt;Name&gt;</span>sample_struct_type<span class="nt">&lt;/Name&gt;</span>
+   <span class="nt">&lt;Module&gt;</span>struct<span class="nt">&lt;/Module&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/id = i<span class="nt">&lt;/Field&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/ignored = 4x<span class="nt">&lt;/Field&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/price = f<span class="nt">&lt;/Field&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/ignored = 32x<span class="nt">&lt;/Field&gt;</span>
+   <span class="nt">&lt;Field&gt;</span>/code = 16s<span class="nt">&lt;/Field&gt;</span>
+<span class="nt">&lt;/MessageType&gt;</span>
+</pre></div>
+</div>
+<p>This configuration declares that the message will be interpreted as follows:</p>
+<ul class="simple">
+<li>The first four bytes of the message will be interpreted
+as a (little-endian) integer, and that value will be considered to be the <cite>/id</cite>
+field of the message.</li>
+<li>The next four bytes are skipped as padding &#8211; notice that,
+although a field name is required in the specifier syntax, padding bytes are
+ignored by AMPS, so there is no field named <code class="docutils literal"><span class="pre">/ignored</span></code> generated. However, if
+the message is pretty-printed (or displayed in Galvanometer), AMPS will indicate
+that there are padding bytes present for this field.</li>
+<li>The next four bytes are interpreted as a (little-endian) float, and that value
+will be considered the value of the <code class="docutils literal"><span class="pre">/price</span></code> field.</li>
+<li>The next 32 bytes (the <code class="docutils literal"><span class="pre">label</span></code> in the C struct) are skipped as padding. Again,
+if the message is pretty-printed (or displayed in Galvanometer), AMPS will indicate
+that there are padding bytes present for this field.</li>
+<li>The next 16 bytes of the message are an AMPS string that will be used for the value
+of the <code class="docutils literal"><span class="pre">/code</span></code> field.</li>
+<li>Any remaining bytes (the <code class="docutils literal"><span class="pre">routing_instructions</span></code> from the C struct, in this case)
+are ignored. If the message is pretty-printed (or displayed in Galvanometer), AMPS
+will indicate that there are extra bytes present.</li>
+</ul>
+</div>
+<div class="section" id="limitations-of-struct-message-types">
+<h3>Limitations of Struct Message Types<a class="headerlink" href="#limitations-of-struct-message-types" title="Permalink to this headline">¶</a></h3>
+<p>Because the <code class="docutils literal"><span class="pre">struct</span></code> message type requires a specific, fixed
+definition for messages, AMPS does not support operations that
+construct messages that may contain arbitrary values. In
+particular, message types defined using the <code class="docutils literal"><span class="pre">struct</span></code> message type
+do not support:</p>
+<ul class="simple">
+<li>Creating a View with a <code class="docutils literal"><span class="pre">struct</span></code> message type as the <code class="docutils literal"><span class="pre">MessageType</span></code>.
+AMPS allows you to aggregate <code class="docutils literal"><span class="pre">struct</span></code> message types and project the
+results as another message type, but the destination <code class="docutils literal"><span class="pre">MessageType</span></code> for
+a View cannot be a <code class="docutils literal"><span class="pre">struct</span></code> message type.</li>
+<li>Creating an aggregated subscription for a topic that contains
+messages of a <code class="docutils literal"><span class="pre">struct</span></code> message type.</li>
+<li>Subscriptions to AMPS internal topics (for example, <code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code>).</li>
+<li>Enriching or preprocessing messages of a <code class="docutils literal"><span class="pre">struct</span></code> message type.</li>
+<li>Delta publish or delta subscribe.</li>
+<li>Select lists.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="loading-additional-message-types">
+<h2>Loading Additional Message Types<a class="headerlink" href="#loading-additional-message-types" title="Permalink to this headline">¶</a></h2>
+<p>AMPS includes the ability to load custom message types in external
+modules. As with all AMPS modules, custom message types are compiled
+into shared object files. AMPS dynamically loads these message types on
+startup, using the information provided in the configuration file. Once
+you have loaded and declared those types, you can use the type just as
+you use the default message types.</p>
+<p>For example, the configuration below creates a message type named
+<code class="docutils literal"><span class="pre">custom-type</span></code> that uses a module named <code class="docutils literal"><span class="pre">libmy-type-module.so</span></code> and
+specifies a transport for messages of that type:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Modules&gt;</span>
+    <span class="nt">&lt;Module&gt;</span>
+        <span class="c">&lt;!-- Specifies the name to use to refer to this module in the rest of the</span>
+<span class="c">            configuration file --&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>custom-type-module<span class="nt">&lt;/Name&gt;</span>
+
+        <span class="c">&lt;!-- Path to the library to load for this module. In this example, the path is a</span>
+<span class="c">            relative path below the directory where AMPS is started. --&gt;</span>
+        <span class="nt">&lt;Library&gt;</span>./custom-modules/libmy-type-module.so<span class="nt">&lt;/Library&gt;</span>
+    <span class="nt">&lt;/Module&gt;</span>
+<span class="nt">&lt;/Modules&gt;</span>
+
+<span class="nt">&lt;MessageTypes&gt;</span>
+    <span class="nt">&lt;MessageType&gt;</span>
+        <span class="c">&lt;!-- The name to use for this message type in the rest of the configuration file. --&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>custom-type<span class="nt">&lt;/Name&gt;</span>
+
+        <span class="c">&lt;!-- Reference to the module that implements this message type, using the Name</span>
+<span class="c">            defined in the Module configuration. --&gt;</span>
+        <span class="nt">&lt;Module&gt;</span>custom-type-module<span class="nt">&lt;/Module&gt;</span>
+    <span class="nt">&lt;/MessageType&gt;</span>
+<span class="nt">&lt;/MessageTypes&gt;</span>
+
+<span class="nt">&lt;Transports&gt;</span>
+    <span class="nt">&lt;Transport&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>custom-type-tcp<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Type&gt;</span>tcp<span class="nt">&lt;/Type&gt;</span>
+        <span class="nt">&lt;InetAddr&gt;</span>9008<span class="nt">&lt;/InetAddr&gt;</span>
+
+        <span class="c">&lt;!-- The message type that this transport uses, using the Name defined in the</span>
+<span class="c">            MessageType configuration. --&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>custom-type<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Protocol&gt;</span>amps<span class="nt">&lt;/Protocol&gt;</span>
+    <span class="nt">&lt;/Transport&gt;</span>
+<span class="nt">&lt;/Transports&gt;</span>
+</pre></div>
+</div>
+<p>Once a message type has been declared, you can use it in exactly the
+same way you use the default message types.</p>
+<p>Notice, however, that custom-developed message types may only provide
+support for a subset of the features of AMPS. For example, the
+<code class="docutils literal"><span class="pre">binary</span></code> message type provided with AMPS does not support features
+that require AMPS to parse or construct a message, as described above.
+The developer of the message type must provide information on what
+capabilities the message type provides.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

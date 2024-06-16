@@ -1,0 +1,434 @@
+.. include:: ./macros.inc
+13. Performance Tips and Best Practices
+=======================================
+
+This chapter presents tips and techniques for writing high-performance
+applications with AMPS. This section presents principles and approaches
+that describe how to use the features of AMPS and the AMPS client
+libraries to achieve high performance and reliability.
+
+Specific techniques (for example, the details on how to write a message
+handler) are described in other parts of the AMPS documentation and
+referenced here. Other techniques require information specific to the
+application (for example, determining the minimum set of information
+required in a message), and are best done as part of your application
+design.
+
+All of the recommendations in this section are general guidelines. There
+are few, if any, universal rules for performance: at times, a design
+decision that is absolutely necessary to meet the requirements for an
+application might reduce performance somewhat. For example, your
+application might involve sending large binary data that cannot be
+incrementally updated. That application will use more bandwidth per
+message than an application that sends 100-byte messages with fields
+that can be incrementally updated. However, since the application
+depends on being able to deliver the binary payloads, this difference in
+bandwidth consumption is a part of the requirements for the application,
+not a design decision that can be optimized.
+
+Measure Performance and Set Goals
+---------------------------------
+
+The most important tools for creating high performance applications that
+use AMPS are clear goals and accurate measurement. Without accurate
+measurement, it's impossible to know whether a particular change has
+improved performance or not. Without clear goals, it's difficult to know
+whether a given result is sufficient, or whether you need to continue
+improving performance.
+
+60East recommends that your measurements include baseline metrics for
+the part of your message processing that does not involve AMPS. As an
+example, imagine your task is to reduce the amount of time that elapses
+between when an order is sent and when the processed response is
+received from 100ms in total to 85ms in total. To achieve this
+reduction, you might first measure the processing that your application
+performs on the order. If that processing consumes 65ms, the most
+effective optimization may be to improve the order processing. On the
+other hand, if processing an order consumes 15ms, then optimizing
+message delivery or network utilization may be the most effective way to
+meet your goals.
+
+When measuring performance, simulate your production environment as
+closely as possible. For example, AMPS is highly parallelized, so
+sending a pattern of subscriptions and publishes from a single test
+client that would normally come from 20 clients will produce a very
+different performance profile. Likewise, AMPS can typically perform at
+rates that fill the available bandwidth. Performance measured on a 1GbE
+connection may be very different than performance measured over a 10GbE
+connection. Consider the characteristics of your data, and the number of
+messages you expect to store and process. A 1GB data set consisting of 1
+million records will perform differently than a 1GB data set consisting
+of 10 million records, or a 1GB data set consisting of 100 records.
+
+When collecting information about performance, 60East recommends
+enabling persistence for the Statistics Database (``stats.db``), so you
+can easily collect historical data on both AMPS and the operating
+system. For example, a dip in performance correlated with high CPU and
+memory usage at the same time each day may be correlated with other
+activity on the system (such as cron jobs or close of business
+processing). In a situation like that, where the performance reduction
+is based on factors external to the AMPS application, the overall system
+metrics captured in ``stats.db`` can help you re-create the external
+state and understand the state of the system as a whole. AMPS collects
+the statistics in memory by default, and persisting that data into a
+database does not typically have a measurable effect on performance
+itself, but makes measuring and tuning performance much easier.
+
+For performance testing, 60East recommends using dedicated hardware for
+AMPS to eliminate the effects of other processes. If dedicated hardware
+is not available and other processes are consuming resources, 60East
+recommends disabling AMPS NUMA tuning to ensure that AMPS threads do not
+unnecessarily compete with other processes during performance tuning.
+
+
+Use HAClient and Heartbeating Where Appropriate
+------------------------------------------------
+
+Not every application that uses AMPS requires high availability and the
+ability to automatically fail over if connectivity is lost or an instance
+of AMPS is offline. For applications that do need automatic reconnection,
+60East strongly recommends using the ``HAClient`` and setting heartbeating
+for the client to effectively detect disconnection.
+
+When using the ``HAClient`` and heartbeating, there are two important
+guidelines to follow:
+
+* Do not replace the disconnect handler on the ``HAClient``. The 
+  disconnect handler is responsible for reconnection, resubscription, and
+  so on. If you need to detect disconnection, use a connection state listener.
+
+* Set the interval for heartbeating to approximately one-half the time
+  that the application can tolerate interruption in message flow. Notice
+  that it's not possible for the ``HAClient`` to tell the difference
+  between an interruption in message flow caused by a server going offline
+  and interruptions caused by an increase in latency due to network
+  saturation or so on, so the interval should be somewhat larger than the
+  highest expected latency between AMPS and the application. Last, but
+  not least, if the application uses asynchronous message handling, the
+  interval should also be set to a value larger than the maximum amount
+  of time expected for the message handler to process a single message.
+
+Simplify Message Format and Contents
+------------------------------------
+
+AMPS supports a wide range of message types, and is capable of filtering
+and processing large and complex messages. For many applications, the
+simplicity of being able to use messages that contain the full
+information is the most important consideration. For other applications,
+however, achieving the minimum possible latency and the maximum possible
+network utilization is important enough to warrant choosing a simplified
+message format.
+
+To simplify message contents, carefully consider the information that
+downstream processors require. If a downstream process will not use
+information in the message, there is no need to send the information.
+For example, consider an application that provides orders from a UI. In
+such an application, the object that represents the order often contains
+information relevant to the local state of the application that is not
+relevant to a downstream system. Rather than simply serializing the full
+object, your application may perform better if you serialize only the
+fields that a downstream system will take action on.
+
+To simplify message format, choose the simplest format that can convey
+the information that your application needs. The general principle is
+that the simpler the message format is, the more quickly AMPS and client
+libraries can parse messages of that type. Likewise, the more
+complicated the structure of each message is, the more work is required
+to parse the message. For the highest levels of performance, 60East
+recommends keeping the message structure simple and preferring message
+formats such as NVFIX, BFlat, or flattened JSON (structured as key/value
+pairs) as compared with more complicated formats such as XML or BSON.
+
+Measure Serialization and Deserialization
+-----------------------------------------
+
+When creating baseline performance numbers, measure
+serialization and deserialization performance independent
+of the AMPS server or client libraries.
+
+This can help you to:
+
+* Understand the baseline performance of creating
+  and processing message data under ideal conditions
+  (that is, where there is no application processing,
+  networking, routing, etc. involved).
+
+* Easily compare the application-side performance of
+  different message formats or different message
+  layouts within a single format.
+
+When testing this performance, it is helpful to
+use data similar to the data that the application
+will actually process during a business day, at
+the volumes the application would typically
+process. This will help you understand the
+performance of serialization and deserialization
+for this specific application. For example,
+a library for working with a given message format
+might be less efficient when processing
+messages with a large number of string fields in
+a deeply-nested structure, but your application
+might exchange only numeric data in a relatively flat
+structure. Likewise, the library for a given format
+could be efficient for processing a small number of
+fields, but have lower performance for a message
+type with hundreds of fields.
+
+
+As with all performance testing, the more closely
+the test environment matches the actual data
+and volumes of a production environment, the
+more helpful those measurements will be for
+understanding system performance.
+
+Use Content Filtering Where Possible
+------------------------------------
+
+AMPS content filtering helps your application perform better by ensuring
+that your application only receives the messages that it needs. Wherever
+possible, we recommend using content filtering to precisely specify
+which messages your application needs. In particular, if at any point
+your application is receiving a message, parsing the message, and then
+determining whether to act on the message or not, 60East recommends
+using content filters to ensure that your application only receives
+messages that it needs to act on.
+
+Use Asynchronous Message Processing
+-----------------------------------
+
+The synchronous message processing interface is straightforward, and
+presents a convenient interface for getting started with AMPS.
+
+However, the ``MessageStream`` used by the synchronous interface makes a
+full copy of each message and provides it from the background reader
+thread to the thread that consumes the message. This memory overhead and
+synchronization between the reader thread and consumer thread happens
+regardless of whether the application needs all of the header fields in
+the message or even processes the message. The ``MessageStream`` also
+does not take into account the speed at which your program is consuming
+messages, and will read messages into memory as fast as the network and
+processor allow. If your application cannot consume messages at wire
+speed, this can lead to increasing memory consumption as the application
+falls further behind the ``MessageStream``.
+
+Most applications see improved performance by using a
+``MessageHandler``. With this approach, the ``MessageHandler`` does
+minimal work. If more extensive processing is needed, the
+``MessageHandler`` dispatches the work to another thread: but it does
+this only when the work is necessary, and it only saves the part of the
+message needed to accomplish the work.
+
+Use Hash Indexes Where Possible for SOW Queries
+------------------------------------------------
+
+When querying a SOW, hash indexes on SOW topics are supported for exact
+matching on string data as described in the *AMPS User Guide*. A hash
+index can perform many times faster than a parallel query. If the query
+pattern for your application can take advantage of hash indexes, 60East
+recommends creating those hash indexes on your SOW topics.
+
+More recent versions of AMPS can use hash indexes for a wider variety of
+filters. When planning your queries, review the SOW queries section of
+the *AMPS User Guide* for the version you are using for guidelines on
+the optimizations available in that version.
+
+Use a Failed Write Handler and Exception Listener
+-------------------------------------------------
+
+In many cases, particularly during the early stages of development,
+performance problems can point to defects in the application. Even after
+the application is tuned, monitoring for failure is important to keep
+applications running smoothly.
+
+60East recommends always installing a failed write handler if your
+application is publishing messages. This will help you to quickly
+identify cases where AMPS is rejecting publishes due to entitlement
+failures, message type mismatches, or other similar problems.
+
+60East recommends always installing an exception listener if your
+application is using asynchronous message processing. This will help you
+to identify and correct any problems with your message handler. An
+exception listener should typically log the message received
+and return.  If recovery is needed, the listener should set a
+flag for another thread to process rather than attempting to
+recover on the thread that calls the exception listener.
+
+
+
+Reduce Bandwidth Requirements
+-----------------------------
+
+In many applications that use AMPS, network bandwidth is the single most
+important factor in overall performance. Your application can use
+bandwidth most efficiently by reducing message size. For example, rather
+than serializing an entire object, you might serialize only the fields
+that the remote process needs to act on, as mentioned above. Likewise,
+rather than sending one message that contains a collected set of
+information that processors will need to extract, consider sending a
+message in the units that processors will work with. This can reduce
+bandwidth to processors substantially. For example, rather than sending
+a single message with all of the activity for a single customer over a
+given period of time (such as a trading day), consider breaking out the
+record into the individual transactions for the customer.
+
+Tune Batch Size for SOW Queries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As described in the |sow-batch-size|, tuning the batch size for
+SOW queries can improve overall performance by improving network
+utilization. In addition, because the AMPS header is only parsed once
+per batch, a larger batch size can dramatically improve processing
+performance for smaller messages.
+
+The AMPS clients default to a batch size of ``10``. This provides
+generally good performance for most transactional messages (such as
+order records or inventory records). For large messages, particularly
+messages greater than a megabyte in size, a batch size of ``1`` may
+reduce memory pressure in the client and improve performance.
+
+With smaller messages (for example, message sizes of a few hundred
+bytes), 60East recommends measuring performance with larger batch sizes
+such as ``50`` or ``100`` . For large messages, reducing the batch size
+may improve overall performance by requiring less memory consumption on
+the AMPS server.
+
+Conflate Fast-Changing Information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If your data source publishes information faster than your clients need
+to consume it, consider using a conflated topic. For example, in a
+system that presents a user interface and displays fast-moving data, it
+is common for the data to change at a rate faster than the user
+interface can format and render the data. In this case, a conflated
+topic can both reduce bandwidth and simplify processing in the user
+interface.
+
+Minimize Bandwidth for Updates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If your application uses a SOW and processes frequent updates, consider
+using delta publish and delta subscribe to reduce the size of the
+messages transmitted. These features are designed to minimize bandwidth
+while still providing full-fidelity data streams.
+
+Conflate Queue Acknowledgments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The AMPS clients include the ability to conflate acknowledgments back
+to AMPS as queue messages are processed. Using these features, with an
+appropriate ``max_backlog``, can reduce the amount of network traffic
+required for acknowledgments.
+
+Use a Transaction Log When Monitoring Publish Failures
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a topic is not covered by a transaction log, AMPS returns
+acknowledgment messages for every publish that requests one. This
+ensures that each message is acknowledged, even when AMPS has no
+persistent record of the messages in the topic. However, acknowledging
+each message requires more network traffic for each publish message.
+
+When a topic is covered by a transaction log, AMPS conflates persisted
+acknowledgments. Conflation is possible in this case because AMPS has a
+full record of the messages and does not have to store additional state
+to conflate the acknowledgments. With conflated acknowledgments, AMPS
+will send a success acknowledgment periodically that covers all
+messages up to that point. If a message fails, AMPS immediately sends
+the conflated success acknowledgment for all previous messages and the
+failure acknowledgment for the failed message.
+
+Combine Conflation and Deltas
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In many cases, using an approach that combines delta publishes to a SOW
+with delta subscriptions to a conflated topic can dramatically reduce
+bandwidth to the application with no loss of information.
+
+Limit Unnecessary Copies
+-------------------------
+
+One of the most effective ways to increase performance is to limit the
+amount of data copied within your application.
+
+For example, if your message handler submits work to a set of processors
+that only use the ``Data`` and ``Bookmark`` from a ``Message``, create a
+data structure that holds only those fields and copy that information
+into instances of that data structure rather than copying the entire
+``Message``. While this approach requires a few extra lines of code, the
+performance benefits can be substantial.
+
+When publishing messages to AMPS, avoid unnecessary copies of the data.
+For example, if you have the data in a byte array, use the ``publish``
+methods that use a byte array rather than converting the data to a
+string unnecessarily. Likewise, if you have the data in the form of a
+string, avoid converting it to a byte array where possible.
+
+Manage Publish Stores
+-----------------------
+
+When using a publish store, the Client holds messages until they are
+acknowledged as persisted by AMPS, as determined by the replication
+configuration for the AMPS instance.
+
+In the event that an instance with ``sync`` replication goes offline,
+the publish store for the Client will grow, since the messages are not
+being fully persisted. To avoid this problem, 60East recommends that an
+instance that uses ``sync`` replication always configure Actions to
+automatically downgrade the replication link if the remote instance goes
+offline for a period of time, and upgrade the link when the remote
+instance comes back online.
+
+Further, 60East recommends that, where possible, a publisher is
+provisioned with enough storage to hold its complete publish stream
+for the amount of time that a destination may be offline or
+unavailable without downgrading from ``sync`` replication to 
+``async`` replication. For example, if the server considers a downstream
+system to be unreachable if it has not acknowledged a replicated message
+in 60 seconds, and the server checks this threshold every 10 seconds,
+then a publisher should plan that, at any time, the publisher may need
+to retain approximately 70 seconds worth of published messages. This is
+calculated as the 60 seconds threshold that the server has established for a
+destination to run behind, plus the 10 second interval at which the server
+checks whether the destination is within the threshold. Also notice
+that, with a configuration like this, a downstream replication destination
+could run as much as 59 seconds behind indefinitely. A publisher should
+be provisioned to be able to run effectively in a "worst case" (or nearly
+"worst case") scenario for an extended period of time.
+
+See the "High Availability and Replication" chapter in the *User Guide*
+for more information on replication, sync and async acknowledgment
+modes, and the Actions used to manage replication.
+
+
+Use the Server Logs to Help Troubleshoot
+-----------------------------------------
+
+When troubleshooting problems with an application that uses AMPS, the
+server-side logs often provide the most helpful information. For example,
+``trace`` level logging shows the data that is flowing through AMPS.
+Log messages at ``info`` level show events as incoming connections,
+commands from clients, and so on. When questions arise about how the server
+and application interact, the server logs often contain the information.
+
+60East recommends that an AMPS instance used for development and testing
+log at ``trace`` level, and that a server used for production log at
+``info`` level, with the ability to log at ``trace`` level when necessary
+for investigating any problems that may arise.
+
+When a command does not have the expected result, or an application
+reports an error, the fastest way to understand the problem is often
+to review the ``trace`` level logging for the instance.  See the
+**AMPS User Guide** for details on configuring logging and common
+patterns for searching for information in AMPS logs.
+
+
+Work with 60East as Necessary
+-----------------------------
+
+60East offers performance advice adapted for your specific usage through
+your support agreement. Once you've set your performance goals, worked
+through the general best practices and applied the practices that make
+sense for your application, 60East can help with detailed performance
+tuning, including recommendations that are specific to your use case and
+performance needs.
+

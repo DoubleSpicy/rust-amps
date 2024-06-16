@@ -1,0 +1,1656 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. AMPS Expressions &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. AMPS Functions" href="amps_functions.html" />
+    <link rel="prev" title="3. Publish and Subscribe" href="pub_sub.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. AMPS Expressions</a><ul>
+<li><a class="reference internal" href="#expressions-overview">Expressions Overview</a></li>
+<li><a class="reference internal" href="#expression-syntax">Expression Syntax</a><ul>
+<li><a class="reference internal" href="#ug-expression-identifiers">Identifiers</a></li>
+<li><a class="reference internal" href="#amps-data-types">AMPS Data Types</a><ul>
+<li><a class="reference internal" href="#numeric-types-and-literals-in-amps-expressions">Numeric Types and Literals in AMPS Expressions</a></li>
+<li><a class="reference internal" href="#type-promotion-for-numeric-types">Type Promotion for Numeric Types</a></li>
+<li><a class="reference internal" href="#string-literals-in-amps-expressions">String Literals in AMPS Expressions</a></li>
+<li><a class="reference internal" href="#null-nan-and-is-null">NULL, NaN and IS NULL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#grouping-and-order-of-evaluation">Grouping and Order of Evaluation</a></li>
+<li><a class="reference internal" href="#logical-operators">Logical Operators</a></li>
+<li><a class="reference internal" href="#arithmetic-operators">Arithmetic Operators</a></li>
+<li><a class="reference internal" href="#comparison-operators">Comparison Operators</a></li>
+<li><a class="reference internal" href="#regular-expression-matching">Regular Expression Matching</a></li>
+<li><a class="reference internal" href="#conditional-operators">Conditional Operators</a></li>
+<li><a class="reference internal" href="#working-with-arrays">Working With Arrays</a></li>
+<li><a class="reference internal" href="#working-with-timestamps">Working With Timestamps</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-considerations">Performance Considerations</a><ul>
+<li><a class="reference internal" href="#use-short-circuiting">Use Short-Circuiting</a></li>
+<li><a class="reference internal" href="#avoid-redundant-expressions">Avoid Redundant Expressions</a></li>
+<li><a class="reference internal" href="#use-specialized-operators-for-simple-comparisons-use-like-when-necessary">Use Specialized Operators For Simple Comparisons, Use LIKE When Necessary</a></li>
+<li><a class="reference internal" href="#optimize-for-partial-parsing">Optimize for Partial Parsing</a></li>
+<li><a class="reference internal" href="#sow-queries-and-indexing">SOW Queries and Indexing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#constructing-fields">Constructing Fields</a><ul>
+<li><a class="reference internal" href="#constructing-preprocessing-fields">Constructing Preprocessing Fields</a><ul>
+<li><a class="reference internal" href="#using-hint-to-control-field-construction">Using HINT to Control Field Construction</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#constructing-enrichment-fields">Constructing Enrichment Fields</a><ul>
+<li><a class="reference internal" href="#id2">Using HINT to Control Field Construction</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#constructing-view-fields">Constructing View Fields</a></li>
+<li><a class="reference internal" href="#aggregate-functions">Aggregate Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="pub_sub.html" title="previous chapter">3. Publish and Subscribe</a></li>
+      <li>Next: <a href="amps_functions.html" title="next chapter">5. AMPS Functions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="amps-expressions">
+<span id="ug-amps-expressions"></span><span id="index-0"></span><h1>4. AMPS Expressions<a class="headerlink" href="#amps-expressions" title="Permalink to this headline">¶</a></h1>
+<p>AMPS includes an expression language that combines elements of XPath and
+SQL-92&#8217;s <code class="docutils literal"><span class="pre">WHERE</span></code> clause. This expression language is used whenever the
+AMPS server refers to the contents of a message, including:</p>
+<ul class="simple">
+<li>Content filtering</li>
+<li>Constructing fields for message enrichment</li>
+<li>Creating projected fields for views</li>
+</ul>
+<p>AMPS uses a common syntax for each of these purposes, and provides a
+common set of operators and functions. AMPS also provides special
+directives for message enrichment, and aggregation functions for
+projecting views.</p>
+<p>For example, when an expression is used as a content filter, any message
+for which the expression returns <code class="docutils literal"><span class="pre">true</span></code> matches the content filter.
+When an expression is used to construct a field for message enrichment
+or view projection, the expression is evaluated and the result that the
+expression returns is used as the content of the field.</p>
+<div class="section" id="expressions-overview">
+<h2>Expressions Overview<a class="headerlink" href="#expressions-overview" title="Permalink to this headline">¶</a></h2>
+<p>The quickest way to learn AMPS expressions is to think of each as a
+combination of identifiers that tell AMPS where to find data in a
+message, and operators that tell AMPS what to do with that data. Each
+AMPS expression produces a value. The way AMPS uses that value depends
+on where the expression is used. For example, in a content filter, AMPS
+uses the value of the expression to determine whether a message matches
+the filter. When constructing a field, AMPS uses the value of the
+expression as the contents of the field.</p>
+<p>Consider a simple example of an expression used as a filter. Imagine
+AMPS receives the following JSON message:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;Gyro&quot;</span><span class="p">,</span> <span class="s2">&quot;job&quot;</span><span class="o">:</span><span class="s2">&quot;kitten&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Using an AMPS expression, you can easily construct a content filter that
+matches the message:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Gyro&#39;</span>
+</pre></div>
+</div>
+<p>There are three parts to this expression. The first part, <code class="docutils literal"><span class="pre">/name</span></code>, is
+an <em>identifier</em> that tells AMPS to look for the contents of the <code class="docutils literal"><span class="pre">name</span></code>
+field at the top level of the JSON document. The second part of the
+filter, <code class="docutils literal"><span class="pre">=</span></code>, is the equality <em>operator</em>, which tells AMPS to compare
+the values on either side of the operator and return <code class="docutils literal"><span class="pre">true</span></code> if the
+values match. The final part of the filter, <code class="docutils literal"><span class="pre">'Gyro'</span></code>, is a string
+<em>literal</em> for the equality operator to use in the comparison. When an
+expression is used in a content filter, a message matches the filter
+when the expression returns <code class="docutils literal"><span class="pre">true</span></code>. The expression returns <code class="docutils literal"><span class="pre">true</span></code>
+for the sample message, so the sample messages matches the filter.</p>
+<p>The identifier syntax is a subset of XPath, as described in
+<a class="reference internal" href="#ug-expression-identifiers"><span class="std std-ref">Identifiers</span></a>. The comparison syntax
+is similar to SQL-92.</p>
+<p>Notice that AMPS makes no rigid guarantees as to the number of times
+a given expression is evaluated or when that evaluation will take
+place. AMPS will evaluate the expression as needed.</p>
+</div>
+<div class="section" id="expression-syntax">
+<span id="content-filter-syntax"></span><h2>Expression Syntax<a class="headerlink" href="#expression-syntax" title="Permalink to this headline">¶</a></h2>
+<p>AMPS expressions are designed to work exactly as expected if you are
+familiar with XPath path specifiers and SQL-92 predicates. This section
+describes in detail how AMPS evaluates the syntax, operators, and
+functions available in the AMPS expression language.</p>
+<p>AMPS expressions combine the following elements:</p>
+<ul class="simple">
+<li><em>Identifiers</em> specify a field in a message. When evaluating an
+expression, AMPS replaces identifiers with values from the message
+or set of messages being evaluated.</li>
+<li><em>Literal</em> values are explicit values in an AMPS expression, such as
+<code class="docutils literal"><span class="pre">'IBM'</span></code> or <code class="docutils literal"><span class="pre">42</span></code></li>
+<li><em>Operators</em> and <em>functions</em> such as <code class="docutils literal"><span class="pre">=</span></code>, <code class="docutils literal"><span class="pre">&lt;</span></code>, <code class="docutils literal"><span class="pre">&gt;</span></code>, <code class="docutils literal"><span class="pre">*</span></code>, and
+<code class="docutils literal"><span class="pre">UNIX_TIMESTAMP()</span></code></li>
+</ul>
+<p>Every AMPS expression produces a value. The way that AMPS uses the value
+depends on the context in which AMPS evaluates the expression. For
+example, if the expression is used for a filter, the message is
+considered to match the filter when the expression returns <code class="docutils literal"><span class="pre">true</span></code>.
+When an expression is used to project a field, the result of the
+expression is used as the value of the projected field.</p>
+<div class="section" id="ug-expression-identifiers">
+<span id="index-1"></span><span id="identifiers"></span><h3>Identifiers<a class="headerlink" href="#ug-expression-identifiers" title="Permalink to this headline">¶</a></h3>
+<p>AMPS identifiers use a subset of XPath to specify values in a message.
+AMPS identifiers specify the value of an attribute or element in an XML
+message, and the value of a field in a JSON, FIX or NVFIX message.
+Because the identifier syntax is only used to specify values, the subset
+of XPath used by AMPS does not include wildcards, relative paths, array
+manipulation, predicates, or functions.</p>
+<p>For example, when messages are in this XML format:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Order</span> <span class="na">update=</span><span class="s">&quot;full&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;ClientID&gt;</span>12345<span class="nt">&lt;/ClientID&gt;</span>
+    <span class="nt">&lt;Symbol&gt;</span>IBM<span class="nt">&lt;/Symbol&gt;</span>
+    <span class="nt">&lt;OrderQty&gt;</span>1000<span class="nt">&lt;/OrderQty&gt;</span>
+<span class="nt">&lt;/Order&gt;</span>
+</pre></div>
+</div>
+<p>The following identifier specifies the <code class="docutils literal"><span class="pre">Symbol</span></code> element of an
+<code class="docutils literal"><span class="pre">Order</span></code> message:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Symbol</span>
+</pre></div>
+</div>
+<p>The following identifier specifies the <code class="docutils literal"><span class="pre">update</span></code> attribute of an
+<code class="docutils literal"><span class="pre">Order</span></code> message:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="nd">@update</span>
+</pre></div>
+</div>
+<p>For FIX and NVFIX, you specify fields using <code class="docutils literal"><span class="pre">/</span></code> and the tag name. AMPS
+interprets FIX and NVFIX messages as though they were an XML fragment
+with no root element. For example, to specify the value of FIX tag
+<code class="docutils literal"><span class="pre">55</span></code> (symbol), use the following identifier:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="mi">55</span>
+</pre></div>
+</div>
+<p>Likewise, for JSON or other types that represent an object, you navigate
+through the object structure using the <code class="docutils literal"><span class="pre">/</span></code> to indicate each level of
+nesting.</p>
+<p>AMPS only guarantees support for field identifiers that are valid <em>step names</em>
+in XPath. For example, AMPS does not guarantee that it can process or
+filter on a field named <code class="docutils literal"><span class="pre">Fits&amp;Starts</span></code>.</p>
+<p>AMPS also supports an optional <em>bracketed field identifier</em> syntax that extends
+the characters available for field names. For example, the following step name:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">/</span><span class="n">Not</span> <span class="n">Xpath</span> <span class="n">Name</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>refers to a field name of <code class="docutils literal"><span class="pre">Not</span> <span class="pre">Xpath</span> <span class="pre">Name</span></code> at the root level of the message.
+This syntax allows spaces to be used in field names in AMPS expressions, even
+though this is not a valid step name in XPath. Notice that not all message
+types support field names with embedded spaces or other special characters.
+For example, the <code class="docutils literal"><span class="pre">Not</span> <span class="pre">Xpath</span> <span class="pre">Name</span></code> identifier is not a valid element name
+in XML, nor would it be a valid field name in Google Protocol Buffers.</p>
+<p>AMPS checks the syntax of identifiers when parsing an expression. AMPS
+does not try to predict whether an identifier will match messages within
+a particular topic. It is not an error to submit an identifier that can
+never match due to the limitations of the message type. For example,
+AMPS allows you to use an identifier like <code class="docutils literal"><span class="pre">/OrderQty</span></code> in a filter submitted
+for a FIX connection, even though FIX messages only use numeric tags, or an
+identifier like <code class="docutils literal"><span class="pre">/DataPackage/RunDate</span></code> in a filter submitted for a BFlat
+connection, even though BFlat does not support nested elements.</p>
+<p>The message type is responsible for constructing a set of identifiers
+from a message. In most cases, the mapping is simple. However, see the
+documentation for the message type for details, or if the mapping is
+unclear. For example, a <code class="docutils literal"><span class="pre">composite-local</span></code> message type adds the number
+of the part to the beginning of each XPath within the part (so, a
+top-level field of <code class="docutils literal"><span class="pre">/name</span></code> in the first part of the message has an
+identifier of <code class="docutils literal"><span class="pre">/0/name</span></code>).</p>
+</div>
+<div class="section" id="amps-data-types">
+<span id="ug-expressions-data-types"></span><span id="index-2"></span><h3>AMPS Data Types<a class="headerlink" href="#amps-data-types" title="Permalink to this headline">¶</a></h3>
+<p>Each value in AMPS is assigned a data type when the message type module
+parses the value. AMPS operators and functions attempt to convert values
+into compatible types, based on the type of operation. For example, the
+<code class="docutils literal"><span class="pre">*</span></code> operator (multiplication) will attempt to convert all values to
+numeric values, while the <code class="docutils literal"><span class="pre">CONCAT</span></code> function (string concatenation)
+will attempt to convert all values to strings. In effect, a value in
+AMPS can be transparently treated as any type to which it can be
+meaningfully converted.</p>
+<p>Internally, AMPS uses the data types in the table below. As mentioned above, the
+message type module is responsible for assigning the type of a value
+from an incoming message as part of the parsing process. For some types,
+such as JSON, XML, FIX and NVFIX, the parser infers the type of the
+value from the field. For other types, such as MessagePack, BFLAT,
+Google Protocol Buffers, or BSON, the message itself contains information
+about the type of the field.</p>
+<p>As mentioned above, the AMPS expression language does not limit the value
+to the type assigned by the message type module. Instead, a value in AMPS
+can be used in any context.</p>
+<p>For example, given the following JSON document:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="s2">&quot;47&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The values of <code class="docutils literal"><span class="pre">/a</span></code> and <code class="docutils literal"><span class="pre">/b</span></code> can be used as either string values or
+numeric values. AMPS will automatically convert these values as necessary,
+and AMPS considers the string or numeric representation to
+be equally correct and valid.</p>
+<p>The following table lists the data types in the AMPS expression language:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="36%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Description</th>
+<th class="head">Untyped Message Examples</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>NULL</td>
+<td>Unknown, untyped value
+(SQL-92 semantics)</td>
+<td><p class="first">[no field provided]</p>
+<p>NVFIX: <code class="docutils literal"><span class="pre">a=&lt;SOH&gt;</span></code></p>
+<p>JSON: <code class="docutils literal"><span class="pre">{&quot;a&quot;:null}</span></code></p>
+<p class="last">XML: <code class="docutils literal"><span class="pre">&lt;a/&gt;</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td>Boolean</td>
+<td>True (<code class="docutils literal"><span class="pre">1</span></code>) or false
+(<code class="docutils literal"><span class="pre">0</span></code>)</td>
+<td>JSON: <code class="docutils literal"><span class="pre">{&quot;e&quot;:true}</span></code></td>
+</tr>
+<tr class="row-even"><td>Integer</td>
+<td>signed 64-bit integer or
+unsigned 64-bit integer
+for values &gt; LONG_MAX</td>
+<td><p class="first">NVFIX: <code class="docutils literal"><span class="pre">b=24</span></code></p>
+<p>JSON: <code class="docutils literal"><span class="pre">{&quot;b&quot;:24}</span></code></p>
+<p class="last">XML: <code class="docutils literal"><span class="pre">&lt;b&gt;24&lt;/b&gt;</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td>Floating
+point
+number</td>
+<td>64-bit floating point
+number</td>
+<td><p class="first">NVFIX: <code class="docutils literal"><span class="pre">c=24.0</span></code></p>
+<p>JSON: <code class="docutils literal"><span class="pre">{&quot;c&quot;:24.0}</span></code></p>
+<p class="last">XML: <code class="docutils literal"><span class="pre">&lt;c&gt;24.0&lt;/c&gt;</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td>String</td>
+<td>Arbitrary sequence of
+bytes of a specific length</td>
+<td><p class="first">NVFIX:
+<code class="docutils literal"><span class="pre">d=Grilled</span> <span class="pre">cheese</span> <span class="pre">sandwich&lt;SOH&gt;</span></code></p>
+<p>JSON:
+<code class="docutils literal"><span class="pre">{&quot;d&quot;:&quot;Grilled</span> <span class="pre">cheese</span> <span class="pre">sandwich&quot;}</span></code></p>
+<p class="last">XML:
+<code class="docutils literal"><span class="pre">&lt;d&gt;Grilled</span> <span class="pre">cheese</span> <span class="pre">sandwich&lt;/d&gt;</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.1:</strong> <em>AMPS data types</em></p>
+<div class="section" id="numeric-types-and-literals-in-amps-expressions">
+<span id="ug-numeric-types"></span><span id="index-3"></span><h4>Numeric Types and Literals in AMPS Expressions<a class="headerlink" href="#numeric-types-and-literals-in-amps-expressions" title="Permalink to this headline">¶</a></h4>
+<p>Numeric values in AMPS are always <em>typed</em> as either integers or floating
+point values. All numeric types that are less than or equal to the
+LONG_MAX limit in AMPS are signed, otherwise, the numeric type is unsigned.
+AMPS message types convert the original numeric types (or original
+representation for message types that do not have typed values) into the
+internal AMPS type system for the purposes of expression evaluation.</p>
+<p>Within expressions, integer values are all numerals, with no decimal
+point, and can have a value in the same range as a 64-bit integer. For
+example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">42</span>
+<span class="mi">149</span>
+<span class="o">-</span><span class="mi">273</span>
+<span class="mi">18446744073709551610</span>
+</pre></div>
+</div>
+<p>Within expressions, all numerals with a decimal point are floating-point
+numbers. AMPS interprets these numerals as double-precision floating
+point values. For example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mf">3.1415926535</span>
+<span class="mf">98.6</span>
+<span class="o">-</span><span class="mf">273.0</span>
+</pre></div>
+</div>
+<p>or, in scientific notation:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mf">31.4e-1</span>
+<span class="mf">6.022E23</span>
+<span class="mf">2.998e8</span>
+</pre></div>
+</div>
+<p>AMPS automatically converts strings that contain numeric values to
+numbers when strings are used with an operator, function, or
+comparison that expects a numeric value.</p>
+</div>
+<div class="section" id="type-promotion-for-numeric-types">
+<h4>Type Promotion for Numeric Types<a class="headerlink" href="#type-promotion-for-numeric-types" title="Permalink to this headline">¶</a></h4>
+<p>AMPS uses the following rules for type promotion when evaluating numeric
+expressions:</p>
+<ol class="arabic simple">
+<li>If any of the values in the expression is <code class="docutils literal"><span class="pre">NaN</span></code>, the result is
+<code class="docutils literal"><span class="pre">NaN</span></code>.</li>
+<li>Otherwise, if any of the values in the expression is floating point,
+the result is floating point.</li>
+<li>Otherwise, all of the values in the expression are integers, and the
+result is an integer.</li>
+</ol>
+<p>Notice that, for division in particular, the results returned are
+affected by the type of the values. For example, the expression
+<code class="docutils literal"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">5</span></code> evaluates to <code class="docutils literal"><span class="pre">0</span></code> since the result is interpreted as an
+integer. In comparison, the expression <code class="docutils literal"><span class="pre">1.0</span> <span class="pre">/</span> <span class="pre">5</span></code> evaluates to <code class="docutils literal"><span class="pre">0.2</span></code>
+since the result is interpreted as a floating point value.</p>
+<p>When a function or operator that expects a numeric type is provided with
+a string, AMPS will attempt to convert string values to numeric types as
+necessary. When converting string values, AMPS recognizes the same numeric
+formats in message data as are supported in the AMPS expression language
+(see <a class="reference internal" href="#ug-expression-literal-values"><span class="std std-ref">String Literals</span></a>). If the
+string is in an unrecognized format, AMPS converts the string as
+<code class="docutils literal"><span class="pre">NaN</span></code>.</p>
+</div>
+<div class="section" id="string-literals-in-amps-expressions">
+<span id="ug-expression-literal-values"></span><h4>String Literals in AMPS Expressions<a class="headerlink" href="#string-literals-in-amps-expressions" title="Permalink to this headline">¶</a></h4>
+<p>When creating expressions for AMPS, string literals are indicated with
+single or double quotes. For example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrmt</span><span class="o">/</span><span class="nd">@Sym</span> <span class="o">=</span> <span class="s1">&#39;IBM&#39;</span>
+</pre></div>
+</div>
+<p>AMPS supports the following escape sequences within string literals:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Escape Sequence</strong></th>
+<th class="head"><strong>Definition</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>\a</td>
+<td>Alert</td>
+</tr>
+<tr class="row-odd"><td>\b</td>
+<td>Backspace</td>
+</tr>
+<tr class="row-even"><td>\t</td>
+<td>Horizontal tab</td>
+</tr>
+<tr class="row-odd"><td>\n</td>
+<td>Newline</td>
+</tr>
+<tr class="row-even"><td>\f</td>
+<td>Form feed</td>
+</tr>
+<tr class="row-odd"><td>\r</td>
+<td>Carriage return</td>
+</tr>
+<tr class="row-even"><td>\xHH</td>
+<td>Hexadecimal digit where H is (0..9,a..f,A..F)</td>
+</tr>
+<tr class="row-odd"><td>\OOO</td>
+<td>Octal Digit (0..7)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.2:</strong> <em>Escape Sequences</em></p>
+<p>Additionally, any character which follows a backslash will be treated as
+a literal character.</p>
+<p>AMPS string operations have no restrictions on character set, and
+correctly handle embedded <code class="docutils literal"><span class="pre">NULL</span></code> characters (<code class="docutils literal"><span class="pre">\x00</span></code>) and characters
+outside of the 7-bit ASCII range. AMPS string operations are not
+unicode-aware.</p>
+</div>
+<div class="section" id="null-nan-and-is-null">
+<span id="ug-null-nan"></span><span id="index-4"></span><h4>NULL, NaN and IS NULL<a class="headerlink" href="#null-nan-and-is-null" title="Permalink to this headline">¶</a></h4>
+<p>XPath expressions are considered to be <code class="docutils literal"><span class="pre">NULL</span></code> when they evaluate to an
+empty or nonexistent field reference. <code class="docutils literal"><span class="pre">NULL</span></code> values follow SQL-92
+semantics.</p>
+<p>This means that comparisons with <code class="docutils literal"><span class="pre">NULL</span></code> are never true
+(in other words, even if <code class="docutils literal"><span class="pre">/a</span></code> is <code class="docutils literal"><span class="pre">NULL</span></code>, <code class="docutils literal"><span class="pre">/a</span> <span class="pre">!=</span> <span class="pre">NULL</span></code> is false
+and <code class="docutils literal"><span class="pre">/a</span> <span class="pre">==</span> <span class="pre">NULL</span></code> is also false).</p>
+<p>In numeric expressions where the
+operands or results are not a valid number, the XPath expression
+evaluates to <code class="docutils literal"><span class="pre">NaN</span></code> (not a number). The rules for applying the <code class="docutils literal"><span class="pre">AND</span></code>
+and <code class="docutils literal"><span class="pre">OR</span></code> operators against <code class="docutils literal"><span class="pre">NULL</span></code> and <code class="docutils literal"><span class="pre">NaN</span></code> values are outlined in
+<a class="reference internal" href="#table-logical-and"><span class="std std-ref">Table 4.3</span></a> and
+<a class="reference internal" href="#table-logical-or"><span class="std std-ref">Table 4.4</span></a>.</p>
+<table border="1" class="docutils" id="table-logical-and">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Operand1</strong></th>
+<th class="head"><strong>Operand2</strong></th>
+<th class="head"><strong>Result</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TRUE</td>
+<td>NULL</td>
+<td>NULL</td>
+</tr>
+<tr class="row-odd"><td>FALSE</td>
+<td>NULL</td>
+<td>FALSE</td>
+</tr>
+<tr class="row-even"><td>NULL</td>
+<td>NULL</td>
+<td>NULL</td>
+</tr>
+<tr class="row-odd"><td>NULL</td>
+<td>TRUE</td>
+<td>NULL</td>
+</tr>
+<tr class="row-even"><td>NULL</td>
+<td>FALSE</td>
+<td>NULL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.3:</strong> <em>Logical AND with NULL/NaN Values</em></p>
+<table border="1" class="docutils" id="table-logical-or">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Operand1</strong></th>
+<th class="head"><strong>Operand2</strong></th>
+<th class="head"><strong>Result</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TRUE</td>
+<td>NULL</td>
+<td>TRUE</td>
+</tr>
+<tr class="row-odd"><td>FALSE</td>
+<td>NULL</td>
+<td>NULL</td>
+</tr>
+<tr class="row-even"><td>NULL</td>
+<td>NULL</td>
+<td>NULL</td>
+</tr>
+<tr class="row-odd"><td>NULL</td>
+<td>TRUE</td>
+<td>NULL</td>
+</tr>
+<tr class="row-even"><td>NULL</td>
+<td>FALSE</td>
+<td>NULL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.4:</strong> <em>Logical OR with NULL/NaN Values</em></p>
+<p>Likewise, direct comparisons with <code class="docutils literal"><span class="pre">NULL</span></code> are not ever true (so, if <code class="docutils literal"><span class="pre">/b</span></code> is NULL,
+<code class="docutils literal"><span class="pre">/b</span> <span class="pre">==</span> <span class="pre">NULL</span></code> does not produce a true value, and neither does <code class="docutils literal"><span class="pre">/b</span> <span class="pre">!=</span> <span class="pre">NULL</span></code>).
+AMPS, like SQL-92, provides an <code class="docutils literal"><span class="pre">IS</span> <span class="pre">NULL</span></code> predicate for testing whether a value is
+<code class="docutils literal"><span class="pre">NULL</span></code>, and an <code class="docutils literal"><span class="pre">IS</span> <span class="pre">NOT</span> <span class="pre">NULL</span></code> predicate for testing whether a value is not <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>There also exists an
+<code class="docutils literal"><span class="pre">IS</span> <span class="pre">NAN</span></code> predicate for checking that a value is <code class="docutils literal"><span class="pre">NaN</span></code> (not a
+number.)</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p>To reliably check for existence of a <code class="docutils literal"><span class="pre">NULL</span></code> value, you must
+use the <code class="docutils literal"><span class="pre">IS</span> <span class="pre">NULL</span></code> predicate such as the filter:
+<code class="docutils literal"><span class="pre">/optionalField</span> <span class="pre">IS</span> <span class="pre">NULL</span></code></p>
+<p class="last">To reliably check that a value is not <code class="docutils literal"><span class="pre">NULL</span></code>, you must use
+the <code class="docutils literal"><span class="pre">IS</span> <span class="pre">NOT</span> <span class="pre">NULL</span></code> predicate or negate the value of an
+<code class="docutils literal"><span class="pre">IS</span> <span class="pre">NULL</span></code> test: <code class="docutils literal"><span class="pre">/optionalField</span> <span class="pre">IS</span> <span class="pre">NOT</span> <span class="pre">NULL</span></code> and
+<code class="docutils literal"><span class="pre">NOT</span> <span class="pre">/optionalField</span> <span class="pre">IS</span> <span class="pre">NULL</span></code> are equivalent</p>
+</div>
+<p id="index-5">AMPS also provides a <code class="docutils literal"><span class="pre">COALESCE()</span></code> function that accepts a set
+of values and returns the first value that is not NULL. For example,
+given the following filter expression:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">COALESCE</span><span class="p">(</span><span class="o">/</span><span class="n">userCategory</span><span class="p">,</span>
+         <span class="o">/</span><span class="n">employeeCategory</span><span class="p">,</span>
+         <span class="o">/</span><span class="n">vendorCategory</span><span class="p">,</span>
+         <span class="s1">&#39;restricted&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;restricted&#39;</span>
+</pre></div>
+</div>
+<p>AMPS will return the first value that is not <code class="docutils literal"><span class="pre">NULL</span></code>, and compare that
+value to the constant string <code class="docutils literal"><span class="pre">'restricted'</span></code>. Notice that, to make the
+intent of the filter clear, this example provides a constant value for
+AMPS to return from the <code class="docutils literal"><span class="pre">COALESCE</span></code> if all of the field values are
+<code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>The <code class="docutils literal"><span class="pre">COALESCE</span></code> function, like other functions in AMPS, is not array-aware.
+This means that when one of the XPath expressions provided to <code class="docutils literal"><span class="pre">COALESCE</span></code>
+specifies an array in the original message, AMPS provides the <em>first item in
+the array</em> to the <code class="docutils literal"><span class="pre">COALESCE</span></code> function. See <a class="reference internal" href="#working-with-arrays">Working With Arrays</a> for details.</p>
+</div>
+</div>
+<div class="section" id="grouping-and-order-of-evaluation">
+<span id="index-6"></span><h3>Grouping and Order of Evaluation<a class="headerlink" href="#grouping-and-order-of-evaluation" title="Permalink to this headline">¶</a></h3>
+<p>AMPS expressions allow you to group parts of the expression using
+parentheses. Parts of an expression inside parentheses are evaluated
+together. 60East recommends using parentheses to group independent parts
+of an expression to ensure that the expression is evaluated in the expected
+order. For example, in this expression:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span> <span class="o">/</span><span class="n">counter</span> <span class="o">%</span> <span class="mi">3</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>The clause <code class="docutils literal"><span class="pre">/counter</span> <span class="pre">%</span> <span class="pre">3</span></code> is evaluated first, and the result of that
+evaluation is compared to <code class="docutils literal"><span class="pre">0</span></code>.</p>
+<p>Within a group, elements are evaluated left to right in precedence
+order. For example, given the filter below:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">expression1</span> <span class="n">OR</span> <span class="n">expression2</span> <span class="n">AND</span> <span class="n">expression3</span><span class="p">)</span> <span class="n">OR</span> <span class="p">(</span><span class="n">expression4</span> <span class="n">AND</span>
+            <span class="n">NOT</span> <span class="n">expression5</span><span class="p">)</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>AMPS evaluates <code class="docutils literal"><span class="pre">expression2</span></code>, then <code class="docutils literal"><span class="pre">expression3</span></code> (since <code class="docutils literal"><span class="pre">AND</span></code> has
+higher precedence than <code class="docutils literal"><span class="pre">OR</span></code>), and if they evaluate to false, then
+<code class="docutils literal"><span class="pre">expression1</span></code> will be evaluated.</p>
+<p>AMPS does not guarantee that all parts of an expression will be
+evaluated if the result of an expression can be determined after only
+evaluating part of the expression. For example, given the expression:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">A_FUNCTION</span><span class="p">(</span><span class="o">/</span><span class="n">a</span><span class="p">)</span> <span class="n">OR</span> <span class="n">B_FUNCTION</span><span class="p">(</span><span class="o">/</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>AMPS only guarantees that <code class="docutils literal"><span class="pre">B_FUNCTION(/b)</span></code> will be evaluated if
+<code class="docutils literal"><span class="pre">A_FUNCTION(/a)</span></code> returns <code class="docutils literal"><span class="pre">false</span></code>.</p>
+</div>
+<div class="section" id="logical-operators">
+<h3>Logical Operators<a class="headerlink" href="#logical-operators" title="Permalink to this headline">¶</a></h3>
+<p>The logical operators are <code class="docutils literal"><span class="pre">NOT</span></code>, <code class="docutils literal"><span class="pre">AND</span></code>, and <code class="docutils literal"><span class="pre">OR</span></code>, in order of
+precedence. These operators have the usual Boolean logic semantics.</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrmt</span><span class="o">/</span><span class="nd">@Sym</span> <span class="o">=</span> <span class="s1">&#39;IBM&#39;</span> <span class="n">OR</span> <span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrmt</span><span class="o">/</span><span class="nd">@Sym</span> <span class="o">=</span> <span class="s1">&#39;MSFT&#39;</span>
+</pre></div>
+</div>
+<p>As with other operators, you can use parentheses to group operators and
+affect the order of evaluation</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">/</span><span class="n">orderType</span> <span class="o">=</span> <span class="s1">&#39;rush&#39;</span> <span class="n">AND</span> <span class="o">/</span><span class="n">customerType</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;silver&#39;</span><span class="p">,</span> <span class="s1">&#39;gold&#39;</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">OR</span>  <span class="o">/</span><span class="n">customerType</span> <span class="o">=</span> <span class="s1">&#39;platinum&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arithmetic-operators">
+<h3>Arithmetic Operators<a class="headerlink" href="#arithmetic-operators" title="Permalink to this headline">¶</a></h3>
+<p>AMPS supports the arithmetic operators <code class="docutils literal"><span class="pre">+</span></code>, <code class="docutils literal"><span class="pre">-</span></code>, <code class="docutils literal"><span class="pre">*</span></code>, <code class="docutils literal"><span class="pre">/</span></code>,
+<code class="docutils literal"><span class="pre">%</span></code>, and <code class="docutils literal"><span class="pre">MOD</span></code> in expressions. The result of arithmetic operators
+where one of the operands is <code class="docutils literal"><span class="pre">NULL</span></code> is undefined and evaluates to
+<code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>AMPS distinguishes between floating point and integral types. When an
+arithmetic operator uses two different types, AMPS will convert the
+integral type to a floating point value as described in
+<a class="reference internal" href="#ug-numeric-types"><span class="std std-ref">Numeric Types and Literals</span></a>.</p>
+<p>Examples of filter expressions using arithmetic operators:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="mi">6</span> <span class="o">*</span> <span class="o">/</span><span class="mi">14</span> <span class="o">&lt;</span> <span class="mi">1000</span>
+
+<span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="nd">@Qty</span> <span class="o">*</span> <span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="nd">@Prc</span> <span class="o">&gt;=</span> <span class="mi">1000000</span>
+</pre></div>
+</div>
+<p>AMPS numeric types are signed, and the AMPS arithmetic operators
+correctly handle negative numbers. The <code class="docutils literal"><span class="pre">MOD</span></code> and <code class="docutils literal"><span class="pre">%</span></code> operators
+preserve the sign of the first argument to the operator. That is,
+<code class="docutils literal"><span class="pre">-5</span> <span class="pre">%</span> <span class="pre">3</span></code> produces a result of <code class="docutils literal"><span class="pre">-2</span></code>, while <code class="docutils literal"><span class="pre">5</span> <span class="pre">%</span> <span class="pre">-3</span></code> produces a
+result of <code class="docutils literal"><span class="pre">2</span></code>.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">When using mathematical operators in conjunction with filters,
+be careful about the placement of the operator. Some operators
+are used in the XPath expression as well as for mathematical
+operation (for example, the <code class="docutils literal"><span class="pre">'/'</span></code> operator in division).
+Therefore, it is important to separate mathematical operators
+with white space, to prevent interpretation as an XPath
+expression.</p>
+</div>
+</div>
+<div class="section" id="comparison-operators">
+<h3>Comparison Operators<a class="headerlink" href="#comparison-operators" title="Permalink to this headline">¶</a></h3>
+<p>The comparison operators can be loosely grouped into equality
+comparisons and range comparisons. The basic equality comparison
+operators, in precedence order, are <code class="docutils literal"><span class="pre">==</span></code>, <code class="docutils literal"><span class="pre">=</span></code>, <code class="docutils literal"><span class="pre">&gt;</span></code>, <code class="docutils literal"><span class="pre">&gt;=</span></code>, <code class="docutils literal"><span class="pre">&lt;</span></code>,
+<code class="docutils literal"><span class="pre">&lt;=</span></code>, <code class="docutils literal"><span class="pre">!=</span></code>, and <code class="docutils literal"><span class="pre">&lt;&gt;</span></code>. The <code class="docutils literal"><span class="pre">==</span></code> comparison and the <code class="docutils literal"><span class="pre">=</span></code> comparison
+are treated as the same operator and produce the same results.</p>
+<p>If these binary operators are applied to two operands of different
+types, AMPS attempts to convert strings to numbers. If conversion
+succeeds, AMPS uses the numeric values. If conversion fails because the
+string cannot be meaningfully converted to a number, strings are always
+considered to be greater than numbers. The operators consider an empty
+string to be <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>The following table shows some examples of how AMPS compares different
+types.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Expression</th>
+<th class="head">Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">1</span> <span class="pre">&lt;</span> <span class="pre">2</span></code></td>
+<td>TRUE</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">10</span> <span class="pre">&lt;</span> <span class="pre">'2'</span></code></td>
+<td>FALSE, &#8216;2&#8217; can be converted to a
+number</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">'2.000'</span> <span class="pre">&lt;&gt;</span> <span class="pre">'2.0'</span></code></td>
+<td>TRUE, no conversion to numbers since
+both are strings</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">2</span> <span class="pre">=</span> <span class="pre">2.0</span></code></td>
+<td>TRUE, numeric comparison</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">10</span> <span class="pre">&lt;</span> <span class="pre">'Crank</span> <span class="pre">It</span> <span class="pre">Up'</span></code></td>
+<td>TRUE, strings are greater than
+numbers</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">10</span> <span class="pre">&lt;</span> <span class="pre">''</span></code></td>
+<td>FALSE, an empty string is considered
+to be NULL</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">10</span> <span class="pre">&gt;</span> <span class="pre">''</span></code></td>
+<td>FALSE, an empty string is considered
+to be NULL</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">''</span> <span class="pre">=</span> <span class="pre">''</span></code></td>
+<td>FALSE, an empty string is considered
+to be NULL</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">''</span> <span class="pre">IS</span> <span class="pre">NULL</span></code></td>
+<td>TRUE, an empty string is considered
+to be NULL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.5:</strong> <em>Comparison Operator Examples</em></p>
+<p>There are also set and range comparison operators. The BETWEEN operator
+can be used to check the range values.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The range used in the <code class="docutils literal"><span class="pre">BETWEEN</span></code> operator is inclusive of both
+operands, meaning the expression <code class="docutils literal"><span class="pre">/A</span> <span class="pre">BETWEEN</span> <span class="pre">0</span> <span class="pre">AND</span> <span class="pre">100</span></code> is
+equivalent to <code class="docutils literal"><span class="pre">/A</span> <span class="pre">&gt;=</span> <span class="pre">0</span> <span class="pre">AND</span> <span class="pre">/A</span> <span class="pre">&lt;=</span> <span class="pre">100</span></code></p>
+</div>
+<p>For example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">OrdQty</span><span class="o">/</span><span class="nd">@Qty</span> <span class="n">BETWEEN</span> <span class="mi">0</span> <span class="n">AND</span> <span class="mi">10000</span>
+
+<span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="nd">@Px</span> <span class="n">NOT</span> <span class="n">BETWEEN</span> <span class="mf">90.0</span> <span class="n">AND</span> <span class="mf">90.5</span>
+
+<span class="p">(</span><span class="o">/</span><span class="n">price</span> <span class="o">*</span> <span class="o">/</span><span class="n">qty</span><span class="p">)</span> <span class="n">BETWEEN</span> <span class="mi">0</span> <span class="n">AND</span> <span class="mi">100000</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">IN</span></code> operator can be used to perform membership operations on sets
+of values. The <code class="docutils literal"><span class="pre">IN</span></code> operator returns true when the value on the left
+of the IN appears in the set of values in the <code class="docutils literal"><span class="pre">IN</span></code> clause. For
+example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Trade</span><span class="o">/</span><span class="n">OwnerID</span> <span class="n">NOT</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;JMB&#39;</span><span class="p">,</span> <span class="s1">&#39;BLH&#39;</span><span class="p">,</span> <span class="s1">&#39;CJB&#39;</span><span class="p">)</span>
+
+<span class="o">/</span><span class="mi">21964</span> <span class="n">IN</span> <span class="p">(</span><span class="o">/</span><span class="mi">14</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="o">/</span><span class="mi">6</span><span class="o">*/</span><span class="mi">14</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+
+<span class="o">/</span><span class="n">customer</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;Bob&#39;</span><span class="p">,</span> <span class="s1">&#39;Phil&#39;</span><span class="p">,</span> <span class="s1">&#39;Brent&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The IN operator returns true for the set of records that would be
+returned by an equivalent set of <code class="docutils literal"><span class="pre">=</span></code> comparisons joined by <code class="docutils literal"><span class="pre">OR</span></code>. The
+following two statements return the same set of records:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">pet</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;puppy&#39;</span><span class="p">,</span> <span class="s1">&#39;kitten&#39;</span><span class="p">,</span> <span class="s1">&#39;goldfish&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">/</span><span class="n">pet</span> <span class="o">=</span> <span class="s1">&#39;puppy&#39;</span><span class="p">)</span> <span class="n">OR</span> <span class="p">(</span><span class="o">/</span><span class="n">pet</span> <span class="o">=</span> <span class="s1">&#39;kitten&#39;</span><span class="p">)</span> <span class="n">OR</span> <span class="p">(</span><span class="o">/</span><span class="n">pet</span> <span class="o">=</span> <span class="s1">&#39;goldfish)</span>
+</pre></div>
+</div>
+<p>This equivalence means that <code class="docutils literal"><span class="pre">NULL</span></code> values in either the field being
+evaluated, or the set of values provided to the IN clause, always return
+false.</p>
+<p>This also means that, for string values, the IN operator performs exact,
+case-sensitive matching.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">When evaluating against a set of values, the <code class="docutils literal"><span class="pre">IN</span></code> operator
+typically provides better performance than using a set of <code class="docutils literal"><span class="pre">OR</span></code>
+operators. That is, a filter written as
+<code class="docutils literal"><span class="pre">/firstName</span> <span class="pre">IN</span> <span class="pre">('Joe',</span> <span class="pre">'Kathleen',</span> <span class="pre">'Frank',</span> <span class="pre">'Cindy',</span> <span class="pre">'Mortimer')</span></code>
+will typically perform better than an equivalent filter written
+as
+<code class="docutils literal"><span class="pre">/firstName</span> <span class="pre">=</span> <span class="pre">'Joe'</span> <span class="pre">OR</span> <span class="pre">/firstName</span> <span class="pre">=</span> <span class="pre">'Kathleen'</span> <span class="pre">OR</span> <span class="pre">/firstName</span> <span class="pre">=</span>
+<span class="pre">'Frank'</span> <span class="pre">OR</span> <span class="pre">/firstName</span> <span class="pre">=</span> <span class="pre">'Cindy'</span> <span class="pre">OR</span> <span class="pre">/firstName</span> <span class="pre">=</span> <span class="pre">'Mortimer'</span></code>.</p>
+</div>
+</div>
+<div class="section" id="regular-expression-matching">
+<span id="ug-filter-syntax-regular-expression"></span><h3>Regular Expression Matching<a class="headerlink" href="#regular-expression-matching" title="Permalink to this headline">¶</a></h3>
+<p>AMPS also provides a regular expression comparison operator, <code class="docutils literal"><span class="pre">LIKE</span></code>,
+to provide regular expression matching on string values. A <em>pattern</em> is
+used for the right side of the <code class="docutils literal"><span class="pre">LIKE</span></code> operator. A pattern must be
+provided as a literal, quoted value. For more on regular expressions and
+the <code class="docutils literal"><span class="pre">LIKE</span></code> comparison operator, please see
+<a class="reference internal" href="regular_expressions.html#ug-regular-expressions"><span class="std std-ref">Chapter 6</span></a>.</p>
+<p>The string comparison operators described in the section called
+<a class="reference internal" href="amps_functions.html#ug-string-comparison-functions"><span class="std std-ref">String Comparison Functions</span></a> are usually more
+efficient than equivalent <code class="docutils literal"><span class="pre">LIKE</span></code> expressions, particularly when used
+to compare multiple literal patterns, or when the only purpose of the
+regular expression is to perform case-insensitive matching. Use <code class="docutils literal"><span class="pre">LIKE</span></code>
+operations when it is not practical to represent the filter condition
+with the string comparison operators.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function or Operator</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LIKE</span></code></td>
+<td><p class="first">The string to be
+compared</p>
+<p class="last">The pattern to evaluate
+the string against</p>
+</td>
+<td><p class="first"><em>Case-sensitive</em></p>
+<p>Returns true if the
+string to be compared
+matches the pattern.</p>
+<p>For example, the
+following filter uses a
+PCRE backreference to
+return true for any
+message where the
+<code class="docutils literal"><span class="pre">/state</span></code> field
+contains two identical
+characters in a row.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">state</span> <span class="n">LIKE</span> <span class="s1">&#39;(.)</span><span class="se">\1</span><span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p class="last">This operator is not
+unicode-aware.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.6:</strong> <em>AMPS regular expression comparison</em></p>
+</div>
+<div class="section" id="conditional-operators">
+<span id="index-7"></span><h3>Conditional Operators<a class="headerlink" href="#conditional-operators" title="Permalink to this headline">¶</a></h3>
+<p>AMPS contains support for a ternary conditional <code class="docutils literal"><span class="pre">IF</span></code> operator which
+allows for a Boolean condition to be evaluated to <code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>,
+and will return one of the two parameters. The general format of the
+<code class="docutils literal"><span class="pre">IF</span></code> statement is</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">IF</span> <span class="p">(</span><span class="n">BOOLEAN_CONDITIONAL</span><span class="p">,</span> <span class="n">VALUE_TRUE</span><span class="p">,</span> <span class="n">VALUE_FALSE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, the <code class="docutils literal"><span class="pre">BOOLEAN_CONDITIONAL</span></code> will be evaluated, and if
+the result is true, the <code class="docutils literal"><span class="pre">VALUE_TRUE</span></code> value will be returned otherwise
+the <code class="docutils literal"><span class="pre">VALUE_FALSE</span></code> will be returned.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function or Operator</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">IF</span></code></td>
+<td><p class="first">conditional expression</p>
+<p>value to return if
+conditional expression
+is true</p>
+<p class="last">value to return if
+conditional expression
+is false</p>
+</td>
+<td><p class="first">Evaluate the conditional
+expression and return
+one of the two input
+values based on the
+results of the
+expression.</p>
+<p class="last">The AMPS expression
+engine can conditionally
+evaluate the terms
+provided to the <code class="docutils literal"><span class="pre">IF</span></code>
+statement in version
+5.3.4 and greater.
+In previous versions of
+AMPS, all expressions
+provided to the <code class="docutils literal"><span class="pre">IF</span></code>
+statement were fully
+evaluated before the
+<code class="docutils literal"><span class="pre">IF</span></code> statement
+was evaluated.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.7:</strong> <em>AMPS if statement</em></p>
+<p>For example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">SUM</span><span class="p">(</span> <span class="n">IF</span><span class="p">((</span> <span class="p">(</span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">OrdQty</span><span class="o">/</span><span class="nd">@Qty</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">)</span> <span class="n">AND</span>
+          <span class="p">(</span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrmt</span><span class="o">/</span><span class="nd">@Sym</span> <span class="o">=</span><span class="s1">&#39;MSFT&#39;</span><span class="p">)),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="p">))</span>
+</pre></div>
+</div>
+<p>The above example returns a count of the total number of orders that
+have been placed where the symbol is MSFT and the order contains a
+quantity more than 500.</p>
+<p>The <code class="docutils literal"><span class="pre">IF</span></code> operator can also be used to evaluate results to determine if
+results are <code class="docutils literal"><span class="pre">NULL</span></code> or <code class="docutils literal"><span class="pre">NaN</span></code>. This is useful for calculating aggregates
+where some values may be <code class="docutils literal"><span class="pre">NULL</span></code> or <code class="docutils literal"><span class="pre">NaN</span></code>. The NULL and NaN values are
+discussed in more detail in the section called
+<a class="reference internal" href="#ug-null-nan"><span class="std std-ref">&#8220;NULL, NaN, and IS NULL&#8221;</span></a>.</p>
+<p>For example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">SUM</span><span class="p">(</span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrmt</span><span class="o">/</span><span class="nd">@Qty</span> <span class="o">*</span> <span class="n">IF</span><span class="p">(</span>
+    <span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instmt</span><span class="o">/</span><span class="nd">@Price</span> <span class="n">IS</span> <span class="n">NOT</span> <span class="n">NULL</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>The <code class="docutils literal"><span class="pre">IF</span></code> statement is not short-circuting, and accepts
+<em>values</em> for the conditions rather than expressions
+to be evaluated.</p>
+<p class="last">In other words, <em>both</em> the value that will be returned
+if the expression is true and the value that will be
+returned if the expression is false are fully evaluated
+<em>before</em> the <code class="docutils literal"><span class="pre">IF</span></code> operator is called.</p>
+</div>
+</div>
+<div class="section" id="working-with-arrays">
+<h3>Working With Arrays<a class="headerlink" href="#working-with-arrays" title="Permalink to this headline">¶</a></h3>
+<p>AMPS supports filters that operate on arrays in messages. There are two
+simple principles behind how AMPS treats arrays.</p>
+<ul class="simple" id="index-8">
+<li><em>Binary operators</em> that yield <code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>
+(for example, <code class="docutils literal"><span class="pre">=</span></code>, <code class="docutils literal"><span class="pre">&lt;</span></code>, <code class="docutils literal"><span class="pre">LIKE</span></code>) are <em>array aware</em>, as is the
+<code class="docutils literal"><span class="pre">IN</span></code> operator. These operators work on arrays as a whole, and evaluate
+every element in the array.</li>
+<li><em>Arithmetic operators</em>, <em>functions</em>, <em>user-defined functions</em> and other
+<em>scalar operators</em>, are <em>not</em> array aware, and use the first element in
+the array.</li>
+</ul>
+<p>With these simple principles, you can predict how AMPS will
+evaluate an expression that uses an array. For any operator, an empty
+array evaluates to <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>Let&#8217;s look at some examples. For the purposes of this section, we will
+consider the following JSON document:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span>  <span class="o">:</span> <span class="p">[</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="mf">3</span><span class="p">,</span> <span class="s2">&quot;zebra&quot;</span><span class="p">,</span> <span class="mf">5</span><span class="p">],</span>
+    <span class="s2">&quot;other&quot;</span> <span class="o">:</span> <span class="p">[</span><span class="mf">14</span><span class="p">,</span> <span class="mf">34</span><span class="p">,</span> <span class="mf">23</span><span class="p">,</span> <span class="mf">5</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>While these arrays are presented using JSON format for simplicity, the
+same principles apply to arrays in other message formats.</p>
+<p>Here are some examples of ways to use an array in an AMPS filter:</p>
+<ol class="arabic">
+<li><p class="first">Determining if any element in an array meets a criteria. To determine
+this, you provide the identifier for the array, and use a comparison
+operator.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Filter</th>
+<th class="head">Evaluates as</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">=</span> <span class="pre">1</span></code></td>
+<td>TRUE, <code class="docutils literal"><span class="pre">/data</span></code> contains <code class="docutils literal"><span class="pre">1</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">=</span> <span class="pre">'zebra'</span></code></td>
+<td>TRUE, <code class="docutils literal"><span class="pre">/data</span></code> contains <code class="docutils literal"><span class="pre">'zebra'</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">!=</span> <span class="pre">'zebra'</span></code></td>
+<td>TRUE, <code class="docutils literal"><span class="pre">/data</span></code> contains an element
+that is not <code class="docutils literal"><span class="pre">'zebra'</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">=</span> <span class="pre">42</span></code></td>
+<td>FALSE, <code class="docutils literal"><span class="pre">/data</span></code> does not contain
+<code class="docutils literal"><span class="pre">42</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">LIKE</span> <span class="pre">'z'</span></code></td>
+<td>TRUE, a member of <code class="docutils literal"><span class="pre">/data</span></code> matches
+<code class="docutils literal"><span class="pre">'z'</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/other</span> <span class="pre">&gt;</span> <span class="pre">30</span></code></td>
+<td>TRUE, a member of <code class="docutils literal"><span class="pre">/other</span></code> is
+<code class="docutils literal"><span class="pre">&gt;</span> <span class="pre">30</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/other</span> <span class="pre">&gt;</span> <span class="pre">50</span></code></td>
+<td>FALSE, no member of <code class="docutils literal"><span class="pre">/other</span></code> is
+<code class="docutils literal"><span class="pre">&gt;</span> <span class="pre">50</span></code></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p><strong>Table 4.8:</strong> <em>Array contains element</em></p>
+<ol class="arabic" start="2">
+<li><p class="first">Determine whether a specific value is at a specific position. To
+determine this, use the subscript operator <code class="docutils literal"><span class="pre">[]</span></code> on the XPath
+identifier to specify the position, and use the equality operator to
+check the value at that position.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Filter</th>
+<th class="head">Evaluates as</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data[0]</span> <span class="pre">=</span> <span class="pre">1</span></code></td>
+<td>TRUE, first element of <code class="docutils literal"><span class="pre">/data</span></code> is
+<code class="docutils literal"><span class="pre">1</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/data[3]</span> <span class="pre">=</span> <span class="pre">&quot;zebra&quot;</span></code></td>
+<td>TRUE, fourth element of <code class="docutils literal"><span class="pre">/data</span></code> is
+<code class="docutils literal"><span class="pre">'zebra'</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data[1]</span> <span class="pre">!=</span> <span class="pre">1</span></code></td>
+<td>TRUE, second element of <code class="docutils literal"><span class="pre">/data</span></code> is
+not <code class="docutils literal"><span class="pre">1</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/other[1]</span> <span class="pre">LIKE</span> <span class="pre">'4'</span></code></td>
+<td>TRUE, second element of <code class="docutils literal"><span class="pre">/other</span></code>
+matches <code class="docutils literal"><span class="pre">'4'</span></code></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p><strong>Table 4.9:</strong> <em>Element at specific position</em></p>
+<ol class="arabic" start="3">
+<li><p class="first">Determine whether any value in one array is present in another array.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Filter</th>
+<th class="head">Evaluates as</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">=</span> <span class="pre">/other</span></code></td>
+<td>TRUE, a value in <code class="docutils literal"><span class="pre">/data</span></code> equals a
+value in <code class="docutils literal"><span class="pre">/other</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">!=</span> <span class="pre">/other</span></code></td>
+<td>TRUE, a value in <code class="docutils literal"><span class="pre">/data</span></code> does not
+equal a value in <code class="docutils literal"><span class="pre">/other</span></code></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p><strong>Table 4.10:</strong> <em>Identical elements</em></p>
+<ol class="arabic" start="4">
+<li><p class="first">Determine whether an array contains one of a set of values.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Filter</th>
+<th class="head">Evaluates as</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">3</span> <span class="pre">IN</span> <span class="pre">(/data)</span></code></td>
+<td>TRUE, <code class="docutils literal"><span class="pre">3</span></code> is a member of <code class="docutils literal"><span class="pre">/data</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">IN</span> <span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">3)</span></code></td>
+<td>TRUE, a member of <code class="docutils literal"><span class="pre">/data</span></code> is in
+<code class="docutils literal"><span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">3)</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/data</span> <span class="pre">IN</span> <span class="pre">(&quot;zebra&quot;,</span> <span class="pre">&quot;antelope&quot;,</span>
+<span class="pre">&quot;lion&quot;)</span></code></td>
+<td>TRUE, a member of <code class="docutils literal"><span class="pre">/data</span></code> is in
+<code class="docutils literal"><span class="pre">(&quot;zebra&quot;,</span> <span class="pre">&quot;antelope&quot;,</span> <span class="pre">&quot;lion&quot;)</span></code></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p><strong>Table 4.11:</strong> <em>Set of values in an array</em></p>
+</div>
+<div class="section" id="working-with-timestamps">
+<h3>Working With Timestamps<a class="headerlink" href="#working-with-timestamps" title="Permalink to this headline">¶</a></h3>
+<p>AMPS does not include a dedicated timestamp data type. Instead, AMPS represents
+timestamps either as a <code class="docutils literal"><span class="pre">double</span></code> or a <code class="docutils literal"><span class="pre">string</span></code>.</p>
+<p>When representing timestamps as a <code class="docutils literal"><span class="pre">double</span></code>, AMPS uses standard UNIX timestamps.</p>
+<p>When representing timestamps as a <code class="docutils literal"><span class="pre">string</span></code>, AMPS formats strings in a format compliant
+with ISO-8601. The format AMPS uses was chosen to balance parsing speed, precision,
+readability, and bandwidth. The format uses:</p>
+<ul class="simple">
+<li>Basic format (no delimiters between parts of a date or time)</li>
+<li>Decimal fractional seconds (with <code class="docutils literal"><span class="pre">.</span></code> delimiting the fraction rather than <code class="docutils literal"><span class="pre">,</span></code>)</li>
+<li>Explicit <code class="docutils literal"><span class="pre">T</span></code> to separate date and time</li>
+<li>Explicit time zone specifier allowed, but not required</li>
+</ul>
+<p>A <code class="docutils literal"><span class="pre">string</span></code> timestamp has the format of <code class="docutils literal"><span class="pre">YYYYmmddTHHMMSS[Z]</span></code> where:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">YYYY</span></code> is the four digit year.</li>
+<li><code class="docutils literal"><span class="pre">mm</span></code> is the two digit month.</li>
+<li><code class="docutils literal"><span class="pre">dd</span></code> is the two digit day.</li>
+<li><code class="docutils literal"><span class="pre">T</span></code> the character separator between the date and time.</li>
+<li><code class="docutils literal"><span class="pre">HH</span></code> the two digit hour.</li>
+<li><code class="docutils literal"><span class="pre">MM</span></code> the minutes of the time.</li>
+<li><code class="docutils literal"><span class="pre">SS</span></code> the two digit second.</li>
+<li><code class="docutils literal"><span class="pre">Z</span></code> is an optional timezone specifier. AMPS timestamps are always
+in UTC, regardless of whether the timezone is included. AMPS only
+accepts a literal value of <code class="docutils literal"><span class="pre">Z</span></code> for a timezone specifier.</li>
+</ul>
+<p>For example, a timestamp for January 2nd, 2015, at 12:35:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">20150102</span><span class="n">T123500Z</span>
+</pre></div>
+</div>
+<p>Timestamps in string format are used for point-in-time bookmarks, as
+explicit time specifiers in configuration files, in the <code class="docutils literal"><span class="pre">timestamp</span></code>
+header optionally returned on AMPS messages, and so on.</p>
+<p>The timestamp format AMPS uses was chosen to make string comparisons
+for timestamps work as expected, including simple comparisons like
+<code class="docutils literal"><span class="pre">&lt;</span></code> and <code class="docutils literal"><span class="pre">&gt;</span></code>, as well as more sophisticated comparisons like the
+<code class="docutils literal"><span class="pre">BETWEEN</span></code> operator.</p>
+<p>AMPS provides functions to convert between <code class="docutils literal"><span class="pre">string</span></code> representation
+of a timestamp and the <code class="docutils literal"><span class="pre">double</span></code> representation of a timestamp,
+as described in <a class="reference internal" href="amps_functions.html#ug-date-and-time-functions"><span class="std std-ref">Date and Time Functions</span></a>.</p>
+</div>
+</div>
+<div class="section" id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permalink to this headline">¶</a></h2>
+<p>This section describes general performance considerations for the AMPS
+expression language and content filters. The considerations here are aspects
+of AMPS performance to be aware of in the general case. However, since the
+AMPS expression language operates on specific data, the structure and size
+of the messages that your application uses may have more effect on overall
+performance than the specific expressions used.  For example, parsing and
+filtering a 20MB XML document is inherently more expensive than parsing
+and filtering a 400 byte BFlat document.</p>
+<div class="section" id="use-short-circuiting">
+<h3>Use Short-Circuiting<a class="headerlink" href="#use-short-circuiting" title="Permalink to this headline">¶</a></h3>
+<p>When clauses in an expression are joined by <code class="docutils literal"><span class="pre">OR</span></code>, AMPS will only
+evaluate the right side of an <code class="docutils literal"><span class="pre">OR</span></code> expression if the left side
+of the expression is false.</p>
+<p>When constructing an expression, this means that there can be a
+performance advantage to having relatively less-expensive clauses
+on the lefthand sides of the <code class="docutils literal"><span class="pre">OR</span></code>. For example, in the
+following clause:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;restricted&#39;</span> <span class="n">OR</span> <span class="o">/</span><span class="n">notes</span> <span class="n">LIKE</span> <span class="s1">&#39;restricted|limited&#39;</span>
+</pre></div>
+</div>
+<p>the regular expression comparison is only evaluated if the comparison
+<code class="docutils literal"><span class="pre">/code</span> <span class="pre">=</span> <span class="pre">'restricted'</span></code> is false. If the comparison is true, then
+the overall clause is true, and there is no need to evaluate the
+regular expression.</p>
+</div>
+<div class="section" id="avoid-redundant-expressions">
+<h3>Avoid Redundant Expressions<a class="headerlink" href="#avoid-redundant-expressions" title="Permalink to this headline">¶</a></h3>
+<p>AMPS does not reorder or recombine complex expressions. Where feasible,
+your application can save work at the server by combining expressions.
+In particular, if an application is constructing a filter by reading
+options from various sources, performance can be improved by combining
+the queries.</p>
+<p>For example, in a filter like the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="nb">id</span> <span class="o">=</span> <span class="s1">&#39;12345&#39;</span> <span class="n">OR</span> <span class="o">/</span><span class="nb">id</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;12345&#39;</span><span class="p">,</span><span class="s1">&#39;23456&#39;</span><span class="p">,</span><span class="s1">&#39;34567&#39;</span><span class="p">,</span><span class="s1">&#39;45678&#39;</span><span class="p">)</span>
+              <span class="n">OR</span> <span class="o">/</span><span class="nb">id</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;12345&#39;</span><span class="p">,</span><span class="s1">&#39;45678&#39;</span><span class="p">,</span><span class="s1">&#39;90909&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>the comparison against <code class="docutils literal"><span class="pre">'12345'</span></code> will be evaluated three times in cases where
+the value of <code class="docutils literal"><span class="pre">/id</span></code> does not match any of the values in the filter.</p>
+<p>This filter is equivalent to:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="nb">id</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;12345&#39;</span><span class="p">,</span><span class="s1">&#39;23456&#39;</span><span class="p">,</span><span class="s1">&#39;34567&#39;</span><span class="p">,</span><span class="s1">&#39;45678&#39;</span><span class="p">,</span><span class="s1">&#39;90909&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which produces the same results, but only evaluates the <code class="docutils literal"><span class="pre">/id</span></code> field against
+a given value one time.</p>
+</div>
+<div class="section" id="use-specialized-operators-for-simple-comparisons-use-like-when-necessary">
+<h3>Use Specialized Operators For Simple Comparisons, Use LIKE When Necessary<a class="headerlink" href="#use-specialized-operators-for-simple-comparisons-use-like-when-necessary" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">LIKE</span></code> operator offers access to full Perl-Compatible Regular
+Expressions within the AMPS expression language. This flexibility
+allows for very precise filtering, and the PCRE engine performs
+well.</p>
+<p>However, for comparisons for which AMPS provides a named function,
+the named function is highly-optimized and will perform somewhat
+better than the general-purpose regular expression engine.</p>
+<p>For example, given a choice between two equivalent
+expressions:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">state</span> <span class="n">BEGINS</span> <span class="n">WITH</span><span class="p">(</span><span class="s1">&#39;North&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">state</span> <span class="n">LIKE</span> <span class="s1">&#39;^North&#39;</span>
+</pre></div>
+</div>
+<p>The version that uses <code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH</span></code> will typically perform slightly
+better than the version that uses the regular expression.</p>
+<p>This doesn&#8217;t mean that regular expressions or the <code class="docutils literal"><span class="pre">LIKE</span></code> operator
+perform poorly. The <code class="docutils literal"><span class="pre">LIKE</span></code> operator can efficiently match patterns
+that would be difficult or impossible to match using the other operators.
+However, for very simple comparisons where AMPS provides a dedicated
+operator, that operator typically performs slightly better than a regular
+expression.</p>
+<p>The following table shows some examples of regular expressions and the AMPS operator
+equivalent.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Regular Expression</th>
+<th class="head">AMPS Operator Equivalent</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">^something</span></code></td>
+<td><code class="docutils literal"><span class="pre">BEGINS</span> <span class="pre">WITH('something')</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">something$</span></code></td>
+<td><code class="docutils literal"><span class="pre">ENDS</span> <span class="pre">WITH</span> <span class="pre">('something')</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">something</span></code></td>
+<td><code class="docutils literal"><span class="pre">INSTR(/field,</span> <span class="pre">'something')</span> <span class="pre">!=</span> <span class="pre">0</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">(?i)something</span></code></td>
+<td><code class="docutils literal"><span class="pre">INSTR_I(/field,</span> <span class="pre">'something')</span> <span class="pre">!=</span> <span class="pre">0</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">(?i)^something$</span></code></td>
+<td><code class="docutils literal"><span class="pre">STREQUAL_I(/field,</span> <span class="pre">'something')</span> <span class="pre">!=</span> <span class="pre">0</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">^a$|^b$|^c$</span></code></td>
+<td><code class="docutils literal"><span class="pre">IN</span> <span class="pre">('a','b','c')</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.12:</strong> <em>Regular expressions and operators</em></p>
+</div>
+<div class="section" id="optimize-for-partial-parsing">
+<h3>Optimize for Partial Parsing<a class="headerlink" href="#optimize-for-partial-parsing" title="Permalink to this headline">¶</a></h3>
+<p>Most AMPS message types have the ability to <em>partially parse</em> messages.
+That is, rather than parsing the entire message, the message type can
+simply find the identifiers that will be used, and stop the parsing
+process as soon as those identifiers are found.</p>
+<p>This optimization is most useful for larger messages. For example,
+if the SOW key for a topic is based on the <code class="docutils literal"><span class="pre">/id</span></code> field of a message and
+there are active content filters that use both the <code class="docutils literal"><span class="pre">/id</span></code> field and the
+<code class="docutils literal"><span class="pre">/code</span></code> field, while no other field is being indexed, then, considering
+the message below:</p>
+<div class="code js highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="s2">&quot;code&quot;</span><span class="p">:</span><span class="s2">&quot;A12347&quot;</span><span class="p">,</span><span class="s2">&quot;notes&quot;</span><span class="p">:</span><span class="s2">&quot;entered on behalf of a sloth&quot;</span><span class="p">,</span>
+     <span class="o">//</span> <span class="o">...</span> <span class="mi">100</span><span class="n">K</span> <span class="n">of</span> <span class="n">other</span> <span class="n">data</span> <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The AMPS parser can stop parsing after processing only the <code class="docutils literal"><span class="pre">/id</span></code> and the
+<code class="docutils literal"><span class="pre">/code</span></code> fields. In this case, halting the parsing after processing these two
+fields avoids the expense of parsing the remaining parts of the message.</p>
+<p>Notice that this optimization will only improve performance in cases
+where AMPS doesn&#8217;t need to parse the entire message. For example, if
+there is a <code class="docutils literal"><span class="pre">delta_subscribe</span></code> active for the topic, or if the
+command being processed is a <code class="docutils literal"><span class="pre">delta_publish</span></code>, AMPS will parse the
+message completely to be able to calculate the deltas. Likewise, if
+any filter refers to a field that doesn&#8217;t appear in the message,
+AMPS will parse the message completely to be able to determine that
+the field does not appear in the message.</p>
+</div>
+<div class="section" id="sow-queries-and-indexing">
+<h3>SOW Queries and Indexing<a class="headerlink" href="#sow-queries-and-indexing" title="Permalink to this headline">¶</a></h3>
+<p>Queries over topics in the State-of-the-World have additional performance
+considerations. AMPS maintains indexes over State-of-the-World topics
+to help locate messages in response to a query.</p>
+<ul class="simple">
+<li>Queries over a topic in the State-of-the-World can use indexes. Where
+possible, use an exact string match and create a hash index to
+take advantage of hash indexes.</li>
+<li>When a query is submitted with an XPath identifier for which no index
+exists, AMPS will create and populate a memo index for that XPath
+identifier. This can add to the amount of time a query takes the
+first time a given XPath identifier is queried. You can specify that
+AMPS creates a memo index for a given identifier by using the
+<code class="docutils literal"><span class="pre">Index</span></code> configuration item in the <code class="docutils literal"><span class="pre">Topic</span></code> definition. Once
+an index is created, AMPS will continue to search for that XPath
+identifier in incoming messages for that topic to keep the index
+up to date.</li>
+</ul>
+<p>Notice that indexes are only used for <code class="docutils literal"><span class="pre">sow</span></code> commands and during the
+<code class="docutils literal"><span class="pre">sow</span></code> portion of a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> (or <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code>)
+command. Subscriptions do not use indexes, since there is no need to locate
+a message: during a subscription, filters are run against the current
+message.</p>
+<p>See <a class="reference internal" href="sow.html#ug-sow-indexing"><span class="std std-ref">SOW Indexing</span></a> for details.</p>
+</div>
+</div>
+<div class="section" id="constructing-fields">
+<span id="ug-constructing-fields"></span><h2>Constructing Fields<a class="headerlink" href="#constructing-fields" title="Permalink to this headline">¶</a></h2>
+<p>For views, aggregated subscriptions, and SOW topic enrichment, AMPS
+allows you to construct new fields based on existing data.</p>
+<p>When you construct a field, there are two components required:</p>
+<ul class="simple">
+<li>A <em>source expression</em> that produces a value. This expression can
+include XPath identifiers that extract values from a message, literal
+values, operators, and functions.</li>
+<li>A <em>destination identifier</em> that specifies the identifier where the
+message type will serialize the value produced by the source
+expression.</li>
+</ul>
+<p>The source expressions and the destination identifier are separated by
+the <code class="docutils literal"><span class="pre">AS</span></code> keyword. The format for a field construction expression is as
+follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">source</span> <span class="n">expression</span><span class="o">&gt;</span>
+<span class="n">AS</span>
+<span class="o">&lt;</span><span class="n">destination</span> <span class="n">identifier</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For example, to create a field in a view that calculates the total value
+of an order by multiplying the <code class="docutils literal"><span class="pre">/price</span></code> field times the <code class="docutils literal"><span class="pre">/quantity</span></code>
+field, construct the field as shown below:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>/price * /qty AS /total<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>This constructs a field using <code class="docutils literal"><span class="pre">/price</span> <span class="pre">*</span> <span class="pre">/qty</span></code> as the source
+expression. Both <code class="docutils literal"><span class="pre">/price</span></code> and <code class="docutils literal"><span class="pre">/qty</span></code> are taken from the incoming
+message. When the result of this expression is computed, the value will
+be produced with the XPath identifier <code class="docutils literal"><span class="pre">/total</span></code> as the destination.
+That value will then be serialized to a message (with the exact format
+and syntax determined by the message type).</p>
+<p>Notice that the grammar for constructing fields does not specify
+precisely how the field is represented in the message. AMPS constructs
+the value and provides the XPath identifier to the message type. The
+message type itself is responsible for serializing the value into the
+correct representation and structure for that message type.</p>
+<p>All of the AMPS operators and functions that are available for filters
+are available to use in source expressions, including any user-defined
+functions loaded into the instance.</p>
+<p>Depending on the context for field construction, there are additional
+capabilities available when constructing fields, as described in the
+following sections.</p>
+<div class="section" id="constructing-preprocessing-fields">
+<span id="construct-preprocessing-fields"></span><h3>Constructing Preprocessing Fields<a class="headerlink" href="#constructing-preprocessing-fields" title="Permalink to this headline">¶</a></h3>
+<p>Preprocessing field constructors operate on a single message and
+construct fields based on that message. The results of the preprocessing
+field constructor are merged into the incoming message. Any field in the
+source message that is not changed or removed during preprocessing is
+left unchanged, so it is not necessary to include all fields in the
+message in the <code class="docutils literal"><span class="pre">Preprocessing</span></code> block.</p>
+<p>Because preprocessing fields apply to a specific message, preprocessing
+fields cannot specify the topic or message type in an XPath identifier.
+All identifiers in the source expression are evaluated as identifiers
+in the message being preprocessed. Preprocessing fields are evaluated
+during the preprocessing phase, so they cannot refer to the previous state
+of a message.</p>
+<div class="section" id="using-hint-to-control-field-construction">
+<h4>Using HINT to Control Field Construction<a class="headerlink" href="#using-hint-to-control-field-construction" title="Permalink to this headline">¶</a></h4>
+<p>Preprocessing can be used to remove fields from a message. By default,
+AMPS serializes any field that has an empty string or <code class="docutils literal"><span class="pre">NULL</span></code> value
+after preprocessing. Preprocessing fields can include a directive that
+specifies that a field that contains a <code class="docutils literal"><span class="pre">NULL</span></code> value should be removed
+from the set of fields rather than serialized with a <code class="docutils literal"><span class="pre">NULL</span></code> value. The
+directive <code class="docutils literal"><span class="pre">HINT</span> <span class="pre">OPTIONAL</span></code> applied to the XPath identifier specifies
+that if the result of the source expression is <code class="docutils literal"><span class="pre">NULL</span></code>, AMPS does not
+provide the value for the message type to serialize. For example, the
+following field constructor removes the <code class="docutils literal"><span class="pre">/source</span></code> field from the
+message if the value provided is not in a specific list of values:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>IF(/source IN (&#39;a&#39;,&#39;e&#39;,&#39;f&#39;), /source, NULL)
+       AS /source HINT OPTIONAL<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>By default, AMPS considers the results of field construction (the
+processed message) to be distinct from the current message. AMPS
+rewrites the current message <em>after</em> preprocessing is completed. This
+means that, by default, the results of fields constructed during
+preprocessing are not available to other fields within preprocessing.
+The <code class="docutils literal"><span class="pre">HINT</span> <span class="pre">SET_CURRENT</span></code> option immediately inserts or updates values in
+the current message, which makes the new value available to all
+subsequent <code class="docutils literal"><span class="pre">Field</span></code> declarations.</p>
+<p>In the sample below, AMPS enriches the message by performing an
+expensive operation (implemented as a user-defined function) on two
+input fields, and immediately updates the current message with the
+output of that operation. AMPS then sets other fields in the processed
+message using the updated value in the current message.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>EXPENSIVE_UDF_CALL(/dataSet1, /dataSet2)
+       AS /processedData HINT SET_CURRENT<span class="nt">&lt;/Field&gt;</span>
+<span class="nt">&lt;Field&gt;</span>IF(/processedData &gt; 1000000,
+           &#39;A&#39;,
+           &#39;B&#39;) AS /resultClass<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>Notice that using <code class="docutils literal"><span class="pre">HINT</span> <span class="pre">SET_CURRENT</span></code> requires AMPS to process
+<code class="docutils literal"><span class="pre">Field</span></code> declarations in order, which may prevent future optimizations.</p>
+<p>Hints can be combined as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>EXPENSIVE_UDF_CALL(/dataSet1, /dataSet2)
+       AS /processedData HINT SET_CURRENT,OPTIONAL
+<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>In this case, if the projected field would be <code class="docutils literal"><span class="pre">NULL</span></code>, the field is
+removed from the current message.</p>
+</div>
+</div>
+<div class="section" id="constructing-enrichment-fields">
+<span id="construct-enrichment-fields"></span><h3>Constructing Enrichment Fields<a class="headerlink" href="#constructing-enrichment-fields" title="Permalink to this headline">¶</a></h3>
+<p>Enrichment field constructors operate on a single message and construct
+fields based on that message. Enrichment expressions operate on the
+current message and change the current message. The results of the
+enrichment directives are merged into the incoming message. Any field in
+the source message that is not changed or removed during preprocessing
+is left unchanged, so it is not necessary to include all fields in the
+message in the <code class="docutils literal"><span class="pre">Enrichment</span></code> directive.</p>
+<p>Because enrichment fields apply to a specific message, enrichment fields
+cannot specify the topic or message type in an XPath identifier. All
+identifiers in the source expression are evaluated as identifiers in
+the message being enriched.</p>
+<p>Enrichment fields are constructed during the enrichment phase, so enrichment
+fields can refer to the previous state of a message. Within an enrichment
+expression, AMPS provides two special modifiers for XPath identifiers that
+specify whether an XPath identifier refers to the current incoming message or
+the previous state of the message. These modifiers apply only to the source
+expression, and cannot be used in the destination identifier.  The
+modifiers are as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Modifier</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">OF</span> <span class="pre">CURRENT</span></code></td>
+<td>Specify that the XPath identifier refers to the
+incoming message.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OF</span> <span class="pre">PREVIOUS</span></code></td>
+<td>Specify that the XPath identifier refers to the
+previous state of the message in the SOW. If there
+is no record in the SOW for this message, all
+identifiers that specify <code class="docutils literal"><span class="pre">OF</span> <span class="pre">PREVIOUS</span></code> return
+<code class="docutils literal"><span class="pre">NULL</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.13:</strong> <em>XPath Identifier Modifiers for Enrichment</em></p>
+<div class="section" id="id2">
+<h4>Using HINT to Control Field Construction<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>Enrichment can be used to remove fields from a message. By default, AMPS
+serializes any field that has an empty string or <code class="docutils literal"><span class="pre">NULL</span></code> value after
+enrichment. Enrichment <code class="docutils literal"><span class="pre">Field</span></code> elements can include a directive that
+specifies that a field that contains a <code class="docutils literal"><span class="pre">NULL</span></code> value should be removed
+from the message rather than serialized with a <code class="docutils literal"><span class="pre">NULL</span></code> value. The
+directive <code class="docutils literal"><span class="pre">HINT</span> <span class="pre">OPTIONAL</span></code> applied to the XPath identifier specifies
+that if the result of the source expression is <code class="docutils literal"><span class="pre">NULL</span></code>, AMPS does not
+provide the value for the message type to serialize. For example, the
+following field constructor removes the <code class="docutils literal"><span class="pre">/source</span></code> field from the
+message if the value provided is not in a specific list of values:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>IF(/source IN (&#39;a&#39;,&#39;e&#39;,&#39;f&#39;), /source, NULL)
+       AS /source HINT OPTIONAL<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>By default, AMPS considers the results of field construction (the
+enriched message) to be distinct from the current message. AMPS rewrites
+the current message <em>after</em> enrichment is completed. This means that, by
+default, the results of fields constructed during enrichment are not
+available to other fields within enrichment. The <code class="docutils literal"><span class="pre">HINT</span> <span class="pre">SET_CURRENT</span></code>
+option immediately inserts or updates values in the current message,
+which makes the new value available to all subsequent <code class="docutils literal"><span class="pre">Field</span></code>
+declarations.</p>
+<p>In the sample below, AMPS enriches the message by performing an
+expensive operation (implemented as a user-defined function) on two
+input fields, and immediately updates the current message with the
+output of that operation. AMPS then sets other fields in the processed
+message using the updated value in the current message.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>EXPENSIVE_UDF_CALL(/dataSet1, /dataSet2)
+       AS /processedData HINT SET_CURRENT<span class="nt">&lt;/Field&gt;</span>
+<span class="nt">&lt;Field&gt;</span>IF(/processedData &gt; 1000000,
+           &#39;A&#39;,
+           &#39;B&#39;) AS /resultClass<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>Notice that using <code class="docutils literal"><span class="pre">HINT</span> <span class="pre">SET_CURRENT</span></code> requires AMPS to process
+<code class="docutils literal"><span class="pre">Field</span></code> declarations in order, which may prevent future optimizations.</p>
+<p>Hints can be combined as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>EXPENSIVE_UDF_CALL(/dataSet1, /dataSet2)
+       AS /processedData HINT SET_CURRENT,OPTIONAL
+<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+<p>In this case, if the projected field would be <code class="docutils literal"><span class="pre">NULL</span></code>, the field is
+removed from the current message.</p>
+</div>
+</div>
+<div class="section" id="constructing-view-fields">
+<h3>Constructing View Fields<a class="headerlink" href="#constructing-view-fields" title="Permalink to this headline">¶</a></h3>
+<p>View field constructors operate over groups of messages, and construct a
+single output message for each distinct group, as specified by the
+<code class="docutils literal"><span class="pre">Grouping</span></code> element in the <code class="docutils literal"><span class="pre">View</span></code> configuration.</p>
+<p>When constructing a field in a view, all identifiers used in the source
+expression must be in one of the underlying topics for the view. When
+the view uses a <code class="docutils literal"><span class="pre">Join</span></code>, the identifiers must include the topic
+identifier. If the topics in the Join are of different message types,
+the identifiers must include both the message type and the topic
+identifier.</p>
+<p>For example, the following <code class="docutils literal"><span class="pre">Field</span></code> definition multiplies the
+<code class="docutils literal"><span class="pre">/quantity</span></code> from the NVFIX topic <code class="docutils literal"><span class="pre">orders</span></code> by the <code class="docutils literal"><span class="pre">/price</span></code> from the
+JSON topic <code class="docutils literal"><span class="pre">items</span></code>, and projects the result into the <code class="docutils literal"><span class="pre">/total</span></code> field
+of the view.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Field&gt;</span>[nvfix].[orders]./quantity * [json].[items]./price AS /total<span class="nt">&lt;/Field&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="aggregate-functions">
+<span id="ug-aggregate-functions"></span><h3>Aggregate Functions<a class="headerlink" href="#aggregate-functions" title="Permalink to this headline">¶</a></h3>
+<p>AMPS provides a set of aggregation functions that can be used in a
+<code class="docutils literal"><span class="pre">Field</span></code> constructor for a view and in the <code class="docutils literal"><span class="pre">projection</span></code> option
+of an aggregated subscription. These functions return a single value for each
+distinct group of messages, as identified by distinct combinations of
+values in the <code class="docutils literal"><span class="pre">Grouping</span></code> clause.</p>
+<p>Each of these functions takes a single value as an argument. That value
+is typically provided by a single message within a group. There are
+no special limitations on the value, and the value can be a literal
+value, an identifier directing AMPS to extract the value from the
+message, or a function.</p>
+<p>For example, given a set of messages like the following:</p>
+<div class="code javascript highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;item&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;qty&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;oid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;item&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">&quot;qty&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;oid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;item&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s2">&quot;qty&quot;</span><span class="p">:</span><span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;oid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>With a view definition that has a <code class="docutils literal"><span class="pre">Projection</span></code> clause
+and <code class="docutils literal"><span class="pre">Grouping</span></code> clause like the following:</p>
+<div class="code xml highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Projection</span><span class="o">&gt;</span>
+   <span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;/</span><span class="n">oid</span><span class="o">&lt;/</span><span class="n">Field</span><span class="o">&gt;</span>
+   <span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;</span><span class="n">SUM</span><span class="p">(</span><span class="o">/</span><span class="n">qty</span><span class="p">)</span> <span class="n">AS</span> <span class="o">/</span><span class="n">totalOrderQty</span><span class="o">&lt;/</span><span class="n">Field</span><span class="o">&gt;</span>
+   <span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;</span><span class="n">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">((</span><span class="o">/</span><span class="n">qty</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span> <span class="n">AS</span> <span class="o">/</span><span class="n">evenOrderCount</span><span class="o">&lt;/</span><span class="n">Field</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Projection</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Grouping</span><span class="o">&gt;</span>
+   <span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;/</span><span class="n">oid</span><span class="o">&lt;/</span><span class="n">Field</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Grouping</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>AMPS will produce the following record:</p>
+<div class="code javascript highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;oid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;totalOrderQty&quot;</span><span class="p">:</span><span class="mi">45</span><span class="p">,</span><span class="s2">&quot;evenOrderCount&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice that the first <code class="docutils literal"><span class="pre">SUM()</span></code> function simply extracts the
+value of the /qty from each message, while the second
+<code class="docutils literal"><span class="pre">SUM()</span></code> function uses the output of the <cite>IF</cite> statement for
+each message.</p>
+<p>Because aggregate functions operate over groups of messages,
+these functions are only available when constructing fields
+for aggregate purposes, either in a view or an aggregated
+subscription. The functions described in this section are
+not available to filters, and are not available for
+constructing fields during SOW topic enrichment.</p>
+<p>The set of functions provided in AMPS have been chosen
+to be efficient to compute over high volumes of rapidly
+changing data.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AVG</span></code></td>
+<td>Average over an expression. Returns the mean value of the values specified by
+the expression.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">COUNT</span></code></td>
+<td>Count of values in an expression. Returns the number of values specified by
+the expression.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">COUNT_DISTINCT</span></code></td>
+<td>Count of number of distinct values in an expression, ignoring <code class="docutils literal"><span class="pre">NULL</span></code>.
+Returns the number of distinct values in the expression. AMPS type conversion
+rules apply when determining distinct values.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">MIN</span></code></td>
+<td>Minimum value. Returns the minimum out of the values specified by the
+expression.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">MAX</span></code></td>
+<td>Maximum value. Returns the maximum out of the values specified by the
+expression.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">STDDEV_POP</span></code></td>
+<td>Population standard deviation of an expression. Returns the calculated
+standard deviation.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">STDDEV_SAMP</span></code></td>
+<td>Sample standard deviation of an expression. Returns the calculated standard
+deviation.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SUM</span></code></td>
+<td>Summation over an expression. Returns the total value of the values specified
+by the expression.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.14:</strong> <em>AMPS Aggregation Functions</em></p>
+<p id="index-9">Null values are not included in aggregate expressions with AMPS,
+nor in ANSI SQL. COUNT will count only non-null values; SUM will add
+only non-null values; AVG will average only non-null values; and MIN and
+MAX ignore NULL values, and so on.</p>
+<p>MIN and MAX can operate on either numbers or strings, or a combination
+of the two. AMPS compares values using the principles described for
+comparison operators. For MIN and MAX, AMPS determines order based on
+these rules:</p>
+<ul class="simple">
+<li>Numbers sort in numeric order.</li>
+<li>String values sort in ASCII order.</li>
+<li>When comparing a number to a string, convert the string to a number,
+and use a numeric comparison. If that is not successful, the value of
+the string is higher than the value of the number.</li>
+</ul>
+<p>For example, given a field that has the following values across a set of
+messages:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">24</span><span class="p">,</span> <span class="mi">020</span><span class="p">,</span> <span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;75&#39;</span><span class="p">,</span> <span class="s1">&#39;42&#39;</span>
+</pre></div>
+</div>
+<p>MIN will return <code class="docutils literal"><span class="pre">1.3</span></code>, MAX will return <code class="docutils literal"><span class="pre">'cat'</span></code>. Notice that
+different message types may have different support for converting
+strings to numeric values: AMPS relies on the parsing done by the
+message type to determine the numeric value of a string.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

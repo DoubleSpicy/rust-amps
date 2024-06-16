@@ -1,0 +1,1756 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>15. Message Queues &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="16. Message Types" href="messageTypes.html" />
+    <link rel="prev" title="14. Transactional Messaging and Bookmark Subscriptions" href="txlog.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">15. Message Queues</a><ul>
+<li><a class="reference internal" href="#getting-started-with-amps-queues">Getting Started with AMPS Queues</a><ul>
+<li><a class="reference internal" href="#queue-replication-types">Queue Replication Types</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#understanding-amps-queuing">Understanding AMPS Queuing</a><ul>
+<li><a class="reference internal" href="#delivery-semantics">Delivery Semantics</a><ul>
+<li><a class="reference internal" href="#choosing-delivery-semantics-to-handle-failures">Choosing Delivery Semantics to Handle Failures</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#subscription-backlog">Subscription Backlog</a></li>
+<li><a class="reference internal" href="#delivery-fairness">Delivery Fairness</a></li>
+<li><a class="reference internal" href="#acknowledging-messages">Acknowledging Messages</a></li>
+<li><a class="reference internal" href="#persisting-metadata-for-queues">Persisting Metadata For Queues</a></li>
+<li><a class="reference internal" href="#optional-message-delivery-behaviors">Optional Message Delivery Behaviors</a></li>
+<li><a class="reference internal" href="#message-flow-for-queues">Message Flow for Queues</a></li>
+<li><a class="reference internal" href="#startup-and-recovery-for-queues">Startup and Recovery for Queues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-messaging-and-queues">Advanced Messaging and Queues</a><ul>
+<li><a class="reference internal" href="#querying-queues-as-a-view">Querying Queues as a View</a></li>
+<li><a class="reference internal" href="#topic-in-the-state-of-the-world-as-an-underlying-topic-for-a-queue">Topic in the State of the World as an Underlying Topic for a Queue</a></li>
+<li><a class="reference internal" href="#delta-messaging-with-queues">Delta Messaging with Queues</a></li>
+<li><a class="reference internal" href="#views-and-aggregated-subscriptions-over-queues">Views and Aggregated Subscriptions over Queues</a></li>
+<li><a class="reference internal" href="#bookmark-subscriptions-to-queues">Bookmark Subscriptions to Queues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#queue-subscriptions-compared-to-bookmark-replays">Queue Subscriptions Compared to Bookmark Replays</a></li>
+<li><a class="reference internal" href="#replacing-queue-subscriptions">Replacing Queue Subscriptions</a></li>
+<li><a class="reference internal" href="#handling-unprocessed-messages">Handling Unprocessed Messages</a></li>
+<li><a class="reference internal" href="#advanced-queue-configuration">Advanced Queue Configuration</a><ul>
+<li><a class="reference internal" href="#using-multiple-underlying-topics">Using Multiple Underlying Topics</a></li>
+<li><a class="reference internal" href="#priority-queues">Priority Queues</a></li>
+<li><a class="reference internal" href="#synchronizing-work-with-barrier-messages">Synchronizing Work with Barrier Messages</a></li>
+<li><a class="reference internal" href="#limiting-currently-deliverable-messages">Limiting Currently Deliverable Messages</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-queue-sow-localqueue-and-sow-grouplocalqueue">SOW/Queue, SOW/LocalQueue, and SOW/GroupLocalQueue</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="txlog.html" title="previous chapter">14. Transactional Messaging and Bookmark Subscriptions</a></li>
+      <li>Next: <a href="messageTypes.html" title="next chapter">16. Message Types</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="message-queues">
+<span id="ug-queues"></span><h1>15. Message Queues<a class="headerlink" href="#message-queues" title="Permalink to this headline">¶</a></h1>
+<p id="index-0">AMPS includes high performance queuing built on
+the AMPS messaging engine and transaction log. AMPS message queues
+combine elements of classic message queuing with the advanced messaging
+features of AMPS, including content filtering, aggregation and
+projection, historical replay, and so on. This chapter presents an
+overview of queues.</p>
+<p>AMPS message queues help you easily solve some common messaging
+problems:</p>
+<ul class="simple">
+<li>Ensuring that a message is only processed once</li>
+<li>Distributing tasks across workers in a fair manner</li>
+<li>Ensuring that a message is delivered to and processed by a worker</li>
+<li>Ensuring that when a worker fails to process a message, that message
+is redelivered</li>
+<li>Setting limits for retries in processing a message, and taking an
+action when those limits are exceeded (such as moving the message to
+a dead-letter queue).</li>
+</ul>
+<p>While it&#8217;s possible to create applications with these properties by
+using the other features of AMPS, message queues provide these functions
+built into the AMPS server. In addition, message queues allow you to:</p>
+<ul class="simple">
+<li>Replicate messages between AMPS instances while preserving delivery
+guarantees</li>
+<li>Create views and aggregates based on the current contents of a queue</li>
+<li>Filter messages into and out of a queue</li>
+<li>Provide a single published message to multiple queues</li>
+<li>Aggregate multiple topics into a single queue</li>
+</ul>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Use message queues when it is important to ensure that a message
+is processed once, by a single consumer. When it is important to
+distribute messages to a number of consumers, use the AMPS
+publish/subscribe delivery model rather than a message queue.</p>
+</div>
+<p>The following diagram illustrates a simple usage of a queue to
+distribute work across three consumers.</p>
+<a class="reference internal image-reference" href="../_images/queue_usage_overview.svg"><img alt="../_images/queue_usage_overview.svg" src="../_images/queue_usage_overview.svg" width="80.0%" /></a>
+<p>This diagram shows a simple use of AMPS queues to distribute work. In
+the diagram, the transaction log is configured to record a topic named
+<code class="docutils literal"><span class="pre">Work</span></code>. AMPS is also configured with a queue named <code class="docutils literal"><span class="pre">WorkToDo</span></code>,
+which is based on the underlying topic <code class="docutils literal"><span class="pre">Work</span></code>. The publisher publishes
+three messages to the topic <code class="docutils literal"><span class="pre">Work</span></code>, and AMPS includes those messages
+in the <code class="docutils literal"><span class="pre">WorkToDo</span></code> queue. Each message is delivered to one of the three
+subscribers to the <code class="docutils literal"><span class="pre">WorkToDo</span></code> queue. Unlike pub/sub messaging, each
+subscriber only receives one message, and each message is delivered to
+only one subscriber.</p>
+<p>Notice that, even though AMPS provides queue semantics over the
+<code class="docutils literal"><span class="pre">WorkToDo</span></code> topic, the messages are recorded in the transaction log
+once, in the <code class="docutils literal"><span class="pre">Work</span></code> topic. Other subscribers could subscribe to the
+<code class="docutils literal"><span class="pre">Work</span></code> topic to receive the full stream of messages, or do a bookmark
+replay over the <code class="docutils literal"><span class="pre">Work</span></code> topic to recreate the message flow or audit the
+messages published to that topic.</p>
+<p>Also notice that, while the <code class="docutils literal"><span class="pre">Work</span></code> topic (the underlying topic) must be
+recorded in the transaction log, there is no need to define the <code class="docutils literal"><span class="pre">Work</span></code> topic
+in the SOW section of the configuration file. Queues use the transaction log to
+determine which messages to enqueue, and when a message is acknowledged, the
+acknowledgment is also recorded in the transaction log.</p>
+<div class="section" id="getting-started-with-amps-queues">
+<h2>Getting Started with AMPS Queues<a class="headerlink" href="#getting-started-with-amps-queues" title="Permalink to this headline">¶</a></h2>
+<p>To add a simple queue to AMPS, add the following options to your
+configuration file.</p>
+<p>First, create a transaction log that will record the messages for the
+queue and the state of the queue, as described in
+<a class="reference internal" href="txlog.html#ug-txlog"><span class="std std-ref">Chapter 14 Transactional Messaging and Bookmark Subscriptions</span></a>.
+You add the transaction log
+entry if your AMPS configuration does not already have one. Otherwise,
+you can simply add a <code class="docutils literal"><span class="pre">Topic</span></code> statement or modify an existing <code class="docutils literal"><span class="pre">Topic</span></code>
+statement to record the messages. The sample below captures any JSON
+messages published to the <code class="docutils literal"><span class="pre">Work</span></code> topic, and also tracks the state of the queue itself:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+
+    <span class="nt">&lt;TransactionLog&gt;</span>
+         <span class="nt">&lt;JournalDirectory&gt;</span>./journals<span class="nt">&lt;/JournalDirectory&gt;</span>
+         <span class="nt">&lt;Topic&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>Work<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+         <span class="nt">&lt;/Topic&gt;</span>
+         <span class="nt">&lt;Topic&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>WorkToDo<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+         <span class="nt">&lt;/Topic&gt;</span>
+    <span class="nt">&lt;/TransactionLog&gt;</span>
+
+   ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>Next, declare the queue topic itself. Queues are defined in the SOW
+element of the <code class="docutils literal"><span class="pre">AMPSConfig</span></code> file, as shown below:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+
+    <span class="nt">&lt;SOW&gt;</span>
+        <span class="nt">&lt;Queue&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>WorkToDo<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+            <span class="nt">&lt;Semantics&gt;</span>at-most-once<span class="nt">&lt;/Semantics&gt;</span>
+            <span class="nt">&lt;UnderlyingTopic&gt;</span>Work<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;/Queue&gt;</span>
+    <span class="nt">&lt;/SOW&gt;</span>
+
+    ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>These simple configuration changes create an AMPS message queue. Notice
+that the <code class="docutils literal"><span class="pre">Topic</span></code> for the queue in this case is <code class="docutils literal"><span class="pre">WorkToDo</span></code>, which
+includes every message published to the underlying topic <code class="docutils literal"><span class="pre">Work</span></code>. You
+could also use a regular expression to include messages to more than one
+topic, or leave out the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> to include only messages
+published to the topic with the same name as the queue.</p>
+<p>This simple queue provides each message that arrives for the queue to at
+most one subscriber. After AMPS delivers the message to one subscriber,
+AMPS removes the message from the queue without waiting for the
+subscriber to acknowledge the message.</p>
+<p>While it&#8217;s easy to create a simple queue, AMPS offers a rich queuing
+model that is designed to meet a wide variety of queuing needs. The
+options are described in the following sections and the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>.</p>
+<div class="section" id="queue-replication-types">
+<h3>Queue Replication Types<a class="headerlink" href="#queue-replication-types" title="Permalink to this headline">¶</a></h3>
+<p>AMPS supports three different replication types for a queue. The
+configuration tag used to define a queue specifies the replication
+type for the queue.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="30%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Configuration Tag</strong></th>
+<th class="head"><strong>Replication Type</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Queue</span></code></td>
+<td>Distributed queue</td>
+<td>Fully distributed queue.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">LocalQueue</span></code></td>
+<td>Local queue</td>
+<td>Queue exists on a single
+instance.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">GroupLocalQueue</span></code></td>
+<td>Group-replicated
+queue</td>
+<td><p class="first">Distributed queue on a
+specific set of instances.</p>
+<p>In version 5.3.4 and
+higher, the instances that
+contain the queue must all
+be in the same <code class="docutils literal"><span class="pre">Group</span></code>
+<em>or</em> define the same
+<code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code>
+tag.</p>
+<p class="last">In earlier versions of
+AMPS, every queue with
+the same name in the
+replication fabric is
+treated as an instance of
+the same queue and must
+have the same definition
+and the same
+<code class="docutils literal"><span class="pre">InitialOwner</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>By default, AMPS queues are <em>distributed queues</em>. That is, if the queue
+topic or the underlying topics are replicated, AMPS provides the queue
+delivery guarantees as though all of the instances were delivering
+messages from a single queue.</p>
+<p>AMPS provides local queues (where each instance has a separate,
+independent queue) when a queue is defined with the <code class="docutils literal"><span class="pre">LocalQueue</span></code> tag. In
+this case, AMPS does not allow replication of the queue topic, and all
+management of the queue is local to the individual instance.</p>
+<p>AMPS also supports distributed queues that are restricted to a set of
+instances within a mesh of replicated instances.  These queues are defined
+with the <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> tag, to indicate that the queue is
+restricted to a subset of the servers involved in replication. In this
+case, only the servers that define the <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> participate in
+message delivery for the queue. In addition, the group must choose the
+instance that will initially own messages for the queue, as described in
+the section on distributed queues and <a class="reference internal" href="ha.html#ug-queue-message-ownership"><span class="std std-ref">queue message ownership</span></a>.
+In version 5.3.4 and later, the identity of a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> is defined
+by the <code class="docutils literal"><span class="pre">Name</span></code> of the queue combined with the <code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code>,
+if one is set, or the <code class="docutils literal"><span class="pre">Group</span></code> of the AMPS instance if the definition
+does not include a <code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code> tag.
+In previous versions of AMPS, the identity of the queue is determined only
+by the <code class="docutils literal"><span class="pre">Name</span></code> of the group local queue, regardless of the instance that
+defines the queue.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">When defining a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code>, the instances that participate
+in the queue do not need to be in the same replication group:
+any instance in a replicated mesh that defines the queue can
+host an instance of the queue, regardless of whether the instance
+is in the same replication group or not. However, if the instances
+that host the queue are in different groups, the queue definitions
+should set the same <code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code> to be considered
+to be the same queue.</p>
+</div>
+</div>
+</div>
+<div class="section" id="understanding-amps-queuing">
+<h2>Understanding AMPS Queuing<a class="headerlink" href="#understanding-amps-queuing" title="Permalink to this headline">¶</a></h2>
+<p>AMPS message queues take advantage of the full historical and
+transactional power of the AMPS engine. Each queue is implemented as a
+view over an underlying topic or set of topics. Each of the underlying
+topics must be recorded in a transaction log. Publishers publish to the
+underlying topic, and the messages are recorded in the transaction log.
+Consumers simply subscribe to the queue. AMPS tracks which messages have
+been delivered to subscribers and which messages have been processed by
+subscribers. AMPS delivers the next available message to the next
+subscriber.</p>
+<p>Unlike traditional queues, which require consumers to poll for messages,
+AMPS queues use a subscription model. In this model, each queue consumer
+requests that AMPS provide messages from the queue. The consumer can
+also request a maximum number of messages to have outstanding from the
+queue at any given time, referred to as the backlog for that consumer.
+When a message is available, and the consumer has fewer messages
+outstanding than the backlog for that consumer, AMPS delivers the
+message to the consumer. This improves latency and conserves bandwidth,
+since there is no need for consumers to repeatedly poll the queue to see
+if work is available. In addition, the server maintains an overall view
+of the consumers, which allows the server to control message
+distribution strategies to optimize for latency, optimize to
+deliver to clients with the most unused capacity, or optimize for
+general fairness.</p>
+<p>The following diagram presents a simplified view of an AMPS queue.</p>
+<img alt="../_images/AMPS-Queues-Intro.svg" src="../_images/AMPS-Queues-Intro.svg" /><p>As the diagram indicates, a queue tracks a set of messages in the
+transaction log. The messages the queue is currently tracking are
+considered to be in the queue. When the queue delivers a message, it
+marks the message as having been delivered (shown as <em>leased</em> in the
+diagram above). Messages that have been processed are no longer tracked
+by the queue (for example, the message for the order 1 in the diagram
+above). When a message has been delivered and processed, that event is
+recorded in the transaction log to ensure that the queue meets the
+delivery guarantees even across restarts of AMPS.</p>
+<p>Because queues are implemented as views over underlying topics, AMPS
+allows you to create any number of queues over the same underlying
+topic. Each queue tracks messages to the topic independently, and can
+have different policies for delivery and fairness. When a queue topic
+has a different name than the underlying topic, you can subscribe to the
+underlying topic directly, and that subscription is to the underlying
+(non-queue) topic. When a queue topic has the same name as the
+underlying topic (the default), all subscriptions to that topic are to
+the queue. (Notice that bookmark subscriptions to a queue are pub/sub
+subscriptions that replay from the underlying topic in the transaction log,
+so the behavior in that case is the same as if the subscription was directly
+to the underlying topic.)</p>
+<p>Likewise, AMPS queues work seamlessly with the AMPS entitlement system.
+Permissions to queues are managed the same way permissions are managed
+to any other topic, as described in the
+<a class="reference internal" href="securing.html#ug-entitlement"><span class="std std-ref">Entitlement</span></a> section of the <em>AMPS User Guide</em>.</p>
+<p>While a message is in a queue, AMPS does not retain an extra copy of the message.
+Instead, AMPS retains in memory a small data structure indicating
+the state of the message and the position of the message in the transaction log.
+The amount of memory consumed by a queue is approximately 200 bytes per message,
+regardless of the size of the messages.</p>
+<p>AMPS queues provide a variety of options to help you tailor the behavior
+of each queue to meet your application&#8217;s needs.</p>
+<div class="section" id="delivery-semantics">
+<h3>Delivery Semantics<a class="headerlink" href="#delivery-semantics" title="Permalink to this headline">¶</a></h3>
+<p>AMPS queues deliver a message to a single subscriber at a time. In the
+most common case, a message is delivered to exactly one subscriber, and that
+subscriber processes the message.</p>
+<p>In the case that a subscriber does not successfully process a message,
+AMPS provides two delivery semantics to precisely specify the handling of
+the unprocessed message:</p>
+<ul>
+<li><p class="first">With <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery, AMPS delivers the message to one
+subscriber at a time, and expects that subscriber to explicitly
+remove the message from the queue when the message has been received
+and processed. With this guarantee, each message from the queue must
+be processed within a specified timeout, or lease period. AMPS tracks
+the amount of time since the message was sent to the subscriber. If
+the subscriber has not responded by removing the message within the
+lease period, AMPS revokes the lease and the message is available to
+another subscriber. AMPS allows you to set limits on the number of
+times a message is made available to another subscriber, using the
+<code class="docutils literal"><span class="pre">MaxCancels</span></code> and <code class="docutils literal"><span class="pre">MaxDeliveries</span></code> configuration options.</p>
+<p>In this model, receiving a message is the equivalent of a
+non-destructive get from a traditional queue. To acknowledge and
+remove the message, a subscriber uses the <code class="docutils literal"><span class="pre">sow_delete</span></code> command with
+the bookmark of the message.</p>
+<p>Leases are broken and messages are returned to the queue if the lease
+holder disconnects from AMPS. This ensures that, if a message
+processor fails or loses its connection to AMPS, the message can
+immediately be processed by another message processor.</p>
+</li>
+<li><p class="first">With <code class="docutils literal"><span class="pre">at-most-once</span></code> delivery, AMPS removes the message from the
+queue as soon as the message is sent to a subscriber. However, the
+subscriber still needs to acknowledge that the message was processed,
+so that AMPS can track the subscription backlog, as described below.</p>
+<p>In this model, receiving a message is the equivalent of a destructive
+get from a traditional queue. The message is immediately removed by
+AMPS, and is no longer available in the queue.</p>
+</li>
+</ul>
+<div class="section" id="choosing-delivery-semantics-to-handle-failures">
+<h4>Choosing Delivery Semantics to Handle Failures<a class="headerlink" href="#choosing-delivery-semantics-to-handle-failures" title="Permalink to this headline">¶</a></h4>
+<p>Regardless of the delivery semantics you choose, during typical message
+processing from a queue, AMPS delivers each message in the queue to a single
+subscriber, with no duplicates or redelivery.</p>
+<p>The difference between <code class="docutils literal"><span class="pre">at-most-once</span></code> and <code class="docutils literal"><span class="pre">at-least-once</span></code> semantics is
+important in cases where a failure happens. With <code class="docutils literal"><span class="pre">at-most-once</span></code> delivery,
+the message will not be redelivered even if the subscriber fails to process
+the message. With <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery, the message will be redelivered
+to subscribers until the message is either explicitly acknowledged, explicitly
+removed, or expired based on the queue policy for expiration or retries.</p>
+<p>With either setting, a message is delivered exactly once, to a single subscriber,
+during normal processing.</p>
+<p>Consider the following recommendations when deciding how you would like AMPS to
+handle cases where the subscriber that receives the message fails to process the
+message:</p>
+<ol class="arabic simple">
+<li>For ephemeral or lower-value data, where message loss in the case of failure is
+preferable to duplicating message delivery, consider <code class="docutils literal"><span class="pre">at-most-once</span></code> semantics.
+For example, processing a stream of events from sensors might fall into this
+category: each message should be processed once, in order, during normal operation,
+but missing a single data point from time to time may be less disruptive than
+reconciling duplicates.</li>
+<li>For higher value data, where duplicate message delivery in the event of failure is preferable
+to message loss, consider <code class="docutils literal"><span class="pre">at-least-once</span></code> semantics. For example, if inserting the same
+data into a database twice would simply be an in-place update of the same record with the
+same information, having a duplicate insert happen occasionally in the event of failure
+may be preferable to losing a message when a failure occurs.</li>
+<li>For higher value data, where manual intervention is required to reconcile messages
+when there is a question as to whether the message has been correctly processed,
+consider using <code class="docutils literal"><span class="pre">at-least-once</span></code> message delivery with a <code class="docutils literal"><span class="pre">MaxDeliveries</span></code> setting
+and an action to move failed messages to a dead-letter queue for manual reconciliation.</li>
+<li>For higher value data that is part of a transactional dataflow, where processors
+maintain state, it can be useful to include information about the message processed
+in the transaction. This can be used with <code class="docutils literal"><span class="pre">at-least-once</span></code> messaging to guarantee that
+the message is only processed once: if a processor receives a message that is already
+marked as processed in the transactional store, the processor knows that the message
+has already been acted on and should be acknowledged without further processing.
+This is the most common pattern used to produce the result that each message is
+processed &#8220;exactly once&#8221;. This pattern involves additional overhead and processing,
+trading off increased work in the application for stronger guarantees that a message
+is only processed one time.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="subscription-backlog">
+<h3>Subscription Backlog<a class="headerlink" href="#subscription-backlog" title="Permalink to this headline">¶</a></h3>
+<p>For efficiency, queues in AMPS use a push model of delivery, providing
+messages to consumers when the message becomes available rather than
+requiring the consumer to poll the queue. To manage the workload among
+consumers, AMPS queues keep track of a <em>subscription backlog</em>. This
+backlog is the number of messages that have been provided to an
+individual subscription that have not yet been acknowledged. This
+backlog helps AMPS provide strong delivery guarantees while still
+optimizing for high throughput processing. AMPS calculates the
+subscription backlog for each subscription by calculating the
+<em>minimum</em> of the following:</p>
+<ul>
+<li><p class="first">The <em>minimum</em> <code class="docutils literal"><span class="pre">MaxPerSubscriptionBacklog</span></code> setting for the queues
+matched by the subscription</p>
+<p><em>or</em></p>
+</li>
+<li><p class="first">The <code class="docutils literal"><span class="pre">max_backlog</span></code> specified on the subscribe command</p>
+</li>
+</ul>
+<p>Notice that, if a subscriber does not provide a <code class="docutils literal"><span class="pre">max_backlog</span></code> on a
+subscription, AMPS defaults to a <code class="docutils literal"><span class="pre">max_backlog</span></code> of <code class="docutils literal"><span class="pre">1</span></code>. In practical
+terms, this means that an application must explicitly specify a backlog
+to be able to receive more than one message from a queue at a time,
+regardless of the queue configuration.</p>
+<p>Subscribers request a <code class="docutils literal"><span class="pre">max_backlog</span></code> by adding the request to the
+options string of the <code class="docutils literal"><span class="pre">subscribe</span></code> command. For example, to request a
+<code class="docutils literal"><span class="pre">max_backlog</span></code> of 10, a subscriber includes <code class="docutils literal"><span class="pre">max_backlog=10</span></code> in the
+options for the command.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">To improve concurrency for subscribers, 60East recommends using a
+backlog of at least <code class="docutils literal"><span class="pre">2</span></code>. This allows efficient pipelined delivery, as
+the consumer can be processing one message while the previous message is
+being acknowledged. With a <code class="docutils literal"><span class="pre">max_backlog</span></code> higher than <code class="docutils literal"><span class="pre">1</span></code>, the
+consumer never needs to be stopped waiting for the next message from the
+queue.</p>
+</div>
+</div>
+<div class="section" id="delivery-fairness">
+<h3>Delivery Fairness<a class="headerlink" href="#delivery-fairness" title="Permalink to this headline">¶</a></h3>
+<p>When a queue provides <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery, AMPS provides three
+different algorithms for distributing messages among subscribers. Each
+algorithm has different performance and fairness guarantees. For
+<code class="docutils literal"><span class="pre">at-most-once</span></code> delivery, AMPS supports only the <code class="docutils literal"><span class="pre">round-robin</span></code> method
+of distributing messages.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Algorithm</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">fast</span></code></td>
+<td>This strategy optimizes for the lowest latency. AMPS delivers the message to the first
+subscription found that does not have a full backlog. With this algorithm, AMPS tries
+to minimize the time spent determining which subscription receives the message without
+attempting to distribute messages fairly across subscriptions.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">round-robin</span></code></td>
+<td>This strategy optimizes for general fairness across subscriptions. AMPS delivers the
+message to the next available subscription that does not have a full backlog. With this
+algorithm, AMPS delivers messages evenly among the subscribers that have space in
+their backlog.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">proportional</span></code></td>
+<td><p class="first">This strategy optimizes for delivery to subscriptions with the most unused capacity.
+AMPS delivers the message to the subscription that has the highest proportion of
+backlog capacity unused. AMPS determines this by taking the ratio of unacknowledged
+messages to the maximum backlog.</p>
+<p>For example, if there are three active subscribers for the queue, with backlog settings
+and outstanding messages as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="46%" />
+<col width="31%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Subscriber</th>
+<th class="head">Unacknowledged Messages</th>
+<th class="head">Maximum Backlog</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Inky</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>Blinky</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr class="row-even"><td>Clyde</td>
+<td>4</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>In this case, with <code class="docutils literal"><span class="pre">proportional</span></code> delivery, a new message for the queue will be
+delivered to Clyde, since that subscriber has only filled 40% of the backlog, as
+compared with 50% for Inky and 75% for Blinky.</p>
+<p class="last">If more than one subscription has the same unused capacity, AMPS delivers the
+message to the first subscription found with that capacity.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 15.1:</strong> <em>Message Distribution Algorithms</em></p>
+<p>AMPS defaults to <code class="docutils literal"><span class="pre">proportional</span></code> delivery for <code class="docutils literal"><span class="pre">at-least-once</span></code> queues
+and defaults to <code class="docutils literal"><span class="pre">round-robin</span></code> (the only valid delivery model) for
+<code class="docutils literal"><span class="pre">at-most-once</span></code> queues.</p>
+</div>
+<div class="section" id="acknowledging-messages">
+<h3>Acknowledging Messages<a class="headerlink" href="#acknowledging-messages" title="Permalink to this headline">¶</a></h3>
+<p>Subscribers must acknowledge each message to indicate to AMPS that a
+message has been processed. The point at which a subscriber acknowledges
+a message depends on the exact processing that the subscriber performs
+and the processing guarantees for the application. In general,
+applications acknowledge messages at the point at which the processing
+has a result that is durable and which would require an explicit action
+(such as another message) to change. Some common points at which to
+acknowledge a message are:</p>
+<ul class="simple">
+<li>When processing is fully completed</li>
+<li>When work is performed that would require a compensating action (that
+is, when information is committed to a database or forwarded to a
+downstream system)</li>
+<li>When work is submitted to a processor that is guaranteed to either
+succeed or explicitly indicate failure</li>
+</ul>
+<p>To acknowledge a message, the subscriber typically uses the acknowledge
+convenience methods in the AMPS client. These commands issue a
+<code class="docutils literal"><span class="pre">sow_delete</span></code> command with the bookmark from the message to
+acknowledge. AMPS allows subscribers to acknowledge multiple messages
+simultaneously by providing a comma-delimited list of bookmarks in the
+<code class="docutils literal"><span class="pre">sow_delete</span></code> command: the AMPS clients provide facilities to batch
+acknowledgments for efficiency.</p>
+<p>AMPS allows an application to acknowledge messages by providing a filter on a
+<code class="docutils literal"><span class="pre">sow_delete</span></code> command. In this case, the <code class="docutils literal"><span class="pre">sow_delete</span></code> acknowledges all
+messages that match the filter, regardless of whether the application that
+sends the command has a current lease on a given message or not. (The
+<code class="docutils literal"><span class="pre">Leasing</span></code> parameter on the queue specifies whether AMPS allows a client to
+successfully acknowledge messages that it does not currently have leased.)</p>
+<p>For queues that use the <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery model, there are two
+additional options available for acknowledging messages.</p>
+<ul class="simple">
+<li><strong>To return a message to the queue without processing it</strong>, the
+subscriber provides the <code class="docutils literal"><span class="pre">cancel</span></code> option on the acknowledgment.
+In this case, AMPS returns the message to the queue just as though
+the lease had expired. If the message is eligible for redelivery
+(that is, it has not exceeded the maximum time or maximum cancels
+configured for the queue), it is redelivered. Otherwise, the
+message is expired from the queue. The <code class="docutils literal"><span class="pre">MaxCancels</span></code> option
+allows you to configure how many times a message can be returned
+to the queue for redelivery before AMPS expires the message.</li>
+<li><strong>To immediately remove a message from the queue</strong>, the subscriber
+provides the <code class="docutils literal"><span class="pre">expire</span></code> option. In this case, AMPS does not return
+the message to the queue for redelivery, but instead immediately
+expires the message from the queue and triggers any configured
+<code class="docutils literal"><span class="pre">amps-action-on-sow-expire-message</span></code> actions that monitor the
+queue. The <code class="docutils literal"><span class="pre">expire</span></code> option can be especially helpful if your
+application can determine that the message cannot be successfully
+processed (for example, the message is unparseable or contains
+invalid data).</li>
+</ul>
+<p>Options for acknowledging messages delivered from <code class="docutils literal"><span class="pre">at-least-once</span></code> queues:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Option</strong></td>
+<td><strong>Result</strong></td>
+</tr>
+<tr class="row-even"><td>&lt;none&gt;</td>
+<td>Message is considered to be successfully processed
+and removed from the queue.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">cancel</span></code></td>
+<td>Message is returned to the queue. The count of cancels
+for this message is incremented, and if the count
+is greater than the configured <code class="docutils literal"><span class="pre">MaxCancels</span></code> for the
+queue, the message is expired.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">expire</span></code></td>
+<td>Message is immediately expired from the queue.</td>
+</tr>
+</tbody>
+</table>
+<p>For <code class="docutils literal"><span class="pre">at-most-once</span></code> queues, these options to acknowledgments have no effect,
+since the message is guaranteed not to be redelivered even if processing fails.</p>
+</div>
+<div class="section" id="persisting-metadata-for-queues">
+<h3>Persisting Metadata For Queues<a class="headerlink" href="#persisting-metadata-for-queues" title="Permalink to this headline">¶</a></h3>
+<p>A queue can, optionally, save the state of the queue as
+metadata in the journal directory. This can reduce the
+active memory footprint required for large queues, since
+the state of the queue can be paged out if necessary.
+This can also potentially improve recovery time if there
+are a large number of unacknowledged messages in the queue
+when AMPS starts. To persist metadata for a queue,
+set the <code class="docutils literal"><span class="pre">FileBackedMetadata</span></code> option to <code class="docutils literal"><span class="pre">enabled</span></code>
+for the queue.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>When <code class="docutils literal"><span class="pre">FileBackedMetadata</span></code> is enabled, queue
+state that is not currently needed can be paged
+out to the file. This can substantially reduce
+the active memory needed for large queues that
+are infrequently used.</p>
+<p class="last">Notice that the state will only be paged
+out as necessary. While this option increases
+AMPS ability to manage queue state in
+low-memory situations, AMPS will still
+retain state in memory if memory is
+available to improve performance.</p>
+</div>
+</div>
+<div class="section" id="optional-message-delivery-behaviors">
+<h3>Optional Message Delivery Behaviors<a class="headerlink" href="#optional-message-delivery-behaviors" title="Permalink to this headline">¶</a></h3>
+<p>AMPS queues provide the following optional message delivery behaviors:</p>
+<ul class="simple">
+<li>A <code class="docutils literal"><span class="pre">Priority</span></code> can be specified for a queue, in which case
+AMPS delivers messages in priority order rather than the
+order in which the instance received the messages.</li>
+<li>A <code class="docutils literal"><span class="pre">BarrierExpression</span></code> can be specified to provide a
+synchronization point. When a message matches the
+expression, all previous messages must be
+acknowledged before AMPS will deliver the message
+that matches the expression, or subsequent messages.</li>
+</ul>
+<p>These options are described in more detail in the
+<a class="reference internal" href="#ug-queues-advanced"><span class="std std-ref">Advanced Queue Configuration</span></a> section below.</p>
+</div>
+<div class="section" id="message-flow-for-queues">
+<h3>Message Flow for Queues<a class="headerlink" href="#message-flow-for-queues" title="Permalink to this headline">¶</a></h3>
+<p>The message flow for AMPS queues is as follows. The message flow differs
+depending on whether the queue is configured for <code class="docutils literal"><span class="pre">at-most-once</span></code>
+delivery or <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery.</p>
+<p>When the queue is configured for <code class="docutils literal"><span class="pre">at-most-once</span></code> delivery:</p>
+<ol class="arabic">
+<li><p class="first">A publisher publishes a message to an underlying topic.</p>
+</li>
+<li><p class="first">The message becomes available in the queue.</p>
+</li>
+<li><p class="first">For a message that is not a barrier message, the message is published to a subscriber when:</p>
+<ul class="simple">
+<li>There is a subscription that matches the message, and the
+subscriber is entitled to see the message</li>
+<li>The message is the oldest message in the queue that matches the
+subscription (if no <code class="docutils literal"><span class="pre">Priority</span></code> is specified for the queue)
+or it has the highest priority value for messages in the queue
+and is the oldest message at that priority (if <code class="docutils literal"><span class="pre">Priority</span></code>
+is specified).</li>
+<li>The subscription has remaining capacity in its backlog</li>
+<li>The subscription is the next subscription to receive the message
+as determined by the delivery fairness for the queue</li>
+</ul>
+<p>AMPS removes the message from the queue when the message is
+published.</p>
+</li>
+<li><p class="first">For a message that is a barrier message, AMPS does not deliver the message
+until all previous messages have been acknowledged. AMPS does not deliver
+messages after the barrier message until the barrier message has been
+delivered.</p>
+</li>
+<li><p class="first">If no subscription has requested the message, and the message has
+been in the queue longer than the <code class="docutils literal"><span class="pre">Expiration</span></code> time, AMPS removes
+the message from the queue. With AMPS queues, message expiration is
+considered to be a normal way for the message to leave the queue, and
+is not considered an error.</p>
+</li>
+<li><p class="first">The subscriber processes the message, and acknowledges the message
+when processing is finished to indicate to AMPS that the subscriber
+has capacity for another message.</p>
+</li>
+</ol>
+<p>When the queue is configured for <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery:</p>
+<ol class="arabic">
+<li><p class="first">A publisher publishes a message to an underlying topic.</p>
+</li>
+<li><p class="first">The message becomes available in the queue.</p>
+</li>
+<li><p class="first">For a message that is not a barrier message, the message is published to a subscriber when:</p>
+<ul class="simple">
+<li>There is a subscription that matches the message</li>
+<li>The message is the oldest message in the queue that matches the
+subscription (if no <code class="docutils literal"><span class="pre">Priority</span></code> is specified for the queue) or
+it has the highest priority value for messages in the queue
+and is the oldest message at that priority (if <code class="docutils literal"><span class="pre">Priority</span></code>
+is specified).</li>
+<li>The subscription has remaining capacity in its backlog</li>
+<li>The subscription is the next subscription to receive a message as
+determined by the delivery fairness for the queue</li>
+</ul>
+<p>AMPS calculates the lease time for the message and provides that time
+to the subscriber along with the message.</p>
+</li>
+<li><p class="first">For a message that is a barrier message (that is, the queue
+has a <code class="docutils literal"><span class="pre">BarrierExpression</span></code> specified and the message matches
+that expression), AMPS does not deliver the message
+until all previous messages have been acknowledged. AMPS will not deliver
+messages after the barrier message until the barrier message is delivered.</p>
+</li>
+<li><p class="first">If the message has been in the queue longer than the <code class="docutils literal"><span class="pre">Expiration</span></code>
+time, and there is no current lease on the message, AMPS removes the
+message from the queue.</p>
+</li>
+<li><p class="first">If a subscriber has received the message, but has not removed the
+message from the queue at the time the lease expires, AMPS returns
+the message to the queue if the message has been in the queue less
+than the <code class="docutils literal"><span class="pre">Expiration</span></code> time, and it has been delivered fewer than
+the <code class="docutils literal"><span class="pre">MaxDeliveries</span></code> limit. If the message has been in the queue
+longer than the <code class="docutils literal"><span class="pre">Expiration</span></code> time or has been delivered more than
+the number of times specified by <code class="docutils literal"><span class="pre">MaxDeliveries</span></code>, AMPS removes the
+message from the queue when the lease expires.</p>
+</li>
+<li><p class="first">The subscriber processes the message, and removes the message from
+the queue by acknowledging the message (which is translated by the
+AMPS client into the appropriate <code class="docutils literal"><span class="pre">sow_delete</span></code> command).</p>
+</li>
+</ol>
+</div>
+<div class="section" id="startup-and-recovery-for-queues">
+<h3>Startup and Recovery for Queues<a class="headerlink" href="#startup-and-recovery-for-queues" title="Permalink to this headline">¶</a></h3>
+<p>When the metadata for a queue is not persisted to a file,
+or if that file is not fully up to date with the transaction
+log, AMPS recovers the current state of a queue from the
+transaction log when the instance starts.</p>
+<p>The point at which AMPS chooses to start recovery
+for a given queue is as follows:</p>
+<ul class="simple">
+<li>If this is a new queue,
+or the configured <code class="docutils literal"><span class="pre">RecoveryPoint</span></code> for the queue
+has changed since the last time AMPS started,
+begin queue recovery at the configured recovery
+point. (This defaults to the beginning of the
+transaction log if no explicit <code class="docutils literal"><span class="pre">RecoveryPoint</span></code> is
+configured for the queue.)</li>
+<li>Otherwise, start from the most recent point in
+the transaction log at which all previous messages
+have been acknowledged. This recovery point is
+stored in the <code class="docutils literal"><span class="pre">queues.ack</span></code> file in the journal
+directory for all queues in the instance.  If that
+recovery point is older than the journals currently
+available, begin from the beginning of the
+transaction log.</li>
+</ul>
+<p>To recover the state of the queue, AMPS proceeds through
+the journal file from the recovery point and restores
+the state of the queue based on the operations in the
+transaction log for that queue.</p>
+<p>AMPS determines the oldest recovery point for all of
+the queues in the instance, and reads journals
+from that point forward to the end of the transaction log.
+AMPS rebuilds the state of each queue as the replay progresses
+past the recovery point for that queue.</p>
+</div>
+</div>
+<div class="section" id="advanced-messaging-and-queues">
+<h2>Advanced Messaging and Queues<a class="headerlink" href="#advanced-messaging-and-queues" title="Permalink to this headline">¶</a></h2>
+<p>Queues are implemented as AMPS topics which lets you use the advanced
+messaging features of AMPS to create your queues and provide insight
+into your queues. For example, consumers can use content filtering to
+select the messages from the queue that they want to consume. You can
+use content filters to select only a subset of messages published to an
+underlying topic to populate the queue. You can even create a view that
+aggregates data from multiple topics, and use that view as the
+underlying topic for the queue. Since messages for queues are recorded
+in the transaction log, you can easily replay the messages that the
+queue provided to subscribers by using a bookmark subscription.</p>
+<div class="section" id="querying-queues-as-a-view">
+<h3>Querying Queues as a View<a class="headerlink" href="#querying-queues-as-a-view" title="Permalink to this headline">¶</a></h3>
+<p>For each queue, AMPS provides a view of the currently available
+messages. Applications can query this queue just as though it were a
+view. For example, if you have a queue named <code class="docutils literal"><span class="pre">PendingOrders</span></code>, you can
+see the currently available messages in the queue by querying the queue
+as though it were a view, with a <code class="docutils literal"><span class="pre">sow</span></code> command.</p>
+<p>A query of a queue is <em>read-only</em>. AMPS does not lease the returned
+messages to the querying application, or remove them from the queue.</p>
+</div>
+<div class="section" id="topic-in-the-state-of-the-world-as-an-underlying-topic-for-a-queue">
+<span id="ug-sow-underlying-queue"></span><h3>Topic in the State of the World as an Underlying Topic for a Queue<a class="headerlink" href="#topic-in-the-state-of-the-world-as-an-underlying-topic-for-a-queue" title="Permalink to this headline">¶</a></h3>
+<p>AMPS fully supports a topic that maintains a SOW as an underlying topic
+for a queue. Since a queue records every individual publish to a topic
+(rather than simply preserving the current state of a distinct message
+identified by a SOW key), each publish to the SOW topic creates a new
+message in the queue.</p>
+<p>AMPS does not provide Out-of-Focus messages to the queue. Only publish
+messages are added to the queue.</p>
+<p>Deleting a message from an underlying topic that maintains a SOW does
+not remove the corresponding messages from the queue. Likewise, when a
+message expires from the SOW, it is not removed from the queue.</p>
+<p>When a message is published to a topic in the SOW, and that topic uses
+expiration, the message is stamped with the expiration value
+set for the topic before being written to the transaction log.
+This means that the message will have the same expiration in the queue.</p>
+</div>
+<div class="section" id="delta-messaging-with-queues">
+<h3>Delta Messaging with Queues<a class="headerlink" href="#delta-messaging-with-queues" title="Permalink to this headline">¶</a></h3>
+<p>AMPS delta subscriptions rely on being able to determine the last state
+of a message delivered on a subscription and providing a set of changes
+to the subscriber. With AMPS queues, AMPS treats each update to a SOW
+record as a new message, so there&#8217;s no previous state that would
+generate a delta message. When an underlying topic of a queue is a SOW
+topic, AMPS supports delta publish to that underlying topic. The full,
+merged message is added to the queue.</p>
+<p>AMPS allows delta subscriptions to a queue, but treats each message as a
+new publish and delivers the full message.</p>
+</div>
+<div class="section" id="views-and-aggregated-subscriptions-over-queues">
+<h3>Views and Aggregated Subscriptions over Queues<a class="headerlink" href="#views-and-aggregated-subscriptions-over-queues" title="Permalink to this headline">¶</a></h3>
+<p>AMPS fully supports creating a view or an aggregated subscription with a
+queue as an underlying topic. In both cases, AMPS operates on the
+messages that are currently available in the queue. When a message is
+leased, that message is no longer available to the queue and does not
+appear in the view or the aggregated subscription. If the message is
+returned to the queue, then the message is again available to the view
+or aggregated subscription. When a message expires, that message is no
+longer available in the view or aggregated subscription.</p>
+<p>Views and aggregated subscriptions are considered to be a query of the
+queue, so they are <em>read-only</em>. Views and aggregated subscriptions do
+not lease messages from the queue and do not affect message delivery.</p>
+<p>Views over queues can be useful to show constantly-updated aggregates of
+the activity in the queue. For example, you could create an aggregate
+that shows the total value of unprocessed orders currently in the queue.</p>
+</div>
+<div class="section" id="bookmark-subscriptions-to-queues">
+<h3>Bookmark Subscriptions to Queues<a class="headerlink" href="#bookmark-subscriptions-to-queues" title="Permalink to this headline">¶</a></h3>
+<p>A queue itself supports <cite>at_most_once</cite> or <cite>at_least_once</cite> delivery.
+It does not provide a way to replay messages once a subscriber
+has acknowledged the message.</p>
+<p>To support replay of messages from a queue, AMPS translates a
+bookmark subscription to a queue to be a bookmark subscription
+to the underlying topic for the queue. This allows you to replay
+messages from the underlying topic <em>without</em> queue delivery semantics.
+That is, a bookmark subscription to a queue becomes a
+publish/subscribe bookmark subscription to the underlying topic,
+<em>not</em> a subscription to the queue.  Messages from this subscription do
+not have <code class="docutils literal"><span class="pre">at-most-once</span></code> or <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery, and do not need
+to be acknowledged. The subscription is a publish/subscribe bookmark
+subscription, just as though there was no queue for the topic.</p>
+<p>To get queuing semantics, do not include a bookmark on subscriptions to
+a queue.</p>
+</div>
+</div>
+<div class="section" id="queue-subscriptions-compared-to-bookmark-replays">
+<h2>Queue Subscriptions Compared to Bookmark Replays<a class="headerlink" href="#queue-subscriptions-compared-to-bookmark-replays" title="Permalink to this headline">¶</a></h2>
+<p>At first glance, a subscription to a queue can look very similar to a bookmark
+replay. In both cases, messages are provided in order from the transaction log.
+In both cases, a message that is not processed can be retrieved and redelivered.
+In both cases, AMPS allows a subscription to exactly specify the
+messages of interest using content filtering.</p>
+<p>There are a few main differences:</p>
+<ul>
+<li><p class="first">Delivery Model</p>
+<p>With a bookmark subscription, a message from a given topic can be delivered
+to any number of subscribers and processed multiple times. A given
+subscriber can replay the same messages any number of times, if needed.</p>
+<p>With a queue subscription, the server guarantees that once a message
+is processed, it is not delivered from that topic again.</p>
+</li>
+<li><p class="first">Delivery Limits</p>
+<p>With a bookmark subscription, by default AMPS will deliver messages to the
+subscription as fast as the physical hardware, disk, and network
+allow.</p>
+<p>With a queue subscription, AMPS intentionally limits the number of messages
+delivered to a subscriber, to help ensure that messages are processed in a
+timely manner. Since each message should be delivered only once, delivering
+every message to a single subscriber would run the risk of having a slow consumer
+holding messages that it is unable to process, while a faster consumer sits idle.</p>
+</li>
+</ul>
+<ul>
+<li><p class="first">Acknowledgment</p>
+<p>With a bookmark subscription, the application and client libraries are
+responsible for tracking which messages have been processed and providing
+the correct recovery point. There is no state stored in the AMPS server
+as to which messages have been consumed by a given subscription.</p>
+<p>With a queue subscription, the AMPS server tracks whether a given message
+has been processed. A queue subscriber must notify the server that it
+is finished with a given message and is ready for more work. The AMPS
+client libraries contain support for making this process easy, as well
+as the ability to batch acknowledgments to provide high throughput
+while maintaining efficient processing and the guarantees for queues.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="replacing-queue-subscriptions">
+<h2>Replacing Queue Subscriptions<a class="headerlink" href="#replacing-queue-subscriptions" title="Permalink to this headline">¶</a></h2>
+<p>Queues support the <code class="docutils literal"><span class="pre">replace</span></code> option for subscriptions. As with
+subscriptions to other topics, queue subscriptions can replace the
+content filter, the topic, the options, or all of the above. Replacement
+is atomic. The queue consumer is guaranteed that, after the replace
+occurs, only messages that match the new subscription will be delivered.</p>
+<p>Replacing queue subscriptions differs from unsubscribing and
+resubscribing with new parameters in two ways:</p>
+<ol class="arabic">
+<li><p class="first">AMPS does not break message leases or adjust the number of
+currently-unacknowledged messages for the subscription, even if the
+messages no longer match the current subscription. AMPS makes no
+assumptions about the state of the messages, and requires the
+subscriber to acknowledge them or allow the lease to expire.</p>
+</li>
+<li><p class="first">AMPS may change the maximum backlog for the subscription if either
+the <code class="docutils literal"><span class="pre">max_backlog</span></code> option <em>or</em> the topic for the subscription has
+changed. AMPS adjusts the backlog using the same logic as when the
+subscription was entered: the maximum backlog will be the smaller of
+the option set by the consumer or the limit on the queue. This can
+result in a situation where the consumer has more messages leased
+than the current maximum for the subscription, and no new messages
+will be delivered until that number drops below the current maximum.</p>
+<p>For example, if the consumer has a requested <code class="docutils literal"><span class="pre">max_backlog</span></code> of 10 and
+updates a subscription from a queue with a configured maximum of 10
+to a queue with a configured maximum of 5, the new backlog for the
+subscription will be 5. However, the consumer may still have 10
+messages outstanding.</p>
+</li>
+</ol>
+<p>In all other ways, AMPS behaves as though the replaced subscription was
+a new subscription to the queue.</p>
+</div>
+<div class="section" id="handling-unprocessed-messages">
+<span id="index-1"></span><h2>Handling Unprocessed Messages<a class="headerlink" href="#handling-unprocessed-messages" title="Permalink to this headline">¶</a></h2>
+<p>Queuing applications occasionally encounter data that cannot be successfully
+processed or completed. AMPS allows you to configure actions that occur when
+a message expires from a message queue. You can create a dead-letter queue or
+topic by using the <code class="docutils literal"><span class="pre">amps-action-on-sow-expire-message</span></code> action in conjunction
+with the <code class="docutils literal"><span class="pre">MaxCancels</span></code> and <code class="docutils literal"><span class="pre">MaxDeliveries</span></code> options and the <code class="docutils literal"><span class="pre">cancel</span></code>
+and <code class="docutils literal"><span class="pre">expire</span></code> options on the <code class="docutils literal"><span class="pre">sow_delete</span></code> command.</p>
+<p>As an example, suppose your queue <code class="docutils literal"><span class="pre">Jobs</span></code> is used to coordinate computation
+jobs, and in the rare case where a job cannot be completed successfully, you
+would like AMPS to automatically move the job to another queue, <code class="docutils literal"><span class="pre">FailedJobs</span></code>.
+AMPS provides <code class="docutils literal"><span class="pre">MaxCancels</span></code> and <code class="docutils literal"><span class="pre">MaxDeliveries</span></code> options to specify how many
+attempts it should make to deliver a message to a subscriber:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+
+    <span class="nt">&lt;SOW&gt;</span>
+        <span class="nt">&lt;Queue&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>Jobs<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+            <span class="nt">&lt;MaxCancels&gt;</span>3<span class="nt">&lt;/MaxCancels&gt;</span>
+            <span class="nt">&lt;MaxDeliveries&gt;</span>10<span class="nt">&lt;/MaxDeliveries&gt;</span>
+        <span class="nt">&lt;/Queue&gt;</span>
+        <span class="nt">&lt;Queue&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>FailedJobs<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;/Queue&gt;</span>
+    <span class="nt">&lt;/SOW&gt;</span>
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>In this configuration, AMPS will automatically expire a message from <code class="docutils literal"><span class="pre">Jobs</span></code>
+on the 3rd time it receives a <code class="docutils literal"><span class="pre">sow_delete</span></code> with the <code class="docutils literal"><span class="pre">cancel</span></code> operation
+for that message, or after the 10th unsuccessful delivery of the message.
+By default, expiring a message simply means the message is removed from the
+queue, but in this case, we also want the <code class="docutils literal"><span class="pre">FailedJobs</span></code> queue to receive
+the message so that it can be manually reviewed later. To accomplish this,
+AMPS provides the <code class="docutils literal"><span class="pre">amps-action-on-sow-expire-message</span></code> action which can be
+configured to do so:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+    <span class="nt">&lt;Actions&gt;</span>
+        <span class="nt">&lt;Action&gt;</span>
+            <span class="nt">&lt;On&gt;</span>
+                <span class="nt">&lt;Module&gt;</span>amps-action-on-sow-expire-message<span class="nt">&lt;/Module&gt;</span>
+                <span class="nt">&lt;Options&gt;</span>
+                    <span class="nt">&lt;Topic&gt;</span>Jobs<span class="nt">&lt;/Topic&gt;</span>
+                    <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+                <span class="nt">&lt;/Options&gt;</span>
+            <span class="nt">&lt;/On&gt;</span>
+            <span class="nt">&lt;Do&gt;</span>
+                <span class="nt">&lt;Module&gt;</span>amps-action-do-publish-message<span class="nt">&lt;/Module&gt;</span>
+                <span class="nt">&lt;Options&gt;</span>
+                    <span class="nt">&lt;Topic&gt;</span>FailedJobs<span class="nt">&lt;/Topic&gt;</span>
+                    <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+                    <span class="nt">&lt;Data&gt;</span>{ &quot;message&quot;: {{AMPS_DATA}}, &quot;reason&quot;: &quot;{{AMPS_REASON}}&quot; }<span class="nt">&lt;/Data&gt;</span>
+                <span class="nt">&lt;/Options&gt;</span>
+            <span class="nt">&lt;/Do&gt;</span>
+        <span class="nt">&lt;/Action&gt;</span>
+    <span class="nt">&lt;/Actions&gt;</span>
+    ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>With this action configured, any expired message from <code class="docutils literal"><span class="pre">Jobs</span></code> will result in a
+message automatically published to <code class="docutils literal"><span class="pre">FailedJobs</span></code> containing the original
+message inside the <code class="docutils literal"><span class="pre">message</span></code> element, and an AMPS-supplied reason code in
+the <code class="docutils literal"><span class="pre">reason</span></code> field.</p>
+</div>
+<div class="section" id="advanced-queue-configuration">
+<span id="ug-queues-advanced"></span><h2>Advanced Queue Configuration<a class="headerlink" href="#advanced-queue-configuration" title="Permalink to this headline">¶</a></h2>
+<p>This section describes more advanced configuration settings for
+AMPS message queues.</p>
+<div class="section" id="using-multiple-underlying-topics">
+<h3>Using Multiple Underlying Topics<a class="headerlink" href="#using-multiple-underlying-topics" title="Permalink to this headline">¶</a></h3>
+<p>AMPS queues can contain messages from any number of underlying topics. This provides
+a flexible delivery model, and allows applications to populate multiple queues
+with a single publish to AMPS, which simplifies publisher code, reduces bandwidth,
+and ensures that the message is provided to all queues from the same point in
+the message stream.</p>
+<p>To create a queue that includes messages from underlying topics, you provide a
+regular expression that matches the set of topic names that contain messages for
+the queue.  You also provide a <code class="docutils literal"><span class="pre">DefaultPublishTarget</span></code> that specifies the topic
+name for AMPS to use when a message is published directly to the queue topic.</p>
+<p>For example, you might configure a set of topics as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+  ...
+  <span class="nt">&lt;Queue&gt;</span>
+     <span class="nt">&lt;Name&gt;</span>ORDERS_ANALYTICS<span class="nt">&lt;/Name&gt;</span>
+     <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+     <span class="nt">&lt;UnderlyingTopic&gt;</span>^ORDERS$|^ORDERS_ANALYTICS_DIRECT$<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+     <span class="nt">&lt;DefaultPublishTarget&gt;</span>ORDERS_ANALYTICS_DIRECT<span class="nt">&lt;/DefaultPublishTarget&gt;</span>
+  <span class="nt">&lt;/Queue&gt;</span>
+  <span class="nt">&lt;Queue&gt;</span>
+     <span class="nt">&lt;Name&gt;</span>ORDERS_RISK<span class="nt">&lt;/Name&gt;</span>
+     <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+     <span class="nt">&lt;UnderlyingTopic&gt;</span>^ORDERS$|^ORDERS_RISK_DIRECT$<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+     <span class="nt">&lt;DefaultPublishTarget&gt;</span>ORDERS_RISK_DIRECT<span class="nt">&lt;/DefaultPublishTarget&gt;</span>
+  <span class="nt">&lt;/Queue&gt;</span>
+  ...
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>In this case, when a message is published to the <code class="docutils literal"><span class="pre">ORDERS</span></code> topic, both the
+<code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code> and the <code class="docutils literal"><span class="pre">ORDERS_RISK</span></code> queues deliver the message.
+However, a publisher can also publish directly to each queue by publishing
+a message to the <code class="docutils literal"><span class="pre">_DIRECT</span></code> topic for that queue. Furthermore, any publish
+to the name of the queue will be routed to the appropriate <code class="docutils literal"><span class="pre">_DIRECT</span></code> topic.</p>
+<p>The following table demonstrates how messages are provided to topics with
+this configuration:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Publish To</th>
+<th class="head">Results</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ORDERS</span></code></td>
+<td>Both <code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code> and <code class="docutils literal"><span class="pre">ORDERS_RISK</span></code> enqueue the
+message, since <code class="docutils literal"><span class="pre">ORDERS</span></code> matches the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> of
+both queues.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code></td>
+<td>The message is published to the <code class="docutils literal"><span class="pre">DefaultPublishTarget</span></code>
+of <code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code>, which is <code class="docutils literal"><span class="pre">ORDERS_ANALYTICS_DIRECT</span></code>.
+The message is then enqueued to <code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code>, since
+<code class="docutils literal"><span class="pre">ORDERS_ANALYTICS_DIRECT</span></code> matches the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> of
+<code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ORDERS_RISK</span></code></td>
+<td>The message is published to the <code class="docutils literal"><span class="pre">DefaultPublishTarget</span></code>
+of <code class="docutils literal"><span class="pre">ORDERS_RISK</span></code>, which is <code class="docutils literal"><span class="pre">ORDERS_RISK_DIRECT</span></code>.
+The message is then enqueued to <code class="docutils literal"><span class="pre">ORDERS_RISK</span></code>, since
+<code class="docutils literal"><span class="pre">ORDERS_RISK_DIRECT</span></code> matches the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code>
+<code class="docutils literal"><span class="pre">ORDERS_RISK</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ORDERS_ANALYTICS_DIRECT</span></code></td>
+<td>The message is published to <code class="docutils literal"><span class="pre">ORDERS_ANALYTICS_DIRECT</span></code>,
+and is then enqueued to <code class="docutils literal"><span class="pre">ORDERS_ANALYTICS</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ORDERS_RISK_DIRECT</span></code></td>
+<td>The message is published to <code class="docutils literal"><span class="pre">ORDERS_RISK_DIRECT</span></code>,
+and is then enqueued to <code class="docutils literal"><span class="pre">ORDERS_RISK</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="priority-queues">
+<h3>Priority Queues<a class="headerlink" href="#priority-queues" title="Permalink to this headline">¶</a></h3>
+<p>AMPS includes the ability to specify that messages from a queue are delivered
+in order of <em>priority</em> rather than being delivered strictly in publication order.
+To enable prioritization on a <code class="docutils literal"><span class="pre">Queue</span></code>, add the <code class="docutils literal"><span class="pre">Priority</span></code> tag to the queue
+configuration and specify the field or expression to use to set the priority.
+When a queue definition specifies <code class="docutils literal"><span class="pre">Priority</span></code>, AMPS orders delivery based on
+a descending sort of the value calculated for the <code class="docutils literal"><span class="pre">Priority</span></code> rather than
+in descending order of age.</p>
+<p>Priority expressions use the same grammar as other expressions in AMPS, as
+described in <a class="reference internal" href="amps_expressions.html#ug-amps-expressions"><span class="std std-ref">Chapter 4 AMPS Expressions</span></a>. The results
+of the priority expression are interpreted as an <code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span></code>. That is, the result
+should be a positive integer that can be represented in 64 bits. Non-numeric values
+or <code class="docutils literal"><span class="pre">NULL</span></code> are treated as <code class="docutils literal"><span class="pre">NaN</span></code>, and have the lowest priority.</p>
+<p>For example, to create a queue that delivers messages in order of the product of
+the price and quantity specified in the message, you could use the following
+queue definition:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+    <span class="c">&lt;!-- Other configuration, including</span>
+<span class="c">         recording  that OrderPriority</span>
+<span class="c">         and Orders are recorded in the</span>
+<span class="c">         transaction log.</span>
+<span class="c">      --&gt;</span>
+
+    <span class="nt">&lt;SOW&gt;</span>
+        ...
+        <span class="nt">&lt;Queue&gt;</span>
+            <span class="nt">&lt;Name&gt;</span>OrderPriority<span class="nt">&lt;/Name&gt;</span>
+            <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+            <span class="nt">&lt;Semantics&gt;</span>at-least-once<span class="nt">&lt;/Semantics&gt;</span>
+            <span class="nt">&lt;UnderlyingTopic&gt;</span>Orders<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+            <span class="nt">&lt;Priority&gt;</span>/price * /qty<span class="nt">&lt;/Priority&gt;</span>
+        <span class="nt">&lt;/Queue&gt;</span>
+    <span class="nt">&lt;/SOW&gt;</span>
+
+    ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="synchronizing-work-with-barrier-messages">
+<h3>Synchronizing Work with Barrier Messages<a class="headerlink" href="#synchronizing-work-with-barrier-messages" title="Permalink to this headline">¶</a></h3>
+<p>AMPS queues provide the ability to synchronize work across a set of
+subscribers by sending the same message to all subscribers simultaneously,
+when the queue is fully processed up to the point of the message.</p>
+<p>These messages are referred to as <em>barrier messages</em>, since they are roughly
+equivalent to the concept of a barrier in multithreaded programming.</p>
+<p>Barrier messages simplify coordination between current subscribers to
+a queue.  They allow you to easily coordinate operations (such as end of day
+processing), update reference data at the precise point in the message
+stream that the update should take effect, send a shutdown message
+when all available work is processed, and so on. Because barrier messages
+are integrated with queue delivery, there is no need to write extra code
+to correlate the barrier message with the correct point in the queue,
+to manage multiple subscriptions, or to write code that guarantees
+delivery to all current subscribers.</p>
+<p>To specify which messages should be treated as barrier messages, the
+queue configuration includes a <code class="docutils literal"><span class="pre">BarrierExpression</span></code> element that contains
+a filter. All messages that match that filter are considered barrier
+expressions.</p>
+<p>When a message matches the <code class="docutils literal"><span class="pre">BarrierExpression</span></code>, AMPS delivers the
+message in the following way:</p>
+<ul class="simple">
+<li>AMPS does not deliver the message until all previous messages in the
+queue are acknowledged.</li>
+<li>AMPS does not deliver messages that are after the barrier message
+until the barrier message is sent to subscribers.</li>
+<li>When all previous messages in the queue are acknowledged, AMPS
+delivers the barrier message to all current subscribers to the
+queue.</li>
+<li>AMPS immediately removes the message from the queue, without
+requiring acknowledgment from any subscriber.</li>
+</ul>
+<p>A barrier message sent to a subscriber does not count toward that subscriber&#8217;s
+backlog, since the barrier message is immediately acknowledged. When
+sending the barrier message, AMPS does not consider the current backlog
+of the subscriber (so, subscribers that request <code class="docutils literal"><span class="pre">max_backlog=0</span></code> or which
+use a regular expression topic and have their backlog filled by messages
+from other topics will still receive the barrier message).</p>
+<p>AMPS does, however, apply content filters and entitlement filters for each
+subscription when delivering the message. If the content filter or entitlement
+filter for a subscription does not match the barrier message, that subscription
+will not receive the message. The fact that this subscription does not
+receive the actual barrier message does not affect the behavior of the
+barrier itself. A subscription that does not match the message will still
+see message delivery pause until the barrier is released, but will not
+receive the actual barrier message.</p>
+<p>Each AMPS instance manages the delivery of barrier messages for the subscribers
+connected to that instance, when all messages prior to the barrier message in
+the local queue have been acknowledged.</p>
+</div>
+<div class="section" id="limiting-currently-deliverable-messages">
+<h3>Limiting Currently Deliverable Messages<a class="headerlink" href="#limiting-currently-deliverable-messages" title="Permalink to this headline">¶</a></h3>
+<p>In some cases, it may be important to limit the maximum number of
+messages that AMPS considers to be part of the currently active,
+deliverable part of the queue. This can be advantageous in cases
+where memory is limited, or in cases where it is expected that
+a queue is only processed infrequently (for example, a
+reconciliation process that runs at the end of each day).</p>
+<p>The <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code> option on a queue allows you to set
+the target depth for the number of messages that AMPS will
+consider to be deliverable at a given time.</p>
+<p>If the number of messages for the queue exceeds the <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code>
+on an instance, messages beyond the specified depth are considered to
+be inactive (though still part of the queue). Those messages are not
+deliverable to subscribers on this instance. They do not appear in
+a <code class="docutils literal"><span class="pre">sow</span></code> query of the queue, and are not considered when a view
+over the queue is calculated.  A <code class="docutils literal"><span class="pre">sow_delete</span></code> that uses a filter
+will only apply to the messages in the queue that are currently deliverable.
+As messages are acknowledged from the queue, AMPS will add messages
+to the active part of the queue until the active part of the queue
+once again reaches the <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code>.  For messages that are
+not currently deliverable, AMPS will not read those messages
+from the transaction log and will not maintain queue state for
+those messages. This also means that, if no messages within the
+<code class="docutils literal"><span class="pre">TargetQueueDepth</span></code> match a given subscription, no messages will
+be delivered to that subscription even if later messages in the
+transaction log match the subscription.</p>
+<p>Although AMPS does not consider messages that are currently inactive
+to be deliverable, AMPS will preserve queue delivery guarantees in
+the event that a message that is not currently deliverable is
+acknowledged before it enters the queue and becomes deliverable.
+To do this, AMPS keeps a list of acknowledgments that
+have been received for messages that are not in the queue. When
+a message that would be added to the active part of the queue
+has already been acknowledged, AMPS does not add that message to
+the queue. Applications that use <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code> to limit memory
+growth should avoid a pattern where messages are acknowledged before
+they enter the queue to reduce memory consumption for acknowledgments
+that cannot yet be processed.</p>
+<p>Likewise, if a transfer request from another instance arrives for
+a message that is in the transaction log, but is beyond the limit
+set by the <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code>, AMPS will process messages further
+into the queue until it reaches the message to be transferred. At
+that point, AMPS will transfer the message and stop processing further
+messages until either:</p>
+<ul class="simple">
+<li>The current depth drops below the <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code>, <em>or</em></li>
+<li>AMPS once again receives a request for a message that is in the
+transaction log, but beyond the current active messages in the queue</li>
+</ul>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">A <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code> <em>cannot</em> be set for a queue that specifies
+a <code class="docutils literal"><span class="pre">Priority</span></code> or a <code class="docutils literal"><span class="pre">BarrierExpression</span></code>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="sow-queue-sow-localqueue-and-sow-grouplocalqueue">
+<span id="index-2"></span><h2>SOW/Queue, SOW/LocalQueue, and SOW/GroupLocalQueue<a class="headerlink" href="#sow-queue-sow-localqueue-and-sow-grouplocalqueue" title="Permalink to this headline">¶</a></h2>
+<p id="index-3">This section lists configuration parameters for queues.</p>
+<p>The <code class="docutils literal"><span class="pre">Queue</span></code> tag, the <code class="docutils literal"><span class="pre">LocalQueue</span></code> tag and the <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> tag
+are used to configure message queues.</p>
+<p>When an AMPS queue is defined with the <code class="docutils literal"><span class="pre">Queue</span></code> tag, the queue will be
+a distributed queue. To make a queue that is limited to the local
+instance, use the <code class="docutils literal"><span class="pre">LocalQueue</span></code> configuration element. To make a queue
+that is restricted to a subset of instances, in a set of replicated instances
+(typically all in the same group), use the <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> tag.</p>
+<p>AMPS accepts <code class="docutils literal"><span class="pre">QueueDefinition</span></code> as a synonym for <code class="docutils literal"><span class="pre">Queue</span></code>.</p>
+<p>The following configuration items apply to queues regardless
+of whether they are fully distributed, local, or distributed
+within a replication group:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Element</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="req first last docutils container">
+Name</div>
+</td>
+<td><p class="first">The name of the queue topic. This name is the name that consumers
+subscribe to.</p>
+<p class="last">If no <code class="docutils literal"><span class="pre">Name</span></code> is provided, AMPS accepts <code class="docutils literal"><span class="pre">Topic</span></code> as a synonym for
+<code class="docutils literal"><span class="pre">Name</span></code> in the <code class="docutils literal"><span class="pre">Queue</span></code> definition.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="req first last docutils container">
+MessageType</div>
+</td>
+<td>The message type of the queue.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">UnderlyingTopic</span></code></td>
+<td><p class="first">A topic name or regular expression for the topic that contains the
+messages to capture in the queue. These topics must be recorded in a
+transaction log, and all must be of the same message type as the queue.</p>
+<p class="last">If an <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> is not provided, the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code>
+defaults to the <code class="docutils literal"><span class="pre">Name</span></code> of the queue.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">DefaultPublishTarget</span></code></td>
+<td><p class="first">The topic to publish to when an application publishes a message to
+the queue. For simplicity, AMPS allows applications to publish
+messages to the queue, and for those messages to be routed to one of the
+underlying topics.</p>
+<p>The <code class="docutils literal"><span class="pre">DefaultPublishTarget</span></code> must be one of the topics included in
+the queue.</p>
+<p class="last"><em>This element is required if</em> the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> contains regular
+expression characters. Otherwise, the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code> is a single
+topic and this element is optional and defaults to the
+<code class="docutils literal"><span class="pre">UnderlyingTopic</span></code>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LeasePeriod</span></code></td>
+<td><p class="first">The amount of time that a subscriber has ownership of the message before
+the message is returned to the queue. For <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery
+semantics, the consumer must process and acknowledge the message within
+this lease period, or the message may be provided to another subscriber.</p>
+<p>The <code class="docutils literal"><span class="pre">LeasePeriod</span></code> is measured from the time that AMPS sends the
+message to the subscriber. Set the <code class="docutils literal"><span class="pre">LeasePeriod</span></code> to account for round
+trip network latency as well as the expected processing time for the
+subscribers.</p>
+<p class="last">Default: <code class="docutils literal"><span class="pre">infinite</span></code> (no expiration)</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Semantics</span></code></td>
+<td><p class="first">The delivery semantics to use for this queue. Regardless of the delivery
+semantics, AMPS queues deliver a given message to a single subscriber
+at a time. When a subscriber fails to process a message (that is, the
+connection to the subscriber closes before the message is
+acknowledged, or the lease expires before the message is acknowledged),
+the semantics specify how the failure is handled.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">at-least-once</span></code>  With these semantics, you can guarantee that a
+message has been processed by at least one subscriber, as described
+in the introduction to Queues in the <em>AMPS User Guide</em>. With this
+value, a subscriber must explicitly remove the message from the queue
+once the message is processed. If the subscriber connection closes
+before acknowledging the message, the subscriber returns the message
+to the queue or the lease expires, the AMPS server can deliver the
+message again to allow another attempt to process the message.</li>
+<li><code class="docutils literal"><span class="pre">at-most-once</span></code>  With these semantics, AMPS removes the message from
+the queue immediately when AMPS sends the message. This allows you to
+guarantee that no more than one subscriber will process the message,
+even if the subscriber that receives the message fails without
+acknowledging the message.</li>
+</ul>
+<p class="last">Default: <code class="docutils literal"><span class="pre">at-least-once</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">MaxBacklog</span></code></td>
+<td><p class="first">The maximum number of outstanding, unacknowledged messages in the queue
+at any one time. This parameter allows you to set limits on the
+number of pending messages from the queue overall. When the queue
+reaches the MaxBacklog, no incoming messages are delivered from the
+queue until a message is removed from the queue (either by expiring, or
+being acknowledged by a client). This parameter allows you to avoid
+overwhelming clients during periods of heavy activity.</p>
+<p>Notice that this does not set a limit of any sort on the capacity of the
+queue. This parameter allows you to limit the number of messages that
+the queue will make available to subscribers at a given time, but does
+not restrict the capacity of the queue to track messages.</p>
+<p>This backlog number is applied <em>per instance</em> of the queue. That is,
+each instance of AMPS that hosts an instance of a replicated queue will
+deliver messages up to the <code class="docutils literal"><span class="pre">MaxBacklog</span></code> if messages are available
+on that instance.</p>
+<p class="last">Default: <code class="docutils literal"><span class="pre">infinite</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">MaxPerSubscriptionBacklog</span></code></td>
+<td><p class="first">The maximum number of outstanding, unacknowledged messages in the queue
+for an individual subscription. This parameter allows you to avoid
+overwhelming a single subscriber during a period of heavy activity.</p>
+<p>Subscribers can declare the maximum number of messages that the
+subscription is prepared to lease at a given time. This maximum defaults
+to 1 when there is no maximum explicitly specified for a subscription.
+AMPS will lease the number specified in the subscription or the maximum
+set for the queue, whichever is lower.</p>
+<p>Notice that this does not set a limit of any sort on the capacity of the
+queue. This parameter allows you to limit the number of messages that
+the queue will make available for a single subscription at a given time,
+but does not restrict the capacity of the queue to track messages.</p>
+<p class="last">Default: <code class="docutils literal"><span class="pre">1</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TargetQueueDepth</span></code></td>
+<td><p class="first">The target number of messages to keep active state on.</p>
+<p>Providing this option limits the amount of state that AMPS keeps for
+unacknowledged messages. In most circumstances, the limit will be the
+number of messages specified in this parameter. If this instance
+receives a transfer request for a message that is in the transaction
+log, but outside the currently active set of messages, AMPS will
+process the queue until it reaches the message to be transferred.</p>
+<p>Messages that are present in the transaction log, but
+for which AMPS does not currently have active state, are not deliverable
+from the queue topic, cannot be queried, cannot be deleted using a
+sow delete by filter, and so on. They are not yet in the set of
+messages that AMPS considers to be an active part of the queue.</p>
+<p>This option is not set by default. When this option is not set, all
+messages in the queue are active.</p>
+<p>This option is typically unnecessary if the <code class="docutils literal"><span class="pre">FileBackedMetadata</span></code>
+option is enabled. In that case, AMPS will process the full state
+of the queue, but state that is not currently in use can be
+paged out to the file.</p>
+<p>This option cannot be set if <code class="docutils literal"><span class="pre">Priority</span></code> or <code class="docutils literal"><span class="pre">BarrierExpression</span></code>
+is specified.</p>
+<p>When this parameter is set, it should be set to a number that accounts
+for several seconds of traffic to the queue, considering replication
+and acknowledgment speeds. For example, if a queue is typically
+processed at a rate of 2500 messages per second within minimal
+replication delays, a reasonable minimum target value might be
+12500 or 15000.</p>
+<p>Notice that, if subscribers use content filters to selectively
+process the queue, if no currently active messages match the
+subscription, no messages will be delivered (even if there are matching
+messages in the queue that are not currently active).</p>
+<p class="last">Default: unset (no limit)
+Minimum: <code class="docutils literal"><span class="pre">1000</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Expiration</span></code></td>
+<td><p class="first">The length of time a message can remain in the queue before AMPS
+considers the message undeliverable.</p>
+<p>Messages may expire while a subscriber has a lease on the message. AMPS
+does not send an additional notification in this case.</p>
+<p>A publisher can override this setting by providing an expiration
+value on an incoming message. If an individual message in the
+transaction log has an expiration value, AMPS will use that expiration
+value for the message rather than the default for the queue.</p>
+<p class="last">Default: <code class="docutils literal"><span class="pre">infinite</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td><p class="first">An AMPS <code class="docutils literal"><span class="pre">Filter</span></code> that is applied to the <code class="docutils literal"><span class="pre">UnderlyingTopic</span></code>. When a
+<code class="docutils literal"><span class="pre">Filter</span></code> is specified, only messages matching the <code class="docutils literal"><span class="pre">Filter</span></code> appear in
+the queue.</p>
+<p class="last">By default, there is no filter and all messages from the UnderlyingTopic
+are presented in the queue.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">RecoveryPoint</span></code></td>
+<td><p class="first">This option allows you to specify the point at which AMPS begins
+reviewing the transaction log to recover the state of the queue when
+AMPS restarts and there is no existing information about the state of
+the queue. By default, AMPS reviews the full log to determine the
+contents and state of the queue.</p>
+<p>If AMPS has a record of the last point in the transaction log at which
+all previous messages are acknowledged (stored in the <code class="docutils literal"><span class="pre">queues.ack</span></code>
+file), and the recovery point specified in the configuration file has
+not changed, AMPS will recover from that point rather than the
+configured  <code class="docutils literal"><span class="pre">RecoveryPoint</span></code>, since using the cached information will
+reduce recovery time.</p>
+<p>The <code class="docutils literal"><span class="pre">RecoveryPoint</span></code> can be one of the following:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">epoch</span></code> - Recovery begins at the beginning of the transaction log</li>
+<li><code class="docutils literal"><span class="pre">now</span></code> - Recovery begins at the time AMPS starts queue recovery,
+so only new messages are added to the queue</li>
+<li><code class="docutils literal"><span class="pre">creation</span></code> - Recovery begins at the time the queue was created</li>
+<li>AMPS bookmark - When an AMPS bookmark is provided, AMPS starts
+recovery at the specified bookmark.</li>
+<li>ISO-8601 timestamp - When a timestamp is provided, AMPS starts
+recovery at the specified timestamp. The timestamp must be
+provided in the format AMPS uses for timestamp bookmarks.</li>
+</ul>
+<p class="last">Default: <code class="docutils literal"><span class="pre">epoch</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">FairnessModel</span></code></td>
+<td><p class="first">AMPS provides different methods to distribute messages across active
+subscriptions:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">fast</span></code> - AMPS delivers to the first subscription found that can
+process the message</li>
+<li><code class="docutils literal"><span class="pre">round-robin</span></code> - AMPS distributes to the next subscription found
+that can process the message</li>
+<li><code class="docutils literal"><span class="pre">proportional</span></code> - AMPS delivers to the subscription with the
+lowest ratio of active messages to available backlog</li>
+</ul>
+<p class="last">Default: <code class="docutils literal"><span class="pre">proportional</span></code> for <code class="docutils literal"><span class="pre">at-least-once</span></code> queues, <code class="docutils literal"><span class="pre">round-robin</span></code>
+(the only valid delivery model) for <code class="docutils literal"><span class="pre">at-most-once</span></code> queues</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Leasing</span></code></td>
+<td><p class="first">Ownership model for leased messages. AMPS supports the following models:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">strict</span></code> - AMPS allows a client to acknowledge (<code class="docutils literal"><span class="pre">sow_delete</span></code>)
+only messages that are leased to the client or currently unleased.
+If a client acknowledges a message leased to another client, there is
+no effect.</li>
+<li><code class="docutils literal"><span class="pre">sublet</span></code> - AMPS allows any client to acknowledge any message,
+regardless of whether another client has a lease on the message.</li>
+</ul>
+<p class="last">Default: <code class="docutils literal"><span class="pre">sublet</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">MaxDeliveries</span></code></td>
+<td><p class="first">Specifies an upper bound to the number of times AMPS may deliver a queue
+message before automatically expiring it. For example, if AMPS delivers
+a message twice and <code class="docutils literal"><span class="pre">MaxDeliveries</span></code> is set to <code class="docutils literal"><span class="pre">2</span></code>, the message will
+be expired if the subscriber disconnects or unsubscribes before
+acknowledging it.</p>
+<p>This counter is reset if the server restarts and the counter is not
+replicated to other instances.</p>
+<p class="last">Default: no maximum (<code class="docutils literal"><span class="pre">0</span></code>).</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">MaxCancels</span></code></td>
+<td><p class="first">Specifies a limit to the number of times a subscriber may cancel a lease
+on a message before it is expired. For example, if a message is canceled
+for the second time and <code class="docutils literal"><span class="pre">MaxCancels</span></code> is set to 2, AMPS automatically
+expires the message instead of returning it to the message queue.</p>
+<p>This counter is reset if the server restarts and the counter is not
+replicated to other instances.</p>
+<p class="last">Default: no maximum (<code class="docutils literal"><span class="pre">0</span></code>).</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Priority</span></code></td>
+<td><p class="first">Specifies the order in which messages will be distributed from the
+queue. When present, this element constructs a value that specifies
+the priority for messages in the queue. Higher priority messages are
+delivered first, regardless of the order in which messages have been
+published to the queue.</p>
+<p>The contents of the element can be either the name of a field in the
+message or an AMPS expression. Either way, the result is treated as an
+<code class="docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span></code> value.</p>
+<p>For example, to order message delivery based on the <code class="docutils literal"><span class="pre">/priority</span></code> field
+of the message, specify the following element:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Priority&gt;</span>/priority<span class="nt">&lt;/Priority&gt;</span>
+</pre></div>
+</div>
+<p>To order message delivery based on the product of the <code class="docutils literal"><span class="pre">/price</span></code> field
+and the <code class="docutils literal"><span class="pre">/quantity</span></code> field in the message, specify the following
+element:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Priority&gt;</span>/price * /qty<span class="nt">&lt;/Priority&gt;</span>
+</pre></div>
+</div>
+<p>Default: there is no default for this value. When not provided, the
+delivery order is the order in which messages were processed by this
+instance of AMPS.</p>
+<p class="last"><em>This option cannot be specified on a queue if</em> <code class="docutils literal"><span class="pre">BarrierExpression</span></code>
+or <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code> is specified.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">BarrierExpression</span></code></td>
+<td><p class="first">Specifies the filter used to identify a barrier message
+(synchronization point) for this queue. When a message matches
+this expression, it will be delivered to <em>all</em> current subscribers
+on the queue when every previous message in the queue has been
+acknowledged. This provides a simple, reliable way to synchronize
+workers.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;BarrierExpression&gt;</span>/isSyncPoint IS NOT NULL<span class="nt">&lt;/BarrierExpression&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">BarrierExpression</span></code> filter is evaluated when AMPS adds the
+message to the in-memory state of the queue, and is not re-evaluated
+(unless the in-memory state of the queue is rebuilt after an instance
+restart).</p>
+<p>Default: there is no default for this value. When not provided, no
+messages are considered to be barrier messages</p>
+<p class="last"><em>This option cannot be specified on a queue if</em> <code class="docutils literal"><span class="pre">Priority</span></code>
+or <code class="docutils literal"><span class="pre">TargetQueueDepth</span></code> is specified.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">DeferredAckExpiration</span></code></td>
+<td><p class="first">Specifies the amount of time for AMPS to retain information about an
+acknowledgment (<code class="docutils literal"><span class="pre">sow_delete</span></code>) message received when the corresponding
+message is not in the queue. This can occur during failover, when
+messages are received over replication, or in cases where an application
+that uses a publish store has been offline for an extended period of
+time.</p>
+<p>This element is configured as an interval, for example, <code class="docutils literal"><span class="pre">15m</span></code> or
+<code class="docutils literal"><span class="pre">2h</span></code>.</p>
+<p>The default value is generally recommended. However, in cases where
+an instance may receive large volumes of acknowledgments for messages
+that are not currently in the queue, and are not expected to arrive,
+setting this to a lower value may somewhat reduce the memory
+required for managing these acknowledgments.</p>
+<p class="last">Default: <code class="docutils literal"><span class="pre">1d</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">FileBackedMetadata</span></code></td>
+<td><p class="first">Specifies whether AMPS should persist metadata about the queue in the
+journal directory. This could reduce the active memory footprint of
+an AMPS instance in cases where a queue has a large number of messages,
+but it is not being actively consumed. In cases where the queue has a
+large number of unacknowledged messages when AMPS is restarted, this
+may also improve recovery time.</p>
+<p>This option can be unset or set to a value of <code class="docutils literal"><span class="pre">enabled</span></code>.</p>
+<p class="last">Default: unset, which indicates that queue metadata will not be
+persisted</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 15.2:</strong> <em>Queue configuration elements</em></p>
+<p>When a queue is defined as a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code>, the following configuration item must be provided:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Element</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="req first last docutils container">
+InitialOwner</div>
+</td>
+<td><p class="first">For a group local queue, provides the instance <code class="docutils literal"><span class="pre">Name</span></code> of the instance
+that will own the message when the message is first published.</p>
+<p>This configuration element is required for a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code>. It is
+not supported for fully distributed queues or for local only queues
+(that is, a queue defined with the <code class="docutils literal"><span class="pre">Queue</span></code> or <code class="docutils literal"><span class="pre">LocalQueue</span></code> element).</p>
+<p>All instances in a replicated system that define this queue must
+define the same <code class="docutils literal"><span class="pre">InitialOwner</span></code>.</p>
+<p>Notice that AMPS does not validate that the <code class="docutils literal"><span class="pre">InitialOwner</span></code> exists
+and is reachable through replication from the current instance.
+When configuring a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code>, take care to validate the
+name and ensure that a replication path exists to and from that
+instance.</p>
+<p class="last">This element is required. There is no default for this element.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>When a queue is defined as a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code>, the following optional configuration element may
+be provided.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Element</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code></td>
+<td><p class="first">For a group local queue, provides a way to allow a queue that is hosted
+in instances that are in different replication groups to be identified
+as the same queue and function as a single distributed queue.</p>
+<p>By default, a <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> is identified using the queue
+<code class="docutils literal"><span class="pre">Name</span></code> and the <code class="docutils literal"><span class="pre">Group</span></code> of the AMPS instance that hosts the queue.
+Queues with the same identity are considered to be instances of the
+same distributed queue.</p>
+<p>When this element is defined, the <code class="docutils literal"><span class="pre">GroupLocalQueue</span></code> is identified
+using the queue <code class="docutils literal"><span class="pre">Name</span></code> and the <code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code> rather than
+the <code class="docutils literal"><span class="pre">Group</span></code> of the instance that hosts the queue.</p>
+<p class="last">This element was introduced in version 5.3.4. Previous versions do
+not consider the <code class="docutils literal"><span class="pre">Group</span></code> of the instance or the
+<code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code>: instances of the queue with the same
+<code class="docutils literal"><span class="pre">Name</span></code> are considered to be the same distributed queue in those
+versions regardless of the <code class="docutils literal"><span class="pre">Group</span></code> that hosts the queue.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 15.3:</strong> <em>Additional configuration elements for GroupLocalQueue</em></p>
+<p>The following configuration snippet shows one way to configure a queue.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Notice that the topics to use for the queue (ORDERS_.*) must be</span>
+<span class="c">    recorded in a transaction log. --&gt;</span>
+<span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Queue&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>MQ<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>ORDERS_.*<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;DefaultPublishTarget&gt;</span>ORDERS_DIRECT<span class="nt">&lt;/DefaultPublishTarget&gt;</span>
+        <span class="nt">&lt;LeasePeriod&gt;</span>60s<span class="nt">&lt;/LeasePeriod&gt;</span>
+        <span class="nt">&lt;Expiration&gt;</span>1d<span class="nt">&lt;/Expiration&gt;</span>
+        <span class="nt">&lt;MaxBacklog&gt;</span>3<span class="nt">&lt;/MaxBacklog&gt;</span>
+    <span class="nt">&lt;/Queue&gt;</span>
+  <span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>The following configuration snippet shows the configuration for a
+<code class="docutils literal"><span class="pre">GroupLocalQueue</span></code>.  Any instance of the queue in the group
+named <code class="docutils literal"><span class="pre">CONSUME_INSTANCES</span></code> or that uses the <code class="docutils literal"><span class="pre">GroupLocalQueueDomain</span></code>
+tag of <code class="docutils literal"><span class="pre">CONSUME_INSTANCES</span></code> will be treated as an instance
+of the same queue.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;GroupLocalQueue&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>GroupQueue<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;UnderlyingTopic&gt;</span>ORDERS_.*<span class="nt">&lt;/UnderlyingTopic&gt;</span>
+        <span class="nt">&lt;DefaultPublishTarget&gt;</span>ORDERS_DIRECT<span class="nt">&lt;/DefaultPublishTarget&gt;</span>
+        <span class="nt">&lt;GroupLocalQueueDomain&gt;</span>CONSUME_INSTANCES<span class="nt">&lt;/GroupLocalQueueDomain&gt;</span>
+    <span class="nt">&lt;/GroupLocalQueue&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,2843 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>10. AMPS Programming: Working with Commands &#8212; Advanced Message Processing System (AMPS) C++ Developer Guide develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="11. Using the AMPS C Client" href="c-client.html" />
+    <link rel="prev" title="9. High Availability" href="high-availability.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">10.  AMPS Programming: Working with Commands</a><ul>
+<li><a class="reference internal" href="#understanding-amps-messages">Understanding AMPS Messages</a></li>
+<li><a class="reference internal" href="#creating-and-populating-the-command">Creating and Populating the Command</a></li>
+<li><a class="reference internal" href="#using-execute">Using execute</a><ul>
+<li><a class="reference internal" href="#using-execute-to-publish">Using execute To Publish</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#command-cookbook">Command Cookbook</a></li>
+<li><a class="reference internal" href="#publishing">Publishing</a><ul>
+<li><a class="reference internal" href="#basic-publish">Basic Publish</a></li>
+<li><a class="reference internal" href="#publish-with-correlationid">Publish With CorrelationId</a></li>
+<li><a class="reference internal" href="#publish-with-explicit-sow-key">Publish With Explicit SOW Key</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#command-cookbook-subscribing">Command Cookbook: Subscribing</a><ul>
+<li><a class="reference internal" href="#basic-subscription">Basic Subscription</a></li>
+<li><a class="reference internal" href="#basic-subscription-with-options">Basic Subscription With Options</a></li>
+<li><a class="reference internal" href="#basic-subscription-with-select-list">Basic Subscription With Select List</a></li>
+<li><a class="reference internal" href="#content-filtered-subscription">Content Filtered Subscription</a></li>
+<li><a class="reference internal" href="#conflated-subscription-to-a-sow-topic">Conflated Subscription to a SOW Topic</a></li>
+<li><a class="reference internal" href="#conflated-subscription-to-a-topic-with-no-sow">Conflated Subscription to a Topic With No SOW</a></li>
+<li><a class="reference internal" href="#bookmark-subscription">Bookmark Subscription</a></li>
+<li><a class="reference internal" href="#rate-controlled-bookmark-subscription">Rate Controlled Bookmark Subscription</a></li>
+<li><a class="reference internal" href="#bookmark-subscription-with-completed-acknowledgement">Bookmark Subscription With Completed Acknowledgement</a></li>
+<li><a class="reference internal" href="#bookmark-subscription-with-content-filter">Bookmark Subscription With Content Filter</a></li>
+<li><a class="reference internal" href="#rate-controlled-bookmark-subscription-with-maximum-gap">Rate Controlled Bookmark Subscription With Maximum Gap</a></li>
+<li><a class="reference internal" href="#pausing-a-bookmark-subscription">Pausing a Bookmark Subscription</a></li>
+<li><a class="reference internal" href="#resuming-a-bookmark-subscription">Resuming a Bookmark Subscription</a></li>
+<li><a class="reference internal" href="#replacing-the-filter-on-a-subscription">Replacing the Filter on a Subscription</a></li>
+<li><a class="reference internal" href="#subscribing-to-a-queue-and-requesting-a-max-backlog">Subscribing to a Queue and Requesting a max_backlog</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-query">SOW query</a><ul>
+<li><a class="reference internal" href="#basic-sow-query">Basic SOW Query</a></li>
+<li><a class="reference internal" href="#basic-sow-with-options">Basic SOW With Options</a></li>
+<li><a class="reference internal" href="#sow-query-with-ordered-results">SOW Query With Ordered Results</a></li>
+<li><a class="reference internal" href="#sow-query-with-topn-results">SOW Query With TopN Results</a></li>
+<li><a class="reference internal" href="#content-filtered-sow-query">Content Filtered SOW Query</a></li>
+<li><a class="reference internal" href="#historical-sow-query">Historical SOW Query</a></li>
+<li><a class="reference internal" href="#historical-sow-query-with-content-filter">Historical SOW Query With Content Filter</a></li>
+<li><a class="reference internal" href="#sow-query-for-specific-records">SOW Query for Specific Records</a></li>
+<li><a class="reference internal" href="#sow-query-with-pagination">SOW Query with Pagination</a></li>
+<li><a class="reference internal" href="#aggregated-sow-query">Aggregated SOW Query</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-and-subscribe">SOW and Subscribe</a><ul>
+<li><a class="reference internal" href="#basic-sow-and-subscribe">Basic SOW and Subscribe</a></li>
+<li><a class="reference internal" href="#sow-and-subscribe-with-options">SOW and Subscribe With Options</a></li>
+<li><a class="reference internal" href="#sow-and-subscribe-with-select-list">SOW and Subscribe With Select List</a></li>
+<li><a class="reference internal" href="#content-filtered-sow-and-subscribe">Content Filtered SOW and Subscribe</a></li>
+<li><a class="reference internal" href="#conflated-sow-and-subscribe">Conflated SOW and Subscribe</a></li>
+<li><a class="reference internal" href="#paginated-sow-and-subscribe">Paginated SOW and Subscribe</a></li>
+<li><a class="reference internal" href="#historical-sow-and-subscribe">Historical SOW and Subscribe</a></li>
+<li><a class="reference internal" href="#historical-sow-and-subscribe-with-content-filter">Historical SOW and Subscribe With Content Filter</a></li>
+<li><a class="reference internal" href="#aggregated-sow-and-subscribe">Aggregated SOW and Subscribe</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#delta-publishing">Delta Publishing</a><ul>
+<li><a class="reference internal" href="#basic-delta-publish">Basic Delta Publish</a></li>
+<li><a class="reference internal" href="#delta-publish-with-correlationid">Delta Publish With CorrelationId</a></li>
+<li><a class="reference internal" href="#delta-publish-with-explicit-sow-key">Delta Publish With Explicit SOW Key</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#delta-subscribing">Delta Subscribing</a><ul>
+<li><a class="reference internal" href="#basic-delta-subscription">Basic Delta Subscription</a></li>
+<li><a class="reference internal" href="#basic-delta-subscription-with-options">Basic Delta Subscription With Options</a></li>
+<li><a class="reference internal" href="#content-filtered-delta-subscription">Content Filtered Delta Subscription</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-and-delta-subscribe">SOW and Delta Subscribe</a><ul>
+<li><a class="reference internal" href="#basic-sow-and-delta-subscribe">Basic SOW and Delta Subscribe</a></li>
+<li><a class="reference internal" href="#sow-and-delta-subscribe-with-options">SOW and Delta Subscribe With Options</a></li>
+<li><a class="reference internal" href="#content-filtered-sow-and-delta-subscribe">Content Filtered SOW and Delta Subscribe</a></li>
+<li><a class="reference internal" href="#paginated-sow-and-delta-subscribe">Paginated SOW and Delta Subscribe</a></li>
+<li><a class="reference internal" href="#aggregated-sow-and-delta-subscribe">Aggregated SOW and Delta Subscribe</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-delete">SOW Delete</a><ul>
+<li><a class="reference internal" href="#delete-all-records-in-a-sow">Delete All Records in a SOW</a></li>
+<li><a class="reference internal" href="#delete-sow-records-matching-a-filter">Delete SOW Records Matching a Filter</a></li>
+<li><a class="reference internal" href="#delete-a-specific-message-by-data">Delete A Specific Message By Data</a></li>
+<li><a class="reference internal" href="#deleting-specific-messages-using-keys">Deleting Specific Messages Using Keys</a></li>
+<li><a class="reference internal" href="#acknowledging-messages-from-a-queue">Acknowledging Messages from a Queue</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="high-availability.html" title="previous chapter">9. High Availability</a></li>
+      <li>Next: <a href="c-client.html" title="next chapter">11. Using the AMPS C Client</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="amps-programming-working-with-commands">
+<span id="cpp-working-with-commands"></span><h1>10.  AMPS Programming: Working with Commands<a class="headerlink" href="#amps-programming-working-with-commands" title="Permalink to this headline">¶</a></h1>
+<p>The AMPS clients provide named convenience methods for core AMPS
+functionality. These named methods work by creating messages and sending
+those messages to AMPS. All communication with AMPS occurs through
+messages.</p>
+<p>You can use the <code class="docutils literal"><span class="pre">Command</span></code> object to customize the messages that AMPS
+sends. This is useful for more advanced scenarios where you need precise
+control over AMPS, in cases where you need to use an earlier version of
+the client to communicate with a more recent version of AMPS, or in
+cases where a named method is not available.</p>
+<div class="section" id="understanding-amps-messages">
+<h2>Understanding AMPS Messages<a class="headerlink" href="#understanding-amps-messages" title="Permalink to this headline">¶</a></h2>
+<p>AMPS messages are represented in the client as AMPS.Message objects. The
+Message object is generic, and can represent any type of AMPS message,
+including both outgoing and incoming messages. This section includes a
+brief overview of elements common to AMPS command message. Full details
+of commands to AMPS are provided in the <em>AMPS Command Reference Guide</em>.</p>
+<p>All AMPS command messages contain the following elements:</p>
+<ul class="simple">
+<li><strong>Command</strong>. The <em>command</em> tells AMPS how to interpret the message.
+Without a command, AMPS will reject the message. Examples of commands
+include <code class="docutils literal"><span class="pre">publish</span></code>, <code class="docutils literal"><span class="pre">subscribe</span></code>, and <code class="docutils literal"><span class="pre">sow</span></code>.</li>
+<li><strong>CommandId</strong>. The <em>command id</em>, together with the name of the client,
+uniquely identifies a command to AMPS. The command ID can be used
+later on to refer to the command or the results of the command. For
+example, the command id for a <code class="docutils literal"><span class="pre">subscribe</span></code> message becomes the
+identifier for the subscription. The AMPS client provides a command
+id when the command requires one and no command id is set.</li>
+</ul>
+<p>Most AMPS messages contain the following fields:</p>
+<ul class="simple">
+<li><strong>Topic</strong>. The <em>topic</em> that the command applies to, or a regular
+expression that identifies a set of topics that the command applies
+to. For most commands, the topic is required. Commands such as
+<code class="docutils literal"><span class="pre">logon</span></code>, <code class="docutils literal"><span class="pre">start_timer</span></code>, and <code class="docutils literal"><span class="pre">stop_timer</span></code> do not apply to a
+specific topic, and do not need this field.</li>
+<li><strong>Ack Type</strong>. The <em>ack type</em> tells AMPS how to acknowledge the message
+to the client. Each command has a default acknowledgment type that
+AMPS uses if no other type is provided.</li>
+<li><strong>Options</strong>. The <code class="docutils literal"><span class="pre">options</span></code> are a comma-separated list of options
+that affect how AMPS processes and responds to the message.</li>
+</ul>
+<p>Beyond these fields, different commands include fields that are relevant
+to that particular command. For example, SOW queries, subscriptions, and
+some forms of SOW deletes accept the <strong>Filter</strong> field, which specifies
+the filter to apply to the subscription or query. As another example,
+publish commands accept the <strong>Expiration</strong> field, which sets the SOW
+expiration for the message.</p>
+<p>For full details on the options available for each command and the
+acknowledgment messages returned by AMPS, see the <em>AMPS Command
+Reference Guide</em>.</p>
+</div>
+<div class="section" id="creating-and-populating-the-command">
+<h2>Creating and Populating the Command<a class="headerlink" href="#creating-and-populating-the-command" title="Permalink to this headline">¶</a></h2>
+<p>To create a command, you simply construct a command object of the
+appropriate type:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">AMPS</span><span class="o">::</span><span class="n">Command</span> <span class="nf">command</span><span class="p">(</span><span class="s">&quot;sow&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Once created, you set the appropriate fields on the command. For
+example, the following code creates a publish message, setting the
+command, topic, data to publish, and an expiration for the message:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">AMPS</span><span class="o">::</span><span class="n">Command</span> <span class="nf">command</span><span class="p">(</span><span class="s">&quot;sow&quot;</span><span class="p">)</span>
+       <span class="p">.</span><span class="n">setTopic</span><span class="p">(</span><span class="s">&quot;messages-sow&quot;</span><span class="p">)</span>
+       <span class="p">.</span><span class="n">setFilter</span><span class="p">(</span><span class="s">&quot;/id &gt; 20&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>When sent to AMPS using the <code class="docutils literal"><span class="pre">execute()</span></code> method, AMPS performs a SOW
+query from the topic <code class="docutils literal"><span class="pre">messages-sow</span></code> using a filter of <code class="docutils literal"><span class="pre">/id</span> <span class="pre">&gt;</span> <span class="pre">20</span></code>.
+The results of sending this message to AMPS are no different than using
+the form of the <code class="docutils literal"><span class="pre">sow</span></code> method that sets these fields.</p>
+</div>
+<div class="section" id="using-execute">
+<h2>Using execute<a class="headerlink" href="#using-execute" title="Permalink to this headline">¶</a></h2>
+<p>Once you&#8217;ve created a message, use the <code class="docutils literal"><span class="pre">execute</span></code> method to send the
+message to AMPS. The <code class="docutils literal"><span class="pre">execute</span></code> method returns a <code class="docutils literal"><span class="pre">MessageStream</span></code> that
+provides response messages. The <code class="docutils literal"><span class="pre">executeAsync</span></code> method sends the
+command to AMPS, waits for a <code class="docutils literal"><span class="pre">processed</span></code> acknowledgment, then
+returns. Messages are processed on the client background thread.</p>
+<p>For example, the following snippet sends the command created above:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">client</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">command</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>You can also provide a message handler to receive acknowledgments,
+statistics, or the results of subscriptions and SOW queries. The AMPS
+client maintains a background thread that receives and processes
+incoming messages. The call to <code class="docutils literal"><span class="pre">executeAsync</span></code> returns on the main
+thread as soon as AMPS acknowledges the command as having been
+processed, and messages are received and processed on the background
+thread:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">handleMessages</span><span class="p">(</span><span class="k">const</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">Message</span><span class="o">&amp;</span> <span class="n">m</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">user_data</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* print acknowledgment type and reason for sample purposes.*/</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">.</span><span class="n">getAckType</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">.</span><span class="n">getReason</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+
+<span class="n">client</span><span class="p">.</span><span class="n">executeAsync</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">MessageHandler</span><span class="p">(</span><span class="n">handleMessages</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">));</span>
+
+<span class="p">...</span>
+</pre></div>
+</div>
+<p>While this message handler simply prints the ack type and reason for
+sample purposes, message handlers in production applications are
+typically designed with a specific purpose. For example, your message
+handler may fill a work queue, or check for success and throw an
+exception if a command failed.</p>
+<div class="section" id="using-execute-to-publish">
+<h3>Using execute To Publish<a class="headerlink" href="#using-execute-to-publish" title="Permalink to this headline">¶</a></h3>
+<p>Notice that the <code class="docutils literal"><span class="pre">publish</span></code> command does not provide typically return
+results other than acknowledgment messages, so there is little need for
+a message handler with a <code class="docutils literal"><span class="pre">publish</span></code> command. To send a <code class="docutils literal"><span class="pre">publish</span></code>
+command, use the <code class="docutils literal"><span class="pre">executeAsync()</span></code> method with a default-constructed
+message handler. With a default-constructed message handler, AMPS does
+not enter the message handler in the internal routing table, which
+improves efficiency for commands that do not expect a response:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">client</span><span class="p">.</span><span class="n">executeAsync</span><span class="p">(</span><span class="n">publishCmd</span><span class="p">,</span> <span class="n">AMPS</span><span class="o">::</span><span class="n">MessageHandler</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>A default-constructed message handler has an empty implementation and does
+not receive acknowledgments. To detect write failures, set
+he <code class="docutils literal"><span class="pre">FailedWriteHandler</span></code> on the client.</p>
+</div>
+</div>
+<div class="section" id="command-cookbook">
+<span id="cpp-command-cookbook"></span><h2>Command Cookbook<a class="headerlink" href="#command-cookbook" title="Permalink to this headline">¶</a></h2>
+<p>This section is a quick guide to commonly used AMPS commands. For the
+full range of options on AMPS commands, see the <em>AMPS Command
+Reference</em>.</p>
+<blockquote>
+<div></div></blockquote>
+</div>
+<div class="section" id="publishing">
+<h2>Publishing<a class="headerlink" href="#publishing" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for publishing to a topic in AMPS
+using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section provides
+information on how to configure the request to AMPS. You can adapt this
+information to your application and the specific interface you are
+using.</p>
+<p>The AMPS server does not return a stream of messages in response to a
+<code class="docutils literal"><span class="pre">publish</span></code> command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><img alt="important" src="../_images/important.svg" /></td>
+<td>AMPS <code class="docutils literal"><span class="pre">publish</span></code> commands do not return a stream of messages. A
+publish command must be used with asynchronous message
+processing, and should typically pass an empty message handler.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="basic-publish">
+<h3>Basic Publish<a class="headerlink" href="#basic-publish" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a subscription needs only the topic to publish to
+and the data to publish. The AMPS client automatically constructs the
+necessary AMPS headers and formats the full <code class="docutils literal"><span class="pre">publish</span></code> command.</p>
+<p>In many cases, a publisher only needs to use the basic publish command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Sets the topic to publish to. The
+topic specified must be a literal
+topic name. Regular expression
+characters in the topic name are not
+interpreted.</p>
+<p class="last">Some topics in AMPS, such as views
+and conflated topics, cannot be
+published to directly. Instead, a
+publisher must publish to the
+underlying topics.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Data</span></code></td>
+<td>The data to publish to the topic.
+The AMPS client does not interpret,
+escape, or validate this data: the
+data is provided to the server
+verbatim.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.1:</strong> <em>Basic Publish</em></p>
+</div>
+<div class="section" id="publish-with-correlationid">
+<h3>Publish With CorrelationId<a class="headerlink" href="#publish-with-correlationid" title="Permalink to this headline">¶</a></h3>
+<p>AMPS provides publishers with a header field that can be used to contain
+arbitrary data, the <code class="docutils literal"><span class="pre">CorrelationId</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Sets the topic to publish to. The
+topic specified must be a literal
+topic name. Regular expression
+characters in the topic name are not
+interpreted.</p>
+<p class="last">Some topics in AMPS, such as views
+and conflated topics, cannot be
+published to directly. Instead, a
+publisher must publish to the
+underlying topics.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Data</span></code></td>
+<td>The data to publish to the topic.
+The AMPS client does not interpret,
+escape, or validate this data: the
+data is provided to the server
+verbatim.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CorrelationId</span></code></td>
+<td><p class="first">The <code class="docutils literal"><span class="pre">CorrelationId</span></code> to provide on
+the message. AMPS provides the
+<code class="docutils literal"><span class="pre">CorrelationId</span></code> to subscribers.
+The <code class="docutils literal"><span class="pre">CorrelationId</span></code> has no
+significance for AMPS.</p>
+<p class="last">The <code class="docutils literal"><span class="pre">CorrelationId</span></code> may only
+contain characters that are valid in
+base-64 encoding.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.2:</strong> <em>Publish With CorrelationId</em></p>
+</div>
+<div class="section" id="publish-with-explicit-sow-key">
+<h3>Publish With Explicit SOW Key<a class="headerlink" href="#publish-with-explicit-sow-key" title="Permalink to this headline">¶</a></h3>
+<p>When publishing to a SOW topic that is configured to require an explicit
+SOW key, the publisher needs to set the SowKey header on the message.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Sets the topic to publish to. The
+topic specified must be a literal
+topic name. Regular expression
+characters in the topic name are not
+interpreted.</p>
+<p class="last">Some topics in AMPS, such as views
+and conflated topics, cannot be
+published to directly. Instead, a
+publisher must publish to the
+underlying topics.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Data</span></code></td>
+<td>The data to publish to the topic.
+The AMPS client does not interpret,
+escape, or validate this data: the
+data is provided to the server
+verbatim.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SowKey</span></code></td>
+<td>The SOW Key to use for this message.
+This header is only supported for
+publishes to a topic that requires
+an explicit SOW Key.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.3:</strong> <em>Publish with Explicit SOW Key</em></p>
+</div>
+</div>
+<div class="section" id="command-cookbook-subscribing">
+<h2>Command Cookbook: Subscribing<a class="headerlink" href="#command-cookbook-subscribing" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for subscribing to a topic in AMPS
+using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section provides
+information on how to configure the request to AMPS. You can adapt this
+information to your application and the specific interface you are
+using.</p>
+<div class="section" id="basic-subscription">
+<h3>Basic Subscription<a class="headerlink" href="#basic-subscription" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a subscription needs only the topic to subscribe
+to.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. All
+messages from the topic will be
+delivered on this subscription. The
+topic specified can be the literal
+topic name, or a regular expression
+that matches multiple topics.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.4:</strong> <em>Basic Subscription</em></p>
+</div>
+<div class="section" id="basic-subscription-with-options">
+<h3>Basic Subscription With Options<a class="headerlink" href="#basic-subscription-with-options" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a subscription needs only the topic to subscribe
+to. To add options to the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code> header on
+the <code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. All
+messages from the topic will be
+delivered on this subscription. The
+topic specified can be the literal
+topic name, or a regular expression
+that matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma-delimited set of options for
+this command. See the <em>AMPS Command
+Reference</em> for a description of
+supported options.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.4:</strong> <em>Basic Subscription with Options</em></p>
+</div>
+<div class="section" id="basic-subscription-with-select-list">
+<h3>Basic Subscription With Select List<a class="headerlink" href="#basic-subscription-with-select-list" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a subscription needs only the topic to subscribe
+to. To use a select list with the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code> header on
+the <code class="docutils literal"><span class="pre">Command</span></code> to the select list specifier.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. All
+messages from the topic will be
+delivered on this subscription. The
+topic specified can be the literal
+topic name, or a regular expression
+that matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td rowspan="6"><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td rowspan="6"><p class="first">A comma-delimited set of options for
+this command. See the <em>AMPS Command
+Reference</em> for a description of
+supported options.</p>
+<p class="last">For example, to remove all fields
+except for <code class="docutils literal"><span class="pre">/id</span></code> and <code class="docutils literal"><span class="pre">/ticker</span></code>,
+you might use an option string of
+<code class="docutils literal"><span class="pre">select=[-/,+/id,+/ticker]</span></code></p>
+</td>
+</tr>
+<tr class="row-even"></tr>
+<tr class="row-odd"></tr>
+<tr class="row-even"></tr>
+<tr class="row-odd"></tr>
+<tr class="row-even"></tr>
+</tbody>
+</table>
+<p><strong>Table 10.5:</strong> <em>Basic Subscription with Select List</em></p>
+</div>
+<div class="section" id="content-filtered-subscription">
+<h3>Content Filtered Subscription<a class="headerlink" href="#content-filtered-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To provide a content filter on a subscription, set the <code class="docutils literal"><span class="pre">Filter</span></code>
+property on the command. The <em>AMPS User Guide</em> provides details on the
+filter syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the subscription. Only
+messages that match the content
+filter will be provided to the
+subscription.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.6:</strong> <em>Content Filtered Subscription</em></p>
+</div>
+<div class="section" id="conflated-subscription-to-a-sow-topic">
+<h3>Conflated Subscription to a SOW Topic<a class="headerlink" href="#conflated-subscription-to-a-sow-topic" title="Permalink to this headline">¶</a></h3>
+<p>To request conflation on a subscription, set the <code class="docutils literal"><span class="pre">Options</span></code> property on
+the command to specify the conflation interval. When the topic has a SOW
+(including a view or a conflated topic), there is no need to provide a
+<code class="docutils literal"><span class="pre">conflation_key</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options
+for the command. Set the conflation
+interval in the options.</p>
+<p>For example, to set a conflation
+interval of 250 milliseconds,
+provide the following option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conflation</span><span class="o">=</span><span class="mi">250</span><span class="n">ms</span>
+</pre></div>
+</div>
+<p>To set the conflation interval to 1
+minute, provide an option of:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">conflation</span><span class="o">=</span><span class="mi">1</span><span class="n">m</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.7:</strong> <em>Conflated Subscription to a SOW topic</em></p>
+</div>
+<div class="section" id="conflated-subscription-to-a-topic-with-no-sow">
+<h3>Conflated Subscription to a Topic With No SOW<a class="headerlink" href="#conflated-subscription-to-a-topic-with-no-sow" title="Permalink to this headline">¶</a></h3>
+<p>To request conflation on a subscription, set the <code class="docutils literal"><span class="pre">Options</span></code> property on
+the command to specify the conflation interval. When the topic does not
+have a SOW, you must provide a <code class="docutils literal"><span class="pre">conflation_key</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options
+for the command. Set the conflation
+interval and the fields that
+determine a unique message in the
+options.</p>
+<p>For example, to set a conflation
+interval of 250 milliseconds for
+messages that have the same value
+for <code class="docutils literal"><span class="pre">/id</span></code>, provide the following
+option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">conflation</span><span class="o">=</span><span class="mi">250</span><span class="n">ms</span><span class="p">,</span><span class="n">conflation_key</span><span class="o">=</span>
+<span class="p">[</span><span class="o">/</span><span class="nb">id</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To set the conflation interval to 1
+minute for messages are the same as
+determined by a combination of
+<code class="docutils literal"><span class="pre">/customerId</span></code> and <code class="docutils literal"><span class="pre">/issueNumber</span></code>
+provide an option of:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">conflation</span><span class="o">=</span><span class="mi">1</span><span class="n">m</span><span class="p">,</span>
+<span class="n">conflation_key</span><span class="o">=</span><span class="p">[</span><span class="o">/</span><span class="n">customerId</span><span class="p">,</span><span class="o">/</span><span class="n">iss</span>
+<span class="n">ueNumber</span><span class="p">]</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.8:</strong> <em>Conflated Subscription to a SOW topic</em></p>
+</div>
+<div class="section" id="bookmark-subscription">
+<h3>Bookmark Subscription<a class="headerlink" href="#bookmark-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To create a bookmark subscription, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The value of this property can be either a specific bookmark, a
+timestamp, or one of the client-provided constants. The <em>AMPS User
+Guide</em> provides details on creating timestamps. Notice that the
+<code class="docutils literal"><span class="pre">MOST_RECENT</span></code> constant tells the AMPS client to find the appropriate
+message in the client bookmark store and begin the subscription at that
+point. In this case, the client sends that bookmark value to AMPS. The
+<code class="docutils literal"><span class="pre">Bookmark</span></code> option is only supported for topics that are recorded in an
+AMPS transaction log.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">Sets the point in the transaction
+log at which the subscription will
+begin. The bookmark provided can be
+a specific AMPS bookmark, a
+timestamp, or one of the
+client-provided constants.</p>
+<p class="last">AMPS also accepts a comma-delimited
+list of bookmarks. In this case,
+AMPS begins the subscription from
+whichever of the bookmarks is
+earliest in the transaction log.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.9:</strong> <em>Bookmark Subscription</em></p>
+</div>
+<div class="section" id="rate-controlled-bookmark-subscription">
+<h3>Rate Controlled Bookmark Subscription<a class="headerlink" href="#rate-controlled-bookmark-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To create a bookmark subscription, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The value of this property can be either a specific bookmark, a
+timestamp, or one of the client-provided constants. The <em>AMPS User
+Guide</em> provides details on creating timestamps. Notice that the
+<code class="docutils literal"><span class="pre">MOST_RECENT</span></code> constant tells the AMPS client to find the appropriate
+message in the client bookmark store and begin the subscription at that
+point. In this case, the client sends that bookmark value to AMPS. The
+<code class="docutils literal"><span class="pre">Bookmark</span></code> option is only supported for topics that are recorded in an
+AMPS transaction log.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">Sets the point in the transaction
+log at which the subscription will
+begin. The bookmark provided can be
+a specific AMPS bookmark, a
+timestamp, or one of the
+client-provided constants.</p>
+<p class="last">AMPS also accepts a comma-delimited
+list of bookmarks. In this case,
+AMPS begins the subscription from
+whichever of the bookmarks is
+earliest in the transaction log.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma-separated list of options
+for the command. To control the rate
+at which AMPS delivers messages, the
+options for the command must include
+a rate specifier. For example, to
+specify a limit of 750 messages per
+second, include <code class="docutils literal"><span class="pre">rate=750</span></code> in the
+options string.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.10:</strong> <em>Bookmark Subscription</em></p>
+</div>
+<div class="section" id="bookmark-subscription-with-completed-acknowledgement">
+<h3>Bookmark Subscription With Completed Acknowledgement<a class="headerlink" href="#bookmark-subscription-with-completed-acknowledgement" title="Permalink to this headline">¶</a></h3>
+<p>To create a bookmark subscription, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The value of this property can be either a specific bookmark, a
+timestamp, or one of the client-provided constants. The <em>AMPS User
+Guide</em> provides details on creating timestamps. Notice that the
+<code class="docutils literal"><span class="pre">MOST_RECENT</span></code> constant tells the AMPS client to find the appropriate
+message in the client bookmark store and begin the subscription at that
+point. In this case, the client sends that bookmark value to AMPS. The
+<code class="docutils literal"><span class="pre">Bookmark</span></code> option is only supported for topics that are recorded in an
+AMPS transaction log.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">Sets the point in the transaction
+log at which the subscription will
+begin. The bookmark provided can be
+a specific AMPS bookmark, a
+timestamp, or one of the
+client-provided constants.</p>
+<p class="last">AMPS also accepts a comma-delimited
+list of bookmarks. In this case,
+AMPS begins the subscription from
+whichever of the bookmarks is
+earliest in the transaction log.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Acknowledgements</span></code></td>
+<td><p class="first">Sets the acknowledgement messages
+that AMPS returns. The AMPS clients
+typically request a <code class="docutils literal"><span class="pre">processed</span></code>
+acknowledgement for a subscription
+to verify whether the subscription
+succeeded.</p>
+<p class="last">To receive a <code class="docutils literal"><span class="pre">completed</span></code>
+acknowledgement, which indicates the
+point at which replay is complete
+for the subscription, include
+<code class="docutils literal"><span class="pre">completed</span></code> in the set of
+acknowledgements requested. AMPS
+will return a message with a
+command type of <code class="docutils literal"><span class="pre">ack</span></code> and an
+ack type of <code class="docutils literal"><span class="pre">completed</span></code> at that
+point in the subscription.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.11:</strong> <em>Bookmark Subscription With Completed Acknowledgement</em></p>
+</div>
+<div class="section" id="bookmark-subscription-with-content-filter">
+<h3>Bookmark Subscription With Content Filter<a class="headerlink" href="#bookmark-subscription-with-content-filter" title="Permalink to this headline">¶</a></h3>
+<p>To create a bookmark subscription, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The property can be either a specific bookmark, a timestamp, or
+one of the client-provided constants. The <em>AMPS User Guide</em> provides
+details on creating timestamps. Notice that the <code class="docutils literal"><span class="pre">MOST_RECENT</span></code> constant
+tells the AMPS client to find the appropriate message in the client
+bookmark store and begin the subscription at that point. In this case,
+the client sends that bookmark value to AMPS.</p>
+<p>To add a filter to a bookmark subscription, set the <code class="docutils literal"><span class="pre">Filter</span></code> property
+on the command. The <em>AMPS User Guide</em> provides details on the filter
+syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">Sets the point in the transaction
+log at which the subscription will
+begin. The bookmark provided can be
+a specific AMPS bookmark, a
+timestamp, or one of the
+client-provided constants.</p>
+<p class="last">AMPS also accepts a comma-delimited
+list of bookmarks. In this case,
+AMPS begins the subscription from
+whichever of the bookmarks is
+earliest in the transaction log.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the subscription. Only
+messages that match the content
+filter will be provided to the
+subscription.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.12:</strong> <em>Bookmark Subscription With Content Filter</em></p>
+</div>
+<div class="section" id="rate-controlled-bookmark-subscription-with-maximum-gap">
+<h3>Rate Controlled Bookmark Subscription With Maximum Gap<a class="headerlink" href="#rate-controlled-bookmark-subscription-with-maximum-gap" title="Permalink to this headline">¶</a></h3>
+<p>To create a bookmark subscription, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The value of this property can be either a specific bookmark, a
+timestamp, or one of the client-provided constants. The <em>AMPS User
+Guide</em> provides details on creating timestamps. Notice that the
+<code class="docutils literal"><span class="pre">MOST_RECENT</span></code> constant tells the AMPS client to find the appropriate
+message in the client bookmark store and begin the subscription at that
+point. In this case, the client sends that bookmark value to AMPS. The
+<code class="docutils literal"><span class="pre">Bookmark</span></code> option is only supported for topics that are recorded in an
+AMPS transaction log.</p>
+<p>The <code class="docutils literal"><span class="pre">rate</span></code> option specifies the rate at which to replay messages,
+while the <code class="docutils literal"><span class="pre">max_gap</span></code> option specifies the maximum amount of time for
+AMPS to allow between messages.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">Sets the point in the transaction
+log at which the subscription will
+begin. The bookmark provided can be
+a specific AMPS bookmark, a
+timestamp, or one of the
+client-provided constants.</p>
+<p class="last">AMPS also accepts a comma-delimited
+list of bookmarks. In this case,
+AMPS begins the subscription from
+whichever of the bookmarks is
+earliest in the transaction log.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options
+for the command. To control the rate
+at which AMPS delivers messages, the
+options for the command must include
+a rate specifier. For example, to
+specify that AMPS replays no faster
+than twice the original rate,
+include <code class="docutils literal"><span class="pre">2X</span></code> in the options
+string. To specify that AMPS will
+go no more than 3 seconds without
+producing a message, regardless of
+the original replay timing, use a
+<code class="docutils literal"><span class="pre">rate_max_gap</span></code> of <code class="docutils literal"><span class="pre">3s</span></code>.</p>
+<p class="last">To provide the options described  ,
+above, you would use the options
+string:
+<code class="docutils literal"><span class="pre">rate=2X,rate_max_gap=3s</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.13:</strong> <em>Bookmark Subscription with Maximum Gap Between Messages</em></p>
+</div>
+<div class="section" id="pausing-a-bookmark-subscription">
+<h3>Pausing a Bookmark Subscription<a class="headerlink" href="#pausing-a-bookmark-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To pause a bookmark subscription, you must provide the subscription ID
+and the <code class="docutils literal"><span class="pre">pause</span></code> option on a subscribe command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SubId</span></code></td>
+<td>A comma-delimited list of
+subscription IDs to pause.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma-delimited list of options
+for the command. To pause a
+subscription, the options must
+include <code class="docutils literal"><span class="pre">pause</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.14:</strong> <em>Pause a Bookmark Subscription</em></p>
+</div>
+<div class="section" id="resuming-a-bookmark-subscription">
+<h3>Resuming a Bookmark Subscription<a class="headerlink" href="#resuming-a-bookmark-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To resume a bookmark subscription, you must provide the subscription ID
+and the <code class="docutils literal"><span class="pre">resume</span></code> option on a subscribe command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">SubId</span>
+</pre></div>
+</div>
+</td>
+<td>A comma-delimited list of
+subscription IDs to resume.</td>
+</tr>
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Options</span>
+</pre></div>
+</div>
+</td>
+<td>A comma-delimited list of options
+for the command. To resume a
+subscription, the options must
+include <code class="docutils literal"><span class="pre">resume</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.15:</strong> <em>Resume a Bookmark Subscription</em></p>
+</div>
+<div class="section" id="replacing-the-filter-on-a-subscription">
+<h3>Replacing the Filter on a Subscription<a class="headerlink" href="#replacing-the-filter-on-a-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To replace the content filter on a subscription, provide the <code class="docutils literal"><span class="pre">SubId</span></code>
+of the subscription to be replaced, add the <code class="docutils literal"><span class="pre">replace</span></code> option, and set
+the <code class="docutils literal"><span class="pre">Filter</span></code> property on the command with the new filter. The <em>AMPS
+User Guide</em> provides details on the filter syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SubId</span></code></td>
+<td>The identifier for the subscription
+to update. The <code class="docutils literal"><span class="pre">SubId</span></code> is the
+<code class="docutils literal"><span class="pre">CommandId</span></code> for the original
+<code class="docutils literal"><span class="pre">subscribe</span></code> command.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma-separated list of options.
+To replace the filter on a
+subscription, include <code class="docutils literal"><span class="pre">replace</span></code> in
+the list of options.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the subscription. Only
+messages that match the content
+filter will be provided to the
+subscription.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.16:</strong> <em>Replacing the Filter on a Subscription</em></p>
+</div>
+<div class="section" id="subscribing-to-a-queue-and-requesting-a-max-backlog">
+<h3>Subscribing to a Queue and Requesting a max_backlog<a class="headerlink" href="#subscribing-to-a-queue-and-requesting-a-max-backlog" title="Permalink to this headline">¶</a></h3>
+<p>To subscribe to a queue and request a <code class="docutils literal"><span class="pre">max_backlog</span></code> greater than
+<code class="docutils literal"><span class="pre">1</span></code>, use the <code class="docutils literal"><span class="pre">Options</span></code> field of the <code class="docutils literal"><span class="pre">subscribe</span></code> command to set the
+requested <code class="docutils literal"><span class="pre">max_backlog</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options.
+To request a value for the
+max_backlog, pass the value in the
+options as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">max_backlog</span><span class="o">=</span>
+<span class="n">NN</span>
+</pre></div>
+</div>
+<p>For example, to request a max
+backlog of 7, your application would
+pass the following option:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">max_backlog</span><span class="o">=</span><span class="mi">7</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.17:</strong> <em>Requesting a max_backlog</em></p>
+</div>
+</div>
+<div class="section" id="sow-query">
+<h2>SOW query<a class="headerlink" href="#sow-query" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for querying a SOW topic in AMPS
+using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section provides
+information on how to configure the request to AMPS. You can adapt this
+information to your application and the specific interface you are
+using.</p>
+<div class="section" id="basic-sow-query">
+<h3>Basic SOW Query<a class="headerlink" href="#basic-sow-query" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW query needs only the topic to query.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The SOW
+query returns all messages in the
+SOW. The topic specified can be the
+literal topic name, or a regular
+expression that matches multiple
+topics.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.18:</strong> <em>Basic SOW Query</em></p>
+</div>
+<div class="section" id="basic-sow-with-options">
+<h3>Basic SOW With Options<a class="headerlink" href="#basic-sow-with-options" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW needs only the topic to subscribe to. To add
+options to the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code> header on the
+<code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The SOW
+query returns all messages in the
+SOW. The topic specified can be the
+literal topic name, or a regular
+expression that matches multiple
+topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma-delimited set of options for
+this command. See the
+<code class="docutils literal"><span class="pre">AMPS</span> <span class="pre">Command</span> <span class="pre">Reference</span></code> for a
+description of supported options.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.19:</strong> <em>Basic SOW Query with Options</em></p>
+</div>
+<div class="section" id="sow-query-with-ordered-results">
+<h3>SOW Query With Ordered Results<a class="headerlink" href="#sow-query-with-ordered-results" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW needs only the topic to subscribe to. To
+return the results in a specific order, provide an ordering expression
+in the <code class="docutils literal"><span class="pre">OrderBy</span></code> header.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The SOW
+query returns all messages in the
+SOW. The topic specified can be the
+literal topic name, or a regular
+expression that matches multiple
+topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td><p class="first">Orders the results returned as
+specified. Requires a comma-separated
+list of identifiers of the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">field</span><span class="o">/</span><span class="p">[</span><span class="n">ASC</span> <span class="o">|</span> <span class="n">DESC</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For example, to sort in descending order by <code class="docutils literal"><span class="pre">orderDate</span></code>
+so that the most recent orders are first, and ascending order
+by <code class="docutils literal"><span class="pre">customerName</span></code> for orders with the same date,
+you might use a specifier such as:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">orderDate</span> <span class="n">DESC</span><span class="p">,</span> <span class="o">/</span><span class="n">customerName</span> <span class="n">ASC</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.20:</strong> <em>Basic SOW Query with Ordered Results</em></p>
+</div>
+<div class="section" id="sow-query-with-topn-results">
+<h3>SOW Query With TopN Results<a class="headerlink" href="#sow-query-with-topn-results" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW needs only the topic to subscribe to. To
+return only a specific number of records, provide the number of records
+to return in the <code class="docutils literal"><span class="pre">TopN</span></code> header.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The SOW
+query returns all messages in the
+SOW. The topic specified can be the
+literal topic name, or a regular
+expression that matches multiple
+topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TopN</span></code></td>
+<td><p class="first">The maximum number of records to
+return. AMPS uses the <code class="docutils literal"><span class="pre">OrderBy</span></code>
+header to determine the order of the
+records.</p>
+<p class="last">If no <code class="docutils literal"><span class="pre">OrderBy</span></code> header is
+provided, records are returned in an
+indeterminate order. In most cases,
+using an OrderBy header when you use
+the TopN header will guarantee that
+you get the records of interest.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td><p class="first">Orders the results returned as
+specified. Requires a comma-separated
+list of identifiers of the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">field</span><span class="o">/</span><span class="p">[</span><span class="n">ASC</span> <span class="o">|</span> <span class="n">DESC</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For example, to sort in descending order by <code class="docutils literal"><span class="pre">orderDate</span></code>
+so that the most recent orders are first, and ascending order
+by <code class="docutils literal"><span class="pre">customerName</span></code> for orders with the same date,
+you might use a specifier such as:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">orderDate</span> <span class="n">DESC</span><span class="p">,</span> <span class="o">/</span><span class="n">customerName</span> <span class="n">ASC</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.21:</strong> <em>SOW Query with TopN Results</em></p>
+</div>
+<div class="section" id="content-filtered-sow-query">
+<h3>Content Filtered SOW Query<a class="headerlink" href="#content-filtered-sow-query" title="Permalink to this headline">¶</a></h3>
+<p>To provide a content filter on a SOW query, set the <code class="docutils literal"><span class="pre">Filter</span></code> property
+on the command. The <em>AMPS User Guide</em> provides details on the filter
+syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The topic
+specified can be the literal topic
+name, or a regular expression that
+matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the query. Only messages
+that match the content filter will
+be returned in response to the
+query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.22:</strong> <em>Content Filtered SOW Query Subscription</em></p>
+</div>
+<div class="section" id="historical-sow-query">
+<h3>Historical SOW Query<a class="headerlink" href="#historical-sow-query" title="Permalink to this headline">¶</a></h3>
+<p>To create a historical SOW query, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The property can be either a specific bookmark or a timestamp.
+The <em>AMPS User Guide</em> provides details on creating timestamps.</p>
+<p>This command is only supported on SOW topics that have <code class="docutils literal"><span class="pre">History</span></code>
+enabled.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The topic
+specified can be the literal topic
+name, or a regular expression that
+matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>Sets the historical point in the SOW
+at which to query. The query returns
+the saved state of the records in
+the SOW as of the point in time
+specified in this header.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.23:</strong> <em>Historical SOW Query</em></p>
+</div>
+<div class="section" id="historical-sow-query-with-content-filter">
+<h3>Historical SOW Query With Content Filter<a class="headerlink" href="#historical-sow-query-with-content-filter" title="Permalink to this headline">¶</a></h3>
+<p>To create a historical SOW query, set the <code class="docutils literal"><span class="pre">Bookmark</span></code> property on the
+command. The property can be either a specific bookmark or a timestamp.
+The <em>AMPS User Guide</em> provides details on creating timestamps. To add a
+filter to the query, set the <code class="docutils literal"><span class="pre">Filter</span></code> property on the command. The
+<em>AMPS User Guide</em> provides details on the filter syntax.</p>
+<p>This command is only supported on SOW topics that have <code class="docutils literal"><span class="pre">History</span></code>
+enabled.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The topic
+specified can be the literal topic
+name, or a regular expression that
+matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>Sets the historical point in the SOW
+at which to query. The query returns
+the saved state of the records in
+the SOW as of the point in time
+specified in this header.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the query. Only messages
+that match the content filter will
+be provided to the query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.24:</strong> <em>Historical SOW Query With Content Filter</em></p>
+</div>
+<div class="section" id="sow-query-for-specific-records">
+<h3>SOW Query for Specific Records<a class="headerlink" href="#sow-query-for-specific-records" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows a consumer to query for specific records as identified by a
+set of <code class="docutils literal"><span class="pre">SowKeys</span></code>. For topics where AMPS assigns the <code class="docutils literal"><span class="pre">SowKey</span></code>, the
+SowKey for the record is the AMPS-assigned identifier. For topics
+configured to require a user-provided <code class="docutils literal"><span class="pre">SowKey</span></code>, the <code class="docutils literal"><span class="pre">SowKey</span></code> for the
+record is the original key provided when the record was published. The
+<em>AMPS User Guide</em> provides more details on SOW keys.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The topic
+specified can be the literal topic
+name, or a regular expression that
+matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SowKeys</span></code></td>
+<td><p class="first">A comma-delimited list of <code class="docutils literal"><span class="pre">SowKey</span></code>
+values. AMPS returns only the
+records specified in this list.</p>
+<p>For example, a valid format for a
+list of keys would be:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span> <span class="mi">1853097931817257202</span><span class="p">,</span><span class="mi">104027799402</span>
+<span class="mi">01650075</span><span class="p">,</span><span class="mi">22363879930342650852</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.25:</strong> <em>SOW Query by SOW Key</em></p>
+</div>
+<div class="section" id="sow-query-with-pagination">
+<h3>SOW Query with Pagination<a class="headerlink" href="#sow-query-with-pagination" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows a consumer to page through records in the SOW using the
+<code class="docutils literal"><span class="pre">top_n</span></code> and <code class="docutils literal"><span class="pre">skip_n</span></code> options. With this approach, the application
+uses the <code class="docutils literal"><span class="pre">top_n</span></code> option to limit the number of records returned to a
+single page worth of records. The application uses the <code class="docutils literal"><span class="pre">skip_n</span></code> option
+to set the number of records to skip ahead to get to the page to
+display, and sets the <code class="docutils literal"><span class="pre">OrderBy</span></code> header to specify the ordering for the
+records. For example, if 10 records fit on a page, and the pages are
+ordered by the <code class="docutils literal"><span class="pre">ClientName</span></code> field of the records, to display the
+fourth page, the application would set <code class="docutils literal"><span class="pre">top_n</span></code> to <code class="docutils literal"><span class="pre">10</span></code>, <code class="docutils literal"><span class="pre">skip_n</span></code>
+to <code class="docutils literal"><span class="pre">30</span></code> (to skip the first three pages of records), and <code class="docutils literal"><span class="pre">OrderBy</span></code> to
+<code class="docutils literal"><span class="pre">/ClientName</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The topic
+specified must be a literal topic name. Pagination is not
+supported with regular expression subscriptions.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td><p class="first">Orders the results returned as
+specified. Requires a comma-separated
+list of identifiers of the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">field</span><span class="o">/</span><span class="p">[</span><span class="n">ASC</span> <span class="o">|</span> <span class="n">DESC</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For example, to sort in descending order by <code class="docutils literal"><span class="pre">orderDate</span></code>
+so that the most recent orders are first, and ascending order
+by <code class="docutils literal"><span class="pre">customerName</span></code> for orders with the same date,
+you might use a specifier such as:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">orderDate</span> <span class="n">DESC</span><span class="p">,</span> <span class="o">/</span><span class="n">customerName</span> <span class="n">ASC</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">An options string that sets the
+<code class="docutils literal"><span class="pre">top_n</span></code> and <code class="docutils literal"><span class="pre">skip_n</span></code> values for
+this query. For example, to skip 100
+records and return the next 10
+records, use an options string such
+as:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">top_n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">skip_n</span><span class="o">=</span><span class="mi">100</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.26:</strong> <em>SOW Query With Pagination</em></p>
+</div>
+<div class="section" id="aggregated-sow-query">
+<h3>Aggregated SOW Query<a class="headerlink" href="#aggregated-sow-query" title="Permalink to this headline">¶</a></h3>
+<p>An aggregated SOW query is a SOW query that provides aggregation options
+in the options field.  To add these options to the subscription, set
+the <code class="docutils literal"><span class="pre">Options</span></code> header on the <code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The SOW
+query returns all messages in the
+SOW. The topic specified can be the
+literal topic name, or a regular
+expression that matches multiple
+topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-delimited set of options for
+this command. For an aggregated
+SOW query, the options provide the
+<code class="docutils literal"><span class="pre">projection</span></code> and <code class="docutils literal"><span class="pre">grouping</span></code>
+for the aggregation.</p>
+<p class="last">See the <em>AMPS Command Reference</em>
+for a description of supported
+options.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.27:</strong> <em>Aggregated SOW Query</em></p>
+</div>
+</div>
+<div class="section" id="sow-and-subscribe">
+<h2>SOW and Subscribe<a class="headerlink" href="#sow-and-subscribe" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for atomic sow and subscribe in
+AMPS using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section
+provides information on how to configure the request to AMPS. You can
+adapt this information to your application and the specific interface
+you are using.</p>
+<div class="section" id="basic-sow-and-subscribe">
+<h3>Basic SOW and Subscribe<a class="headerlink" href="#basic-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW and Subscribe needs only the topic to
+subscribe to.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.28:</strong> <em>Basic SOW and Subscribe</em></p>
+</div>
+<div class="section" id="sow-and-subscribe-with-options">
+<h3>SOW and Subscribe With Options<a class="headerlink" href="#sow-and-subscribe-with-options" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW and subscribe command needs only the topic
+to subscribe to. To add options to the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code>
+header on the <code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-delimited set of options for
+this command. See the
+<code class="docutils literal"><span class="pre">AMPS</span> <span class="pre">Command</span> <span class="pre">Reference</span></code> for a
+full description of supported
+options.</p>
+<p>The most common options for this
+command are:</p>
+<table border="1" class="last docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Request out of focus
+notifications</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>Include timestamps
+on messages</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.29:</strong> <em>Basic SOW and Subscribe with Options</em></p>
+</div>
+<div class="section" id="sow-and-subscribe-with-select-list">
+<h3>SOW and Subscribe With Select List<a class="headerlink" href="#sow-and-subscribe-with-select-list" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW and subscribe command needs only the topic
+to subscribe to. To add options to the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code>
+header on the <code class="docutils literal"><span class="pre">Command</span></code>. To use a select list, include the specifier
+for the select list in the options provided.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-delimited set of options for
+this command. See the
+<code class="docutils literal"><span class="pre">AMPS</span> <span class="pre">Command</span> <span class="pre">Reference</span></code> for a
+full description of supported
+options.</p>
+<p class="last">For example, to remove all fields
+except for <code class="docutils literal"><span class="pre">id</span></code> and <code class="docutils literal"><span class="pre">ticker</span></code>, and
+also request out of focus notifications,
+you might use an options string of:
+<code class="docutils literal"><span class="pre">oof,select=[-/,+/id,+/ticker]</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.30:</strong> <em>Basic SOW and Subscribe with Select List</em></p>
+</div>
+<div class="section" id="content-filtered-sow-and-subscribe">
+<h3>Content Filtered SOW and Subscribe<a class="headerlink" href="#content-filtered-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>To provide a content filter on a SOW and Subscribe, set the <code class="docutils literal"><span class="pre">Filter</span></code>
+property on the command. The <em>AMPS User Guide</em> provides details on the
+filter syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the query. Only messages
+that match the content filter will
+be returned in response to the
+query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.31:</strong> <em>Content Filtered SOW and Subscribe</em></p>
+</div>
+<div class="section" id="conflated-sow-and-subscribe">
+<h3>Conflated SOW and Subscribe<a class="headerlink" href="#conflated-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>To request conflation on the subscription for a SOW and subscribe, set
+the <code class="docutils literal"><span class="pre">Options</span></code> property on the command to specify the conflation
+interval. When the topic has a SOW (including a view or a conflated
+topic), there is no need to provide a <code class="docutils literal"><span class="pre">conflation_key</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options
+for the command. Set the conflation
+interval in the options.</p>
+<p>For example, to set a conflation
+interval of 250 milliseconds,
+provide the following option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conflation</span><span class="o">=</span><span class="mi">250</span><span class="n">ms</span>
+</pre></div>
+</div>
+<p>To set the conflation interval to 1
+minute, provide an option of:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">conflation</span><span class="o">=</span><span class="mi">1</span><span class="n">m</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.32:</strong> <em>Conflated SOW and Subscribe</em></p>
+</div>
+<div class="section" id="paginated-sow-and-subscribe">
+<h3>Paginated SOW and Subscribe<a class="headerlink" href="#paginated-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>To request a paginated subscription for a SOW and subscribe, set
+the <code class="docutils literal"><span class="pre">Options</span></code> property on the command to specify the
+number of records to return and the number of records to skip
+before returning records. Most paginated subscriptions also
+specify the <code class="docutils literal"><span class="pre">oof</span></code> option to be notified when a record is
+out of focus.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic specified must be a literal
+topic name. Pagination is not
+supported with regular expression
+subscriptions.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td>Specifies how to order the results
+within the paginated result set.
+If the <code class="docutils literal"><span class="pre">OrderBy</span></code> is not provided,
+the results are ordered by the
+<code class="docutils literal"><span class="pre">SowKey</span></code> for the messages.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options
+for the command. Set the number of
+results returned with <code class="docutils literal"><span class="pre">top_n</span></code>,
+and the starting point within the
+result set with <code class="docutils literal"><span class="pre">skip_n</span></code>.</p>
+<p>For example, to display records
+31-50 of the result set, you could
+provide the following option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">top_n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">skip_n</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">oof</span>
+</pre></div>
+</div>
+<p class="last">This tells AMPS to skip the first
+30 records of the result set, and
+then provide the top 20 records from
+the remaining results. Out of focus
+notifications will be provided.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.33:</strong> <em>Paginated SOW and Subscribe</em></p>
+</div>
+<div class="section" id="historical-sow-and-subscribe">
+<h3>Historical SOW and Subscribe<a class="headerlink" href="#historical-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>To create a historical SOW query with a subscription, set the
+<code class="docutils literal"><span class="pre">Bookmark</span></code> property on the command. The property can be either a
+specific bookmark or a timestamp. The <em>AMPS User Guide</em> provides details
+on creating timestamps.  This command is only supported on SOW topics
+that are recorded in an AMPS transaction log.</p>
+<p>When <code class="docutils literal"><span class="pre">History</span></code> is enabled for the SOW topic, the <code class="docutils literal"><span class="pre">Bookmark</span></code> provided
+must be a timestamp or a specific bookmark value, including the special
+values <code class="docutils literal"><span class="pre">NOW</span></code> (<code class="docutils literal"><span class="pre">0|1|</span></code>) or <code class="docutils literal"><span class="pre">EPOCH</span></code> (<code class="docutils literal"><span class="pre">0</span></code>).</p>
+<p>If the <code class="docutils literal"><span class="pre">Bookmark</span></code> provided is a value other than NOW (<code class="docutils literal"><span class="pre">0|1|</span></code>), the SOW
+topic must have <code class="docutils literal"><span class="pre">History</span></code> enabled.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>Sets the historical point in the SOW
+at which to query. The query returns
+the saved state of the records in
+the SOW as of the point in time
+specified in this header.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.34:</strong> <em>Historical SOW and Subscribe</em></p>
+</div>
+<div class="section" id="historical-sow-and-subscribe-with-content-filter">
+<h3>Historical SOW and Subscribe With Content Filter<a class="headerlink" href="#historical-sow-and-subscribe-with-content-filter" title="Permalink to this headline">¶</a></h3>
+<p>To create a historical SOW query with a subscription, set the
+<code class="docutils literal"><span class="pre">Bookmark</span></code> property on the command. The property can be either a
+specific bookmark or a timestamp. The <em>AMPS User Guide</em> provides details
+on creating timestamps. This command is only supported on SOW topics
+that are recorded in an AMPS transaction log. If the <code class="docutils literal"><span class="pre">Bookmark</span></code>
+provided is a value other than NOW (<code class="docutils literal"><span class="pre">0|1|</span></code>), the SOW topic must have
+<code class="docutils literal"><span class="pre">History</span></code> enabled.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query. The topic
+specified can be the literal topic
+name, or a regular expression that
+matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>Sets the historical point in the SOW
+at which to query. The query returns
+the saved state of the records in
+the SOW as of the point in time
+specified in this header.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the query. Only messages
+that match the content filter will
+be provided to the query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.35:</strong> <em>Historical SOW and Subscribe With Content Filter</em></p>
+</div>
+<div class="section" id="aggregated-sow-and-subscribe">
+<h3>Aggregated SOW and Subscribe<a class="headerlink" href="#aggregated-sow-and-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>An aggregated SOW and subscribe command is a SOW and subcribe command
+that provides aggregation options. To add these options to the
+sow and subscribe command, set the <code class="docutils literal"><span class="pre">Options</span></code> header on the
+<code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-delimited set of options for
+this command. For an aggregated
+subscription, the options provide the
+<code class="docutils literal"><span class="pre">projection</span></code> and <code class="docutils literal"><span class="pre">grouping</span></code> for the
+command.</p>
+<p>An aggregated sow and subscribe can
+include options in addition to the
+<code class="docutils literal"><span class="pre">projection</span></code> and <code class="docutils literal"><span class="pre">grouping</span></code>. The
+most common additional options are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Request out of focus
+notifications</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>Include timestamp
+headers on messages.</td>
+</tr>
+</tbody>
+</table>
+<p class="last">See the <em>AMPS Command Reference</em>
+for a full description of supported
+options.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.36:</strong> <em>Aggregated SOW and Subscribe</em></p>
+</div>
+</div>
+<div class="section" id="delta-publishing">
+<h2>Delta Publishing<a class="headerlink" href="#delta-publishing" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for publishing to a topic in AMPS
+using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section provides
+information on how to configure the request to AMPS. You can adapt this
+information to your application and the specific interface you are
+using.</p>
+<div class="section" id="basic-delta-publish">
+<h3>Basic Delta Publish<a class="headerlink" href="#basic-delta-publish" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a subscription needs only the topic to publish to
+and the data to publish. The AMPS client automatically constructs the
+necessary AMPS headers and formats the full <code class="docutils literal"><span class="pre">delta_publish</span></code> command.</p>
+<p>In many cases, a publisher only needs to use the basic delta publish
+command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Sets the topic to publish to. The
+topic specified must be a literal
+topic name. Regular expression
+characters in the topic name are not
+interpreted.</p>
+<p class="last">Some topics in AMPS, such as views
+and conflated topics, cannot be
+published to directly. Instead, a
+publisher must publish to the
+underlying topics.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Data</span></code></td>
+<td>The data to publish to the topic.
+The AMPS client does not interpret,
+escape, or validate this data: the
+data is provided to the server
+verbatim.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.37:</strong> <em>Basic Delta Publish</em></p>
+</div>
+<div class="section" id="delta-publish-with-correlationid">
+<h3>Delta Publish With CorrelationId<a class="headerlink" href="#delta-publish-with-correlationid" title="Permalink to this headline">¶</a></h3>
+<p>AMPS provides publishers with a header field that can be used to contain
+arbitrary data, the <code class="docutils literal"><span class="pre">CorrelationId</span></code>. A delta publish message can be
+used to update the <code class="docutils literal"><span class="pre">CorrelationId</span></code> as well as the data within the
+message.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Sets the topic to publish to. The
+topic specified must be a literal
+topic name. Regular expression
+characters in the topic name are not
+interpreted.</p>
+<p class="last">Some topics in AMPS, such as views
+and conflated topics, cannot be
+published to directly. Instead, a
+publisher must publish to the
+underlying topics.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Data</span></code></td>
+<td>The data to publish to the topic.
+The AMPS client does not interpret,
+escape, or validate this data: the
+data is provided to the server
+verbatim.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CorrelationId</span></code></td>
+<td><p class="first">The <code class="docutils literal"><span class="pre">CorrelationId</span></code> to provide on
+the message. AMPS provides the
+<code class="docutils literal"><span class="pre">CorrelationId</span></code> to subscribers.
+The <code class="docutils literal"><span class="pre">CorrelationId</span></code> has no
+significance for AMPS.</p>
+<p class="last">The <code class="docutils literal"><span class="pre">CorrelationId</span></code> may only
+contain characters that are valid in
+base-64 encoding.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.38:</strong> <em>Delta Publish With CorrelationId</em></p>
+</div>
+<div class="section" id="delta-publish-with-explicit-sow-key">
+<h3>Delta Publish With Explicit SOW Key<a class="headerlink" href="#delta-publish-with-explicit-sow-key" title="Permalink to this headline">¶</a></h3>
+<p>When publishing to a SOW topic that is configured to require an explicit
+SOW key, the publisher needs to set the SowKey header on the message.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td><p class="first">Sets the topic to publish to. The
+topic specified must be a literal
+topic name. Regular expression
+characters in the topic name are not
+interpreted.</p>
+<p class="last">Some topics in AMPS, such as views
+and conflated topics, cannot be
+published to directly. Instead, a
+publisher must publish to the
+underlying topics.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Data</span></code></td>
+<td>The data to publish to the topic.
+The AMPS client does not interpret,
+escape, or validate this data: the
+data is provided to the server
+verbatim.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SowKey</span></code></td>
+<td>The SOW Key to use for this message.
+This header is only supported for
+publishes to a topic that requires
+an explicit SOW Key.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.39:</strong> <em>Delta Publish with Explicit SOW Key</em></p>
+</div>
+</div>
+<div class="section" id="delta-subscribing">
+<h2>Delta Subscribing<a class="headerlink" href="#delta-subscribing" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for subscribing to a topic in AMPS
+using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section provides
+information on how to configure the request to AMPS. You can adapt this
+information to your application and the specific interface you are
+using.</p>
+<div class="section" id="basic-delta-subscription">
+<h3>Basic Delta Subscription<a class="headerlink" href="#basic-delta-subscription" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a delta subscription needs only the topic to
+subscribe to.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. All
+messages from the topic will be
+delivered on this subscription. The
+topic specified can be the literal
+topic name, or a regular expression
+that matches multiple topics.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.40:</strong> <em>Basic Delta Subscription</em></p>
+</div>
+<div class="section" id="basic-delta-subscription-with-options">
+<h3>Basic Delta Subscription With Options<a class="headerlink" href="#basic-delta-subscription-with-options" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a subscription needs only the topic to subscribe
+to. To add options to the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code> header on
+the <code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. All
+messages from the topic will be
+delivered on this subscription. The
+topic specified can be the literal
+topic name, or a regular expression
+that matches multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma-delimited set of options for
+this command. See the
+<code class="docutils literal"><span class="pre">AMPS</span> <span class="pre">Command</span> <span class="pre">Reference</span></code> for a
+description of supported options.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.41:</strong> <em>Basic Delta Subscription</em></p>
+</div>
+<div class="section" id="content-filtered-delta-subscription">
+<h3>Content Filtered Delta Subscription<a class="headerlink" href="#content-filtered-delta-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To provide a content filter on a subscription, set the <code class="docutils literal"><span class="pre">Filter</span></code>
+property on the command. The <em>AMPS User Guide</em> provides details on the
+filter syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the subscription. Only
+messages that match the content
+filter will be provided to the
+subscription.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.42:</strong> <em>Content Filtered Subscription</em></p>
+</div>
+</div>
+<div class="section" id="sow-and-delta-subscribe">
+<h2>SOW and Delta Subscribe<a class="headerlink" href="#sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for atomic sow and delta subscribe
+in AMPS using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section
+provides information on how to configure the request to AMPS. You can
+adapt this information to your application and the specific interface
+you are using.</p>
+<div class="section" id="basic-sow-and-delta-subscribe">
+<h3>Basic SOW and Delta Subscribe<a class="headerlink" href="#basic-sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW and Delta Subscribe needs only the topic to
+subscribe to.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.43:</strong> <em>Basic SOW Query</em></p>
+</div>
+<div class="section" id="sow-and-delta-subscribe-with-options">
+<h3>SOW and Delta Subscribe With Options<a class="headerlink" href="#sow-and-delta-subscribe-with-options" title="Permalink to this headline">¶</a></h3>
+<p>In its simplest form, a SOW and subscribe command needs only the topic
+to subscribe to. To add options to the subscription, set the <code class="docutils literal"><span class="pre">Options</span></code>
+header on the <code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-delimited set of options for
+this command. See the
+<code class="docutils literal"><span class="pre">AMPS</span> <span class="pre">Command</span> <span class="pre">Reference</span></code> for a
+full description of supported
+options.</p>
+<p>The most common options for this
+command are:</p>
+<table border="1" class="last docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Request out of order
+notifications</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>Include timestamps
+on messages</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.44:</strong> <em>Basic SOW and Delta Subscribe with Options</em></p>
+</div>
+<div class="section" id="content-filtered-sow-and-delta-subscribe">
+<h3>Content Filtered SOW and Delta Subscribe<a class="headerlink" href="#content-filtered-sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>To provide a content filter on a SOW and Delta Subscribe, set the
+<code class="docutils literal"><span class="pre">Filter</span></code> property on the command. The <em>AMPS User Guide</em> provides
+details on the filter syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Sets the content filter to be
+applied to the query. Only messages
+that match the content filter will
+be returned in response to the
+query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.45:</strong> <em>Content Filtered SOW and Delta Subscribe</em></p>
+</div>
+<div class="section" id="paginated-sow-and-delta-subscribe">
+<h3>Paginated SOW and Delta Subscribe<a class="headerlink" href="#paginated-sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>To request a paginated subscription for a SOW and delta subscribe,
+set the <code class="docutils literal"><span class="pre">Options</span></code> property on the command to specify the
+number of records to return and the number of records to skip
+before returning records. Most paginated subscriptions also
+specify the <code class="docutils literal"><span class="pre">oof</span></code> option to be notified when a record is
+out of focus.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to subscribe to. The
+topic provided can be either the
+exact name of the topic, or a
+regular expression that matches the
+names of the topics for the
+subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td>Specifies how to order the results
+within the paginated result set.
+If the <code class="docutils literal"><span class="pre">OrderBy</span></code> is not provided,
+the results are ordered by the
+<code class="docutils literal"><span class="pre">SowKey</span></code> for the messages.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-separated list of options
+for the command. Set the number of
+results returned with <code class="docutils literal"><span class="pre">top_n</span></code>,
+and the starting point within the
+result set with <code class="docutils literal"><span class="pre">skip_n</span></code>.</p>
+<p>For example, to display records
+31-50 of the result set, you could
+provide the following option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">top_n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">skip_n</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">oof</span>
+</pre></div>
+</div>
+<p class="last">This tells AMPS to skip the first
+30 records of the result set, and
+then provide the top 20 records from
+the remaining results. Out of focus
+notifications will be provided.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.46:</strong> <em>Paginated SOW and Delta Subscribe</em></p>
+</div>
+<div class="section" id="aggregated-sow-and-delta-subscribe">
+<h3>Aggregated SOW and Delta Subscribe<a class="headerlink" href="#aggregated-sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h3>
+<p>An aggregated SOW and delta subscribe is a SOW and delta subscribe command
+that provides aggregation options. To add these options ot the command,
+set the <code class="docutils literal"><span class="pre">Options</span></code> header on the <code class="docutils literal"><span class="pre">Command</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic to query and
+subscribe to. The topic specified
+can be the literal topic name, or a
+regular expression that matches
+multiple topics.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><p class="first">A comma-delimited set of options for
+this command. For an aggregated SOW
+and delta subscribe, the options
+provide the <code class="docutils literal"><span class="pre">projection</span></code> and
+<code class="docutils literal"><span class="pre">grouping</span></code> for the command.</p>
+<p>A SOW and delta subscribe can provide
+options in addition to the
+<code class="docutils literal"><span class="pre">projection</span></code> and <code class="docutils literal"><span class="pre">grouping</span></code>. The
+most common additional options are:</p>
+<table border="1" class="last docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Request out of order
+notifications</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>Include timestamps
+on messages</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">no_empties</span></code></td>
+<td>Do not send a delta
+message if the
+update does not
+change the value of
+a field.</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.47:</strong> <em>Aggregated SOW and Delta Subscribe</em></p>
+</div>
+</div>
+<div class="section" id="sow-delete">
+<h2>SOW Delete<a class="headerlink" href="#sow-delete" title="Permalink to this headline">¶</a></h2>
+<p>This section presents common recipes for sending a sow_delete command
+using the <code class="docutils literal"><span class="pre">Command</span></code> or <code class="docutils literal"><span class="pre">Message</span></code> interfaces. This section provides
+information on how to configure the request to AMPS. You can adapt this
+information to your application and the specific interface you are
+using.</p>
+<div class="section" id="delete-all-records-in-a-sow">
+<h3>Delete All Records in a SOW<a class="headerlink" href="#delete-all-records-in-a-sow" title="Permalink to this headline">¶</a></h3>
+<p>To delete all records in a SOW, provide a filter that evaluates to TRUE
+for every record in the SOW. By convention, 60East recommends <code class="docutils literal"><span class="pre">1=1</span></code>
+for the filter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic from which to remove
+records.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Filter</span>
+</pre></div>
+</div>
+</td>
+<td>A filter specifying the messages to
+remove. By convention, use <code class="docutils literal"><span class="pre">1=1</span></code>
+to remove all records in the SOW.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.48:</strong> <em>Delete All Records in a SOW</em></p>
+</div>
+<div class="section" id="delete-sow-records-matching-a-filter">
+<h3>Delete SOW Records Matching a Filter<a class="headerlink" href="#delete-sow-records-matching-a-filter" title="Permalink to this headline">¶</a></h3>
+<p>To delete the records that match a particular filter, provide the filter
+in the <code class="docutils literal"><span class="pre">sow_delete</span></code> command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic from which to remove
+records.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Filter</span>
+</pre></div>
+</div>
+</td>
+<td>A filter specifying the messages to
+remove.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.49:</strong> <em>Delete All Records in a SOW</em></p>
+</div>
+<div class="section" id="delete-a-specific-message-by-data">
+<h3>Delete A Specific Message By Data<a class="headerlink" href="#delete-a-specific-message-by-data" title="Permalink to this headline">¶</a></h3>
+<p>To delete a specific message, provide the data for the message to
+delete. With this form of SOW delete, AMPS deletes the message that
+would have been updated if the data were provided as a publish message.
+Notice that this form of <code class="docutils literal"><span class="pre">sow_delete</span></code> relies on the <code class="docutils literal"><span class="pre">Key</span></code> definition
+in the SOW configuration, and is not generally useful with
+explicitly-keyed SOW topics.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic from which to remove
+records.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Data</span>
+</pre></div>
+</div>
+</td>
+<td>The message to remove.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.50:</strong> <em>Delete All Records in a SOW</em></p>
+</div>
+<div class="section" id="deleting-specific-messages-using-keys">
+<h3>Deleting Specific Messages Using Keys<a class="headerlink" href="#deleting-specific-messages-using-keys" title="Permalink to this headline">¶</a></h3>
+<p>To delete specific messages using SOW keys, provide the SOW keys for the
+message to delete.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic from which to remove
+records.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">SOWKeys</span>
+</pre></div>
+</div>
+</td>
+<td>A comma-delimited list of SOWKeys
+that specify the messages to remove.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.51:</strong> <em>Delete All Records in a SOW</em></p>
+</div>
+<div class="section" id="acknowledging-messages-from-a-queue">
+<h3>Acknowledging Messages from a Queue<a class="headerlink" href="#acknowledging-messages-from-a-queue" title="Permalink to this headline">¶</a></h3>
+<p>To acknowledge messages from an AMPS queue, provide the bookmarks for
+the messages to acknowledge. Notice that this is the only form of the
+sow_delete command that can acknowledge messages from a queue, and that
+this form of <code class="docutils literal"><span class="pre">sow_delete</span></code> is not accepted for topics that are not
+queue topics.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Sets the topic that contains the
+messages to acknowledge.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Bookmark</span>
+</pre></div>
+</div>
+</td>
+<td>A comma-delimited list of Bookmarks
+that specify the messages to
+acknowledge.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10.52:</strong> <em>Acknowledging a queue message</em></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

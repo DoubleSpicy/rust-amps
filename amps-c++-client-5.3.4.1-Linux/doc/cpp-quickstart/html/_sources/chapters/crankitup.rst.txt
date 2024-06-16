@@ -1,0 +1,144 @@
+Crank It Up!
+============
+
+In this section, we describe using the AMPS samples from the command line. You can also use your IDE of choice, if you prefer.
+
+To get started with AMPS, create a simple subscriber and publisher:
+
+1. Open a command shell
+
+  a. Navigate to the directory where you unzipped the client distribution 
+  b. Navigate to ``samples``
+
+2. Update the connection strings to connect to AMPS
+
+   *FROM THE LINUX COMMAND LINE:*
+
+   a. From the samples directory, type the following command to replace the IP address:
+
+      .. code-block::  bash
+
+         $sed -ri 's/127.0.0.1/ip address here/' *.cpp *.h
+
+3. Build the samples
+
+      .. code-block::  bash
+
+         $ make
+
+4. Run the sample subscriber
+
+   a. From the samples directory, you can run the example by typing:
+
+     .. code-block::  bash
+
+        $ ./amps_subscribe &
+
+   This command line runs the subscriber, and then sends it to the background. Messages from the subscriber will be printed to the console. Of course, no messages will be received until a message is published.
+
+5. Run the sample publisher
+
+   a. From the samples directory, you can run the example by typing:
+
+     .. code-block::  bash
+
+        $ ./amps_publish &
+
+   b. The program runs, and subscribers receive the Hello, World message. The publisher itself produces no output if it is successful. The subscriber will receive the message.
+
+
+
+
+Using a State-of-the-World Database
+===================================
+
+One of the most useful parts of AMPS is being able to keep track of the current value of a message, using the state of the world (SOW) database:
+
+1. Add messages to a state of the world database
+
+   a. From the ``samples`` directory, run the publisher by typing:
+
+     .. code-block::  bash
+
+        $ ./amps_publish_sow &
+
+    b. The program runs. This program sends 10,000 messages to AMPS, and then adds an optional field to some messages.
+
+2. Retrieve the state of the world
+
+   a. From the ``samples`` directory, run the query example by typing:
+
+     .. code-block::  bash
+
+        $ ./amps_query_sow &
+
+
+   b. The program runs three queries on the SOW. The first query returns every message with a ``messageNumber`` that is evenly divisible by ``10``. The second query returns every message to which the optional field has been added. The last query retrieves messages with a messageNumber evenly divisible by 10 and an optional field.
+
+AMPS also provides the ability to query the state of the world and then immediately subscribe to updates. When using this functionality, AMPS registers the subscription when it begins the query. Updates that occur while the query is running are delivered to the subscriber, in order, after the query results are returned.
+
+1. Run the SOW and subscribe sample:
+
+   a. From the ``samples`` directory, run the query example by typing:
+
+     .. code-block::  bash
+
+        $ ./amps_sow_and_subscribe &
+
+   b. The program runs. The program simultaneously runs a query on the SOW and registers a subscription. The results of the query return immediately, and the program waits for additional messages to arrive.
+
+
+2. Publish more messages to the SOW database.
+
+   a.  From the ``samples`` directory, run the SOW publisher by typing:
+
+     .. code-block::  bash
+
+        $ ./amps_publish_sow &
+
+   b.  The program runs. This program does not produce output, but instead publishes messages to AMPS. The program then updates the value of several messages and adds an optional field to those messages.
+
+   c.  The subscriber started in step 1 above will show messages that match the subscription filter as they arrive.
+
+
+
+Message Replay with Client-Side State
+=======================================
+
+AMPS features a fully queryable transaction log that allows you to replay messages from any point in time. To do this, you configure AMPS to save a transaction log for a specific topic or set of topics, then request a subscription from a point in time. AMPS replays the messages in the transaction log, and then continues the subscription for incoming messages.
+
+The evaluation kit contains samples that demonstrate message replay. In addition, the subscriber keeps track of the messages received, so that the subscriber receives each message only once.
+
+1. Publish messages to the transaction log.
+
+   a. From the ``samples`` directory, run a publisher that publishes messages to the transaction log.
+
+      .. code-block:: bash
+
+         $ ./amps_publish_for_replay &
+
+   b. The program publishes 1000 messages at a time to the transaction log. Each message published has a unique orderId. The program waits for one second between sets of 1000 messages.
+
+2.  Wait for a few seconds, then replay the messages.
+
+    a. From the ``samples`` directory, run the replay subscriber by typing:
+
+       .. code-block:: bash
+
+          $ ./amps_subscribe_with_replay
+
+    b. The program runs, and receives messages.
+
+    c. Stop the program by pressing Ctrl-C.
+
+    d. Run the program again by typing:
+
+       .. code-block:: bash
+
+          $ ./amps_subscribe_with_replay
+
+       The program resumes the subscription after the last received message.
+
+
+
+

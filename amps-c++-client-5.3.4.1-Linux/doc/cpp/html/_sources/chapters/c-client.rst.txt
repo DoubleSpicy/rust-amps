@@ -1,0 +1,377 @@
+11. Using the AMPS C Client
+================================
+
+The AMPS C/C++ client is built in two layers: the C layer that exposes lower-level 
+primitives for sending and receiving messages to AMPS, and the C++ layer providing
+a set of abstractions over the C layer that makes it easier to work with AMPS and 
+create robust applications. The C++ layer is recommended for many applications, 
+since it offers a good balance of performance, control, and ease of use. If you 
+are integrating AMPS into an environment that cannot host a C runtime, or if
+you need extremely fine-grained control over how your application interacts
+with AMPS, then you may choose to use the C layer directly.
+
+The C Client offers low-level functionality for working with AMPS. With the C 
+client, your application is responsible for correctly assembling the parameters 
+to each command to AMPS and interpreting the response from AMPS. The C client does 
+not provide higher-level abstractions such as publish stores, automatic failover 
+and reconnection, sequence number management for published messages, and so on. 
+Instead, you build the capabilities that your application needs over the low 
+level primitives.
+
+As an example, 
+:ref:`Example 11.1 <#connecting-in-c>`
+shows a basic example written to use the C layer directly: 
+
+.. index:: amps_client_get_error(), functions, functions; amps_client_get_error,
+   amps_handle, topic; amps_handle, amps_result, types; amps_result, functions,
+   functions; amps_client_destroy(), amps_message_destroy()
+
+.. _#connecting-in-c:
+
+.. code-block:: cpp
+    
+    #include <amps/amps.h>
+
+    int main()
+    {
+        /* At this point in the program, the necessary objects are declared
+         * in order to permit interaction with AMPS. When AMPS errors occur, 
+         * their text is available through the amps_client_get_error() function, 
+         * so it is here that we will create a small char array to hold the errors.
+         */
+        char errorBuffer[1024];
+        char clientName[256];
+
+        /* Here an amps_handle is declared for each object and message objects 
+         * that are constructed later. An amps_handle is an opaque handle to 
+         * an object constructed by AMPS, which cannot be dereferenced or used 
+         * by means other than AMPS functions. amps_handle is the size of
+         * a pointer (that is, sizeof(void*) )and may be passed by value
+         * wherever needed.
+         * 
+         * Notice that these handles are not yet initialized. The program will
+         * initialize them as it needs to use them.
+         */
+        amps_handle client;
+        amps_handle message;
+        amps_handle logon_command; 
+
+        /* Next we declare an amps_result object, which is used to store the 
+         * return value from functions that may fail, such as during connection or 
+         * interaction with an AMPS server. Many AMPS functions return an 
+         * amps_results.
+         */
+        amps_result result; 
+
+        /*
+         * AMPS clients should be constructed with a unique name that is
+         * consistent for each logical instance of the application.
+         *
+         * For sample purposes, we omit constructing the name and
+         * assume that generate_client_name() fills in the clientName
+         * array with an appropriate value.
+         */
+
+        generate_client_name(clientName, sizeof(clientName));
+
+        /* Here we construct our AMPS client with the unique, consistent name
+         * generated earlier. The initializes the client variable declared
+         * earlier.
+         *
+         * This function allocates resources that must be freed, and can only be 
+         * freed by a corresponding call to amps_client_destroy.
+         */
+
+        client = amps_client_create(clientName);
+
+        /* This is how a connection is established; control continues to
+         * where the AMPS message is allocated.
+         */
+        result = amps_client_connect(client, "tcp://localhost:9007/amps/json");
+            
+        if (result != AMPS_E_OK) {
+            amps_client_get_error(client, errorBuffer, sizeof(errorBuffer));
+            printf("error %s\n", errorBuffer);
+            /* Since the client was previously created,
+             * it must be destroyed.
+             */
+            amps_client_destroy(client);
+            return 1;
+        }
+
+        /* AMPS applications communicate with the AMPS server by sending and
+         * receiving messages. A logon command, like any other command, is 
+         * simply a message to AMPS.
+         * 
+         * Instead of calling a function that assembles 
+         * and sends the logon command, we construct the command ourselves.
+         *
+         * The amps_message_create function creates a message and returns
+         * an opaque handle to the message. In this example, we create
+         * the message that we will use to send a logon command to AMPS.
+         * When a message is created, the AMPS C client allocates resources
+         * that must be freed by a corresponding call to the
+         * amps_message_destroy function.
+         *
+         * Notice that the function uses information from
+         * the connected client handle to construct the correct
+         * message for the protocol the connection uses.
+         */
+        logon_command = amps_message_create(client);
+
+        /* When a message is created in the AMPS C client, the message
+         * contains no information at all. To make the message a logon
+         * command, we need to set  the command type to "logon".
+         *
+         * The C client provides a number of functions to assist in
+         * interacting with the data and fields of a message. In this
+         * example _nts functions are used, which allow for quick population
+         * of messages fields and data with C-style null-terminated strings.
+         * 
+         * The next few lines add a minimal set of fields for the logon
+         * command. 
+         * 
+         * See the AMPS Command Reference for the full set of header fields 
+         * supported.  For simplicity in this basic example, we set the smallest 
+         * number of fields possible. For example, this sample does not
+         * provide a user name or password on the command, nor does the
+         * command request an acknowledgment message. In this case, the
+         * application relies on the fact that AMPS will disconnect the
+         * client if the logon command fails (causing subsequent commands
+         * to fail).
+         *
+         * Production applications should register a message handler, request 
+         * acknowledgments for each command, and take appropriate actions if the 
+         * command fails.
+         *
+         * Because we are passing string literals, we use the _nts variant of
+         * amps_message_set_field_value. This variant accepts a NULL-terminated
+         * string. Other variants of amps_message_set_field value accept a
+         * length, for use with strings that are not guaranteed to be
+         * null-terminated.
+         */
+
+        amps_message_set_field_value_nts(m, AMPS_Command, "logon");
+        amps_message_set_field_value_nts(m, AMPS_ClientName, clientName);
+        amps_message_set_field_value_nts(m, AMPS_MessageType, "json");
+
+        /* Once the command is constructed, we send the message.
+         *
+         * All interaction with AMPS is asynchronous. This means that
+         * the return from amps_client_send does not indicate the
+         * result of the command that the application sent to AMPS. Instead, the
+         * return value indicates whether the AMPS client was able to send the 
+         * command to AMPS.
+         */
+
+        result = amps_client_send(client, logon_command);
+        
+        if (result != AMPS_E_OK)
+        {
+            amps_client_get_error(client, errorBuffer, sizeof(errorBuffer));
+            printf("error %s\n", errorBuffer);
+            /* In the case of an error, the application needs to destroy
+             * both the logon command and the client.
+             */
+            amps_message_destroy(logon_command);
+            amps_client_destroy(client);
+            return 1;
+        }
+        
+        /* Free the resources associated with the logon_command message by 
+         * calling amps_message_destroy with the message.
+         */
+        amps_message_destroy(logon_command);
+
+        /* As with the logon command, we must construct a message
+         * that contains a publish message. While the C++ client
+         * constructs and sends the message for us, with the C client we construct 
+         * them ourselves. Note that this line also allocates resources that must 
+         * be freed by a corresponding amps_message_destroy function.
+         */
+        message = amps_message_create(client); 
+
+        /* These next few lines are responsible for setting the necessary fields 
+         * and data to construct a valid publish message for AMPS.
+         * 
+         * As before, because this sample uses string literals, we use the
+         * set_field variant that accepts a null-terminated string.
+         */
+        amps_message_set_field_value_nts(message, AMPS_CommandId, "12345");
+        amps_message_set_field_value_nts(message, AMPS_Command, "publish");
+        amps_message_set_field_value_nts(message, AMPS_Topic, "messages");
+        amps_message_set_data_nts(message, "{\"message\":\"HelloWorld\"}"); 
+
+        /* Once the message is constructed to our satisfaction, it is sent. As 
+         * with the logon command, AMPS processes the publish command asynchronously. 
+         * If an acknowledgment is requested, AMPS returns the acknowledgment 
+         * message in response to the publish command. Your application must 
+         * process that acknowledgment asynchronously.
+         */
+        result = amps_client_send(client, message); 
+
+        if (result != AMPS_E_OK) {
+            /* Any errors from sending the message are detected and
+             * examined here
+             */
+            amps_client_get_error(client, errorBuffer, sizeof(errorBuffer));
+            printf("error sending: %s\n", errorBuffer);
+            /*
+             * As before, the application must destroy the message
+             * and the client before returning the error result.
+             */
+             amps_message_destroy(message); 
+             amps_client_destroy(client); 
+             return 1;
+        }
+        /*
+         * Since the application, is done with the message,
+         *  we must free it.
+         *
+         * If the application were going to send multiple publish commands,
+         * it could reset the values in the message and reuse the same
+         * message object.
+         *
+         */
+
+        amps_message_destroy(message); 
+
+        /*
+         * ... other processing here as needed ...
+         */
+        
+        /* Free the remaining AMPS resources by
+         * destroying the client.
+         */
+        amps_client_destroy(client); 
+        return 0;
+    }
+
+**Example 11.1:** *Connecting and publishing a message in C*
+
+Structurally, the example in C and in C++ are similar. In the C program
+more details are needed to form your program, and the messages that are sent 
+need to be constructed directly, instead of having portions of the message
+already created.
+
+With the C client, your application is responsible for forming commands to
+AMPS, receiving the responses, and interpreting the results. As mentioned above, 
+the AMPS Command Reference contains detailed information on the headers
+that need to be set for specific commands. The Command Cookbook in 
+:ref:`#cpp-working-with-commands` contains information on how to set headers for commonly used AMPS commands.
+
+C Client Functionality
+----------------------
+
+The C client provides a very basic interface. The client allows you to:
+
+* Connect to AMPS
+* Create commands to AMPS in the appropriate protocol format
+* Send commands to AMPS
+* Receive messages from AMPS
+* Retrieve headers and data from messages received from AMPS
+* Detect connection errors and respond as needed
+
+The C client does not include any more complex functionality. For example, the C++ client includes
+the ability to automatically track multiple subscriptions and dispatch messages to different
+callbacks for each subscription. With the C client, to support multiple subscriptions
+your application must receive messages, interpret the headers, and dispatch to the
+appropriate callback. Likewise, the C++ client includes support for reliable
+publication, resumable subscriptions, automatic failover, automatic handling of AMPS
+failure acknowledgments when sending a command, and so on. With the C client, your
+application is responsible for implementing the equivalent functionality if it is
+needed.
+
+
+When to Use the C Client
+------------------------
+
+For most applications, 60East recommends using the C++ client. The C client can be a good option
+in cases where:
+
+* *The application is very simple*. For example, an application that simply
+  publishes messages without regard to whether the messages succeed or not
+  (such as an IoT application delivering near-real-time sensor data), or
+  an application that simply queries a SOW topic and writes to a file.
+* *Environments where C++ is not available*.  For example, some embedded
+  environments do not support a C++ runtime.
+
+In cases where an application is written in C by convention or choice, but
+would like to take advantage of C++ client functionality, a good
+option can be to create a lightweight C-language wrapper around the
+C++ client. 60East support can provide guidance and a sample of one
+way to wrap the client for this option.
+
+
+Error Handing in the C Client
+-----------------------------
+
+Because the C client does not contain automatic acknowledgment processing,
+most C programs have two distinct types of error handling:
+
+* *Detecting client-side failure*  Failure in the C client is indicated
+  with the return value from one of the C client functions. This covers
+  client-side failures only, such as attempting to send a message before
+  the client is connected, attempting to set a value on a field that
+  isn't known to the AMPS C client, and so on. The application handles
+  these errors by checking the return value of the function call, and
+  taking whatever recovery steps are appropriate. When these errors
+  occur on a function call, this indicates an error in the local
+  application, not a response from the server.
+  
+  For these failures, ``amps_client_get_error`` provides a way to
+  retrieve descriptive text for the error.
+
+* *Detecting failure acknowledgments* Failure at the server is
+  indicated by the value `failure` in the ``status`` field of 
+  an acknowledgment message returned from the server. If an application
+  needs to know the success or failure of a command from the server, the
+  application should request an acknowledgment and register a message handler
+  to receive the response from the server. For most commands, the application
+  would request a ``processed`` acknowledgment, which is returned when
+  the server has received the command and processed it for execution.
+  For publish commands, if the application needs to know that the
+  data was safely persisted, the application would request the
+  ``persisted`` acknowledgment. There are more details on
+  message acknowledgments in the *User Guide*, and the set of
+  acknowledgments for each command and the fields that AMPS provides
+  on the acknowledgment messages for each command are described
+  in the *Command Reference*.
+  
+  For these failures, the ``reason`` field of the acknowledgment
+  contains a description of the failure.
+  
+  Notice that the other clients handle the acknowledgments that indicate
+  success or failure transparently in most cases. As an example, the C++ client
+  requests a ``processed`` acknowledgment for a ``subscribe`` command,
+  and if that acknowledgment indicates that the command failed,
+  the C++ client inspects the ``reason`` for the failure and throws the
+  appropriate exception. With the C client, though, an application must
+  explicitly receive and handle acknowledgments from the server.
+
+  Not all applications require failure notifications from the server for all
+  commands. For example, systems that publish high-velocity ticker symbols or
+  real-time telemetry to AMPS may not bother to request ``persisted``
+  acknowledgments for publish commands.  For these applications, it may not be
+  important to republish or report a failed update, since the information is out
+  of date by the time AMPS returns the acknowledgment message. In general,
+  60East recommends requesting an acknowledgment any time that your
+  application would take different steps if a command to the server fails, or
+  if logging that information would be important for monitoring.
+
+C Client Samples
+----------------------
+
+The C/C++ client distribution contains the following sample to demonstrate using
+the C client directly:
+
++-----------------------+------------------------------------------+
+| Sample Name           | Demonstrates                             |
++=======================+==========================================+
+| ``publish_and_sow.c`` | Publishing messages to a                 |
+|                       | State-of-the-World topic and then        |
+|                       | querying the contents of the topic.      |
+|                       |                                          |
+|                       | This sample also demonstrates how        |
+|                       | to handle disconnection in the C client. |
++-----------------------+------------------------------------------+

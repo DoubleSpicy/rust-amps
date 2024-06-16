@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. logon &#8212; Advanced Message Processing System (AMPS) Command Reference develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Publishing to AMPS" href="publishing.html" />
+    <link rel="prev" title="1.Introduction" href="intro.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. logon</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#header-fields">Header Fields</a></li>
+<li><a class="reference internal" href="#returns">Returns</a><ul>
+<li><a class="reference internal" href="#options-field">Options Field</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="intro.html" title="previous chapter">1.Introduction</a></li>
+      <li>Next: <a href="publishing.html" title="next chapter">3. Publishing to AMPS</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="logon">
+<h1>2. logon<a class="headerlink" href="#logon" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>To help identify clients and users, it is recommended that clients send
+a <code class="docutils literal"><span class="pre">logon</span></code> command to the AMPS engine and specify a client name.</p>
+<p>AMPS only allows a single <code class="docutils literal"><span class="pre">logon</span></code> command for each connection. The
+<code class="docutils literal"><span class="pre">logon</span></code> command must be the first command sent over a new connection.
+Otherwise, AMPS performs an implicit <code class="docutils literal"><span class="pre">logon</span></code>, causing any other
+<code class="docutils literal"><span class="pre">logon</span></code> commands for the connection to be rejected.</p>
+<p>In AMPS configurations where authentication is enabled, all connecting
+clients must issue a <code class="docutils literal"><span class="pre">logon</span></code> message with the <code class="docutils literal"><span class="pre">username</span></code> and
+<code class="docutils literal"><span class="pre">password</span></code> credentials specified in the command. Attempts to logon to
+an AMPS instance that do not contain the information required will be
+rejected and prohibited from issuing further commands until a successful
+<code class="docutils literal"><span class="pre">logon</span></code> has been placed.</p>
+<p>If an AMPS client is connected to an instance that has a transaction log
+enabled, the <code class="docutils literal"><span class="pre">ClientName</span></code> specified <em>must</em> be unique for the instance.
+Only one client with the same name is allowed to connect to the instance at a
+given time. If an application  logs on with the same <code class="docutils literal"><span class="pre">ClientName</span></code> and
+authenticated user name as an existing connection, AMPS assumes that the new
+logon is a reconnection from the existing connection and disconnects the
+existing connection. If an application logs on with the same <code class="docutils literal"><span class="pre">ClientName</span></code> as
+an existing connection but a different authenticated user name, the new logon
+will fail.</p>
+<p>It is recommended that all <code class="docutils literal"><span class="pre">logon</span></code> commands request that a
+<code class="docutils literal"><span class="pre">processed</span></code> acknowledgment message be requested in the <code class="docutils literal"><span class="pre">AckType</span></code>
+header of the <code class="docutils literal"><span class="pre">logon</span></code> message. This will allow AMPS to communicate the
+result of the <code class="docutils literal"><span class="pre">logon</span></code> command to the client, allowing the client to
+determine how to best proceed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">websocket</span></code> protocol uses a different
+mechanism that contains the same information
+rather than sending a <code class="docutils literal"><span class="pre">logon</span></code> command.</p>
+</div>
+</div>
+<div class="section" id="header-fields">
+<h2>Header Fields<a class="headerlink" href="#header-fields" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#command-logon-headers"><span class="std std-ref">Table 2.1</span></a>
+contains the header fields available to a <code class="docutils literal"><span class="pre">logon</span></code> command.</p>
+<table border="1" class="docutils" id="command-logon-headers">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>The command to be executed. Value: <code class="docutils literal"><span class="pre">logon</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">ClientName</span>
+</pre></div>
+</div>
+</td>
+<td>A string identifier used to give a client a
+unique id. AMPS does not limit the character set
+used in this name. However, the specific
+protocol may have character set limitations.
+60East recommends that the client name is
+meaningful, short, human readable, and avoids
+using control characters, newline characters, or
+square brackets.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated list of one or more of the
+following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">received</span></code> or
+<code class="docutils literal"><span class="pre">processed</span></code> .</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">MessageType</span></code></td>
+<td>The message type for the connection. Required
+if the Transport accepts any message type.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">UserId</span></code></td>
+<td>The username passed into the AMPS authentication
+and entitlement module.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Password</span></code></td>
+<td>The password passed into the AMPS authentication
+and entitlement module.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CorrelationId</span></code></td>
+<td>A user-provided string that will be included in
+the log message recording this logon, and in the
+information provided for the connection in the
+administration interface. AMPS does not
+interpret this string or use the string for any
+other purpose. If this header is not present,
+AMPS does not store a value for the
+<code class="docutils literal"><span class="pre">CorrelationId</span></code> for this connection. The
+contents of this header must consist of
+characters that are legal in Base64 encoding.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Version</span></code></td>
+<td>The client library version (typical includes
+the language and build number) of the client
+making the connection. This version number
+is logged for the connection, but does not
+otherwise affect the connection.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2.1:</strong> <em>Header fields supported by logon</em></p>
+</div>
+<div class="section" id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h2>
+<p>A <code class="docutils literal"><span class="pre">logon</span></code> message specifying an <code class="docutils literal"><span class="pre">AckType</span></code> of <code class="docutils literal"><span class="pre">received</span></code> or
+<code class="docutils literal"><span class="pre">processed</span></code> will receive an <code class="docutils literal"><span class="pre">ack</span></code> message to acknowledge the message
+receipt. If a client requests an acknowledgment message, the header will
+also contain the <code class="docutils literal"><span class="pre">ClientName</span></code> which was part of the original <code class="docutils literal"><span class="pre">logon</span></code>
+message.</p>
+<p>When requested, the <code class="docutils literal"><span class="pre">logon</span></code> command will result in a <code class="docutils literal"><span class="pre">processed</span></code>
+acknowledgment message. This returned acknowledgment is used in
+determining if a client was successfully authenticated against a server
+which has an authentication module enabled.</p>
+<p><a class="reference internal" href="#command-logon-acks"><span class="std std-ref">Table 2.2</span></a>
+contains the acknowledgment messages that can be returned by a <code class="docutils literal"><span class="pre">logon</span></code> command.</p>
+<table border="1" class="docutils" id="command-logon-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No <code class="docutils literal"><span class="pre">ack</span></code> message is returned. This is the
+default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has processed the <code class="docutils literal"><span class="pre">logon</span></code> message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">logon</span></code> command has been received.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2.2:</strong> <em>Acknowledgment messages supported by logon</em></p>
+<div class="section" id="options-field">
+<h3>Options Field<a class="headerlink" href="#options-field" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-logon-options"><span class="std std-ref">Table 2.3</span></a>
+contains a list of the <code class="docutils literal"><span class="pre">Options</span></code> available and their definitions when used in the AMPS
+<code class="docutils literal"><span class="pre">logon</span></code> command.</p>
+<table border="1" class="docutils" id="command-logon-options">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>This is the default <code class="docutils literal"><span class="pre">Options</span></code> type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ack_conflation</span></code></td>
+<td><p class="first">When provided, the interval at which AMPS
+conflates <code class="docutils literal"><span class="pre">persisted</span></code> acknowledgement messages
+for publishes sent on this connection.</p>
+<p>AMPS conflates <code class="docutils literal"><span class="pre">persisted</span></code> acknowledgement
+messages when a transaction log is configured
+for the instance.</p>
+<p class="last">Defaults to <code class="docutils literal"><span class="pre">1s</span></code> if no option is provided.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">pretty</span></code></td>
+<td>When provided and set to <code class="docutils literal"><span class="pre">true</span></code>, AMPS returns
+a formatted representation of the contents of
+the built-in binary message types rather than
+the original data.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2.3:</strong> <em>Options supported by logon</em></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

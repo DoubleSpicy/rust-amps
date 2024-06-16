@@ -1,0 +1,696 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>27. Securing AMPS &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="28. Troubleshooting AMPS" href="troubleshooting.html" />
+    <link rel="prev" title="26. Operation and Deployment" href="operation.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">27. Securing AMPS</a><ul>
+<li><a class="reference internal" href="#authentication">Authentication</a><ul>
+<li><a class="reference internal" href="#simple-authentication-modules">Simple Authentication Modules</a></li>
+<li><a class="reference internal" href="#enabling-implicit-logon">Enabling Implicit Logon</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#entitlement">Entitlement</a><ul>
+<li><a class="reference internal" href="#entitlement-caching">Entitlement Caching</a></li>
+<li><a class="reference internal" href="#regular-expression-subscriptions">Regular Expression Subscriptions</a></li>
+<li><a class="reference internal" href="#content-filtered-entitlements">Content Filtered Entitlements</a></li>
+<li><a class="reference internal" href="#entitlement-select-lists">Entitlement Select Lists</a></li>
+<li><a class="reference internal" href="#message-queues">Message Queues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#entitlements-for-a-sow-regularexpressiontopic">Entitlements for a <code class="docutils literal"><span class="pre">SOW/RegularExpressionTopic</span></code></a><ul>
+<li><a class="reference internal" href="#disabling-entitlement">Disabling Entitlement</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#providing-an-identity-for-outbound-connections-authenticator">Providing an Identity for Outbound Connections (Authenticator)</a></li>
+<li><a class="reference internal" href="#protecting-data-in-transit-using-tls-ssl">Protecting Data in Transit Using TLS/SSL</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="operation.html" title="previous chapter">26. Operation and Deployment</a></li>
+      <li>Next: <a href="troubleshooting.html" title="next chapter">28. Troubleshooting AMPS</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="securing-amps">
+<span id="ug-securing"></span><span id="index-0"></span><h1>27. Securing AMPS<a class="headerlink" href="#securing-amps" title="Permalink to this headline">¶</a></h1>
+<p>One of the most important considerations when using AMPS in production
+is keeping your data safe. This means both ensuring that subscribers
+only have access to the data that they are allowed to have and that only
+authorized publishers are allowed to publish messages into the system.
+This chapter describes the mechanisms within AMPS to protect access to
+AMPS resources through client, administrative, and replication
+connections.</p>
+<p>In this chapter, we describe the AMPS security infrastructure and
+present general information about securing an AMPS installation. AMPS
+uses a plugin model for providing authentication and entitlement, and
+allows a great deal of freedom in how a given module implements
+security checks. This chapter discusses the concepts, principles, and
+guarantees that AMPS provides. The specific steps and configuration you
+use to secure an installation of AMPS depend on the plugin you use to
+secure AMPS.</p>
+<p>There are three aspects to securing connections to AMPS:</p>
+<ul class="simple">
+<li>Authentication assigns an identity to a connection and verifies that
+identity</li>
+<li>Entitlement enforces permission to access AMPS and read or write AMPS
+resources based on the identity assigned to a connection</li>
+<li>The AMPS process may also need to provide credentials to another AMPS
+instance (for example, to secure outgoing replication)</li>
+</ul>
+<p>AMPS installations typically create custom plugins for securing AMPS.
+These plugins integrate with the enterprise authentication and
+entitlement system, and are designed to enforce the policies for the
+specific site. For more information on developing modules for use with
+AMPS, contact 60East support for the AMPS Server SDK.</p>
+<p>The AMPS distribution includes an auxiliary module that contacts a web
+service for authentication and entitlement. This module is described in
+the section <a class="reference internal" href="auxiliary_modules.html#ug-auth-module"><span class="std std-ref">Authentication and Entitlement using a Web Service</span></a>.</p>
+<p>The AMPS distribution also contains an entitlement module that can
+be used to restrict access to specific topics for all users. This
+module is described in the section <a class="reference internal" href="auxiliary_modules.html#ug-simple-access"><span class="std std-ref">Entitlement with the Simple Access Module</span></a>.</p>
+<p>For applications that need to connect with an existing Kerberos or LDAP system
+for authentication, the AMPS includes an auxiliary module that can use either a Kerberos or LDAP system for authentication. This module is described in the section <a class="reference internal" href="auxiliary_modules.html#ug-multi-authentication"><span class="std std-ref">Authentication With the AMPS Multimechanism Authentication Module</span></a>.</p>
+<p>If an installation uses Kerberos for replication security, the AMPS server must be able to provide a kerberos token to authenticate itself to a downstream instance. For this situation, the AMPS distribution includes an authenticator that can provide Kerberos tokens, as described in the section <a class="reference internal" href="auxiliary_modules.html#ug-multi-authenticator"><span class="std std-ref">Providing Replication Credentials With the AMPS Multimechanism Authenticator Module</span></a>.</p>
+<div class="section" id="authentication">
+<span id="ug-authentication"></span><span id="index-1"></span><h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
+<p>The first part of securing AMPS is developing a strategy to verify the
+identity of connected clients. AMPS maintains an identity for each
+client connection, and uses that identity for entitlement requests. Once
+an identity is assigned to a connection, that identity stays the same
+for the lifetime of the connection. If an application needs to use
+different identities to work with AMPS, that application needs to make a
+separate connection for each identity.</p>
+<p>There are two ways that AMPS assigns an identity to a client:</p>
+<ol class="arabic simple">
+<li>When an application explicitly sends a <code class="docutils literal"><span class="pre">logon</span></code> command, AMPS uses
+the credentials in the message for the authentication process. If
+authentication is successful, AMPS associates the user name provided
+in the initial logon with the connection. If authentication fails,
+AMPS closes the connection.</li>
+<li>When an application issues any other command after connecting but
+before sending a <code class="docutils literal"><span class="pre">logon</span></code> command, AMPS treats this as an <em>implicit</em>
+logon and begins the authentication process with an empty user name
+and password. If authentication is successful, AMPS associates an
+empty user name with the connection. If authentication fails, AMPS
+closes the connection. AMPS does not allow implicit logon by default
+in 5.0 and later versions. However, you can enable implicit logon as
+described below.</li>
+</ol>
+<p>In both cases, authentication occurs through the AMPS security
+infrastructure.</p>
+<p>When authenticating a client, AMPS locates the authentication module in
+use for client&#8217;s transport (or, for the admin interface, the special
+<code class="docutils literal"><span class="pre">amps-admin</span></code> transport). If there is an authentication module
+specified for that <code class="docutils literal"><span class="pre">Transport</span></code>, AMPS uses that module. Otherwise, the
+transport uses an instance of the authentication module specified for
+the instance. When the configuration for the instance doesn&#8217;t include an
+instance level authentication module, the default module for the
+transport is <code class="docutils literal"><span class="pre">amps-default-authentication-module</span></code>, which requires a
+logon, but accepts any user name and password provided and sets the
+authenticated user name to an empty string.</p>
+<p>Once AMPS has located the module instance, AMPS provides the user name
+and the password to that instance of the module. The module can accept
+the credentials, reject the credentials, or return a challenge that the
+application must respond to. When the module returns a challenge, the
+connection remains unauthenticated until the application requesting
+authentication responds to the challenge and the module accepts the
+response.</p>
+<p>For most production systems, AMPS security is integrated with the
+overall security fabric of the organization. 60East provides the <em>AMPS
+Server SDK</em> to help developers create authentication modules that
+implement the unique policies and procedures required by a particular
+organization.</p>
+<p>AMPS does not, itself, enforce an explicit timeout on the authentication
+process. However, the thread used to authenticate is managed by AMPS, so
+if the authentication process takes an extended period of time, AMPS
+may report a potentially stuck thread or (in extreme cases) prompt a
+server shutdown. 60East recommends that the authentication process
+complete as quickly as possible, especially since the authentication
+process will limit how quickly clients can connect to AMPS. The process
+should generally be subsecond if possible, and 60East recommends that the
+process not take longer than 30 seconds, even if the authentication
+server is under load.</p>
+<div class="section" id="simple-authentication-modules">
+<h3>Simple Authentication Modules<a class="headerlink" href="#simple-authentication-modules" title="Permalink to this headline">¶</a></h3>
+<p>AMPS includes three simple authentication modules in the AMPS
+distribution. These modules provide very simple policies for
+authentication, and are most useful in testing and development
+environments.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Module</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps-default-authentication-module</span></code></td>
+<td>Allows any user name and password.
+Does not allow implicit logon by
+default. Does not provide the user
+name to AMPS by default.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps-implicit-authentication-module</span></code></td>
+<td>Allows any user name and password.
+Allows implicit logon by default.
+Does not provide the user name to
+AMPS by default.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps-default-no-authentication-module</span></code></td>
+<td>Does not allow authentication
+regardless of the username and
+password provided. This can be
+useful for testing application
+behavior when logon is denied, or
+for setting a policy for the
+instance that individual transports
+must override.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 27.1:</strong> <em>Simple Authentication Modules</em></p>
+</div>
+<div class="section" id="enabling-implicit-logon">
+<h3>Enabling Implicit Logon<a class="headerlink" href="#enabling-implicit-logon" title="Permalink to this headline">¶</a></h3>
+<p>60East recommends using explicit logon commands in your applications
+wherever possible, and the default authentication module disallows
+implicit logons. For backward compatibility with older versions of AMPS,
+AMPS includes the <code class="docutils literal"><span class="pre">amps-implicit-authentication-module</span></code> which allows
+implicit logon to restore the behavior of the previous AMPS versions. To
+use the <code class="docutils literal"><span class="pre">amps-implicit-authentication-module</span></code> for all of the
+transports in the instance, set the instance-level Authentication to use
+this module, as shown below:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+  ...
+  <span class="nt">&lt;Authentication&gt;</span>
+     <span class="nt">&lt;Module&gt;</span>amps-implicit-authentication-module<span class="nt">&lt;/Module&gt;</span>
+  <span class="nt">&lt;/Authentication&gt;</span>
+  ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="entitlement">
+<span id="ug-entitlement"></span><span id="index-2"></span><h2>Entitlement<a class="headerlink" href="#entitlement" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS entitlement system controls access to individual resources in
+AMPS. Each entitlement request consists of a user, a specific action,
+and, where applicable, the type of resource and the resource name. For
+example, an entitlement request might arrive for the user <code class="docutils literal"><span class="pre">Janice</span></code> to
+<code class="docutils literal"><span class="pre">write</span></code> (that is, publish) to the <code class="docutils literal"><span class="pre">topic</span></code> named
+<code class="docutils literal"><span class="pre">/orders/northamerica</span></code>. Another entitlement request might be for the
+user <code class="docutils literal"><span class="pre">Phil</span></code> to <code class="docutils literal"><span class="pre">logon</span></code> to the instance. A third request might be for
+the user <code class="docutils literal"><span class="pre">Jill</span></code> to <code class="docutils literal"><span class="pre">read</span></code> (that is, subscribe or run a SOW query)
+from the topic named <code class="docutils literal"><span class="pre">/orders/pacific/palau</span></code>.</p>
+<p>When checking entitlements, AMPS locates the entitlement module in use
+for the Transport that the client is connecting on (or, for the Admin
+interface, the special <code class="docutils literal"><span class="pre">amps-admin</span></code> transport). If there is an
+entitlement module specified for the Transport, AMPS uses that module.
+Otherwise, AMPS uses an instance of the entitlement module specified for
+the instance. When the configuration file for the instance doesn&#8217;t
+specify an instance-level entitlement module, the default module for the
+transport is <code class="docutils literal"><span class="pre">amps-default-entitlement-module</span></code>, which allows all
+permissions for any user.</p>
+<p>AMPS caches the results of the entitlement check until the cache
+is explicitly reset, the transport is disabled, entitlements
+are disabled and re-enabled, or the AMPS server restarts. You can clear the
+entitlement cache for all users using the AMPS Administrative Actions.
+You can clear the entitlement cache for a single user using the AMPS
+external API. When the entitlement cache is cleared, AMPS disconnects
+the user. This ensures that, when the user reconnects, the user only has
+access to resources that match the current set of entitlements.</p>
+<p>AMPS checks entitlements for a command when processing the command, and
+does not recheck permissions after the command is processed. For
+example, when <code class="docutils literal"><span class="pre">Jill</span></code> subscribes to <code class="docutils literal"><span class="pre">/orders/pacific/palau</span></code>, AMPS
+checks entitlements when creating the subscription. If the entitlement
+check returns an entitlement content filter, AMPS includes that
+entitlement filter on the subscription. Once the subscription has been
+created, AMPS applies the filter as a part of the standard filtering
+process, but AMPS does not check entitlements for the subscription as
+further messages arrive.</p>
+<p id="index-3">The following table lists the resource types that AMPS provides:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Resource Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">logon</span></code></td>
+<td>Permission to log on to the AMPS instance</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">replication_logon</span></code></td>
+<td>Permission to log on to the AMPS instance as a
+replication source</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">topic</span></code></td>
+<td>Permission to receive from or publish to a
+specific topic</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">admin</span></code></td>
+<td>Permission to read admin statistics or perform
+admin functions from the web interface</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 27.2:</strong> <em>AMPS Entitlement Resource Types</em></p>
+<p>For the <code class="docutils literal"><span class="pre">topic</span></code> and <code class="docutils literal"><span class="pre">admin</span></code> resource types, AMPS also provides the
+name of the resource and whether the request is to <code class="docutils literal"><span class="pre">read</span></code> the resource
+or <code class="docutils literal"><span class="pre">write</span></code> to the resource.</p>
+<p>The table below shows how AMPS commands translate to entitlement types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">AMPS Command</th>
+<th class="head">Entitlement Type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><p class="first"><code class="docutils literal"><span class="pre">delta_subscribe</span></code>,</p>
+<p><code class="docutils literal"><span class="pre">sow</span></code>, <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>,</p>
+<p class="last"><code class="docutils literal"><span class="pre">subscribe</span></code>,
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code></p>
+</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+</tr>
+<tr class="row-odd"><td><p class="first"><code class="docutils literal"><span class="pre">delta_publish</span></code>, <code class="docutils literal"><span class="pre">publish</span></code>,</p>
+<p class="last"><code class="docutils literal"><span class="pre">sow_delete</span></code></p>
+</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+</tr>
+<tr class="row-even"><td><em>commands received over replication</em></td>
+<td><code class="docutils literal"><span class="pre">replication</span> <span class="pre">allowed</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 27.3:</strong> <em>Entitlement Types for Commands</em></p>
+<div class="section" id="entitlement-caching">
+<h3>Entitlement Caching<a class="headerlink" href="#entitlement-caching" title="Permalink to this headline">¶</a></h3>
+<p>AMPS does not present a request to the entitlement module each time that
+an entitlement check is needed. Instead, AMPS presents the request the
+first time the entitlement is needed, and then caches the results from
+the module for subsequent entitlement checks. This improves performance,
+although it also means that when a module that reads entitlements from
+an external source (such as a central directory of permissions) that may
+change without requiring a restart of the AMPS instance, that module
+will need to establish a policy for resetting the entitlement cache.</p>
+</div>
+<div class="section" id="regular-expression-subscriptions">
+<h3>Regular Expression Subscriptions<a class="headerlink" href="#regular-expression-subscriptions" title="Permalink to this headline">¶</a></h3>
+<p>Each request from AMPS is for a specific resource name. When a client
+requests a regular expression subscription, AMPS makes a request for
+each topic that matches the subscription at the point that AMPS has a
+message to deliver for that topic. For example, if the user <code class="docutils literal"><span class="pre">Nina</span></code>
+enters a subscription for <code class="docutils literal"><span class="pre">/parts/(mechanical|electrical)</span></code>, AMPS will
+make a request to the entitlement module for <code class="docutils literal"><span class="pre">/parts/mechanical</span></code> when
+there is a message to deliver for that topic, and will make a separate
+request for <code class="docutils literal"><span class="pre">/parts/electrical</span></code> when there is a message to deliver for
+that topic.</p>
+</div>
+<div class="section" id="content-filtered-entitlements">
+<h3>Content Filtered Entitlements<a class="headerlink" href="#content-filtered-entitlements" title="Permalink to this headline">¶</a></h3>
+<p>The entitlement system offers the ability to enforce content
+restrictions on subscriptions. When AMPS requests <code class="docutils literal"><span class="pre">read</span></code> access to a
+<code class="docutils literal"><span class="pre">topic</span></code>, the module that performs entitlement can also return a filter
+to AMPS. This filter is evaluated independently of any filter on the
+subscription, and messages must match both the subscription filter and
+the filter provided by the entitlement to be returned to the
+application. If a message does not match the entitlement filter, the
+message is not delivered, regardless of whether the message matches the
+filters provided by the application.</p>
+<p>AMPS also offers the ability to enforce content restrictions on
+<code class="docutils literal"><span class="pre">publish</span></code> commands. When AMPS requests <code class="docutils literal"><span class="pre">write</span></code> access to a
+<code class="docutils literal"><span class="pre">topic</span></code>, the module that performs entitlement can return a filter to
+AMPS. This filter is then evaluated against messages published to that
+topic by that user. If the message being published matches the filter,
+AMPS allows the message. Otherwise, AMPS rejects the message. For
+<code class="docutils literal"><span class="pre">delta_publish</span></code> commands, the content filter applies to the incoming
+delta message rather than the existing message in the SOW or the
+merged message that is the result of the <code class="docutils literal"><span class="pre">delta_publish</span></code>.</p>
+<p>For <code class="docutils literal"><span class="pre">sow_delete</span></code> commands, content filtered entitlements apply to the
+message being removed. If the message to be removed matches the content
+filter, AMPS allows the delete. Otherwise, AMPS refuses to delete the message.</p>
+<p>A <code class="docutils literal"><span class="pre">sow_delete</span></code> command can specify a regular expression topic,
+which can match multiple topics. In this case, AMPS applies the
+permissions and entitlement filter for each topic before deleting
+messages in that topic. For example, in an instance that keeps
+the State of the World for topics <code class="docutils literal"><span class="pre">T1</span></code>, <code class="docutils literal"><span class="pre">T2</span></code>, and <code class="docutils literal"><span class="pre">T3</span></code>, a
+<code class="docutils literal"><span class="pre">sow_delete</span></code> command that specifies <code class="docutils literal"><span class="pre">^T.$</span></code> as the topic would
+match all three of those topics. For this command, AMPS will apply
+check write entitlements for <code class="docutils literal"><span class="pre">T1</span></code> and apply the entitlement filter
+for topic <code class="docutils literal"><span class="pre">T1</span></code> to the delete from that topic, check write entitlements
+for <code class="docutils literal"><span class="pre">T2</span></code> and apply the entitlement filter for <code class="docutils literal"><span class="pre">T2</span></code> to deletes from
+thta topic, and check the write entitlements for <code class="docutils literal"><span class="pre">T3</span></code> and apply the
+write entitlement filter for <code class="docutils literal"><span class="pre">T3</span></code> to deletes from that topic. The
+topics that the delete applies to, and the entitlement filters applied,
+are stored in the transaction log.</p>
+</div>
+<div class="section" id="entitlement-select-lists">
+<h3>Entitlement Select Lists<a class="headerlink" href="#entitlement-select-lists" title="Permalink to this headline">¶</a></h3>
+<p>For <code class="docutils literal"><span class="pre">read</span></code> entitlements, AMPS also allows the ability to restrict access
+to specific fields of a message. In this case, the entitlement module returns
+a <em>select list</em>. That select list will be applied to all messages delivered on
+that topic for that user.</p>
+<p>When both a content filter and a select list are provided, the content filter
+is applied before the select list is applied. This means that an entitlement
+system can filter on fields that a given user is not allowed to view.</p>
+<p>As with content filters in entitlements, an entitlement select list is
+evaluated independently of any select list provided by the subscriber.
+An entitlement select list is evaluated <em>before</em> a select list
+provided by the subscriber, and the subscriber select list applies
+to the output of the entitlement select list.</p>
+<p>The following table shows some examples:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="21%" />
+<col width="25%" />
+<col width="28%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Message</td>
+<td>Entitlement
+Select
+List</td>
+<td>Subscriber
+Select
+List</td>
+<td>Result</td>
+</tr>
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="o">-/</span><span class="n">a</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="o">+/</span><span class="n">a</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="o">-/</span><span class="p">,</span><span class="o">+/</span><span class="n">b</span>
+</pre></div>
+</div>
+</td>
+<td>(none)</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+   <span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+   <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+       <span class="p">{</span><span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+
+        <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;c3&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="o">-/</span><span class="p">,</span><span class="o">+/</span><span class="n">b</span><span class="p">,</span><span class="o">+/</span><span class="n">c</span><span class="o">/</span><span class="n">c2</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="o">-/</span><span class="p">,</span><span class="o">+/</span><span class="n">c</span><span class="o">/</span><span class="n">c1</span><span class="p">,</span><span class="o">+/</span><span class="n">c</span><span class="o">/</span><span class="n">c2</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span>
+      <span class="p">{</span><span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">}}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="message-queues">
+<h3>Message Queues<a class="headerlink" href="#message-queues" title="Permalink to this headline">¶</a></h3>
+<p>Message queues, since they are implemented as views over topics in the
+transaction log, present a special situation for the AMPS entitlement
+system in two ways. First, receiving a message from a queue implies that
+the subscriber has the ability to modify the contents of the queue.
+Second, a queue can specify a <code class="docutils literal"><span class="pre">DefaultPublishTopic</span></code> to receive
+publishes.</p>
+<p>The AMPS entitlement system treats queues differently than other topics
+as follows:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">read</span></code> entitlement on a queue also grants a user the ability to
+delete (acknowledge) messages from the queue. No other write permissions
+are implied.</li>
+<li><code class="docutils literal"><span class="pre">write</span></code> entitlement on a queue grants the ability to publish to the
+queue, even in cases where AMPS translates that publish to the
+<code class="docutils literal"><span class="pre">DefaultPublishTopic</span></code> configured for the queue. No other
+permissions are implied. In particular, granting the <code class="docutils literal"><span class="pre">write</span></code>
+entitlement on a queue does not grant any entitlements on the
+<code class="docutils literal"><span class="pre">DefaultPublishTopic</span></code> directly: even though the message is
+delivered to the <code class="docutils literal"><span class="pre">DefaultPublishTopic</span></code>, the <code class="docutils literal"><span class="pre">publish</span></code> command
+must publish to the queue topic.</li>
+</ul>
+<p>In all other respects, entitlements for message queues behave in the
+same way as entitlements for any other topic.</p>
+</div>
+</div>
+<div class="section" id="entitlements-for-a-sow-regularexpressiontopic">
+<span id="ug-regular-expression-entitlements"></span><h2>Entitlements for a <code class="docutils literal"><span class="pre">SOW/RegularExpressionTopic</span></code><a class="headerlink" href="#entitlements-for-a-sow-regularexpressiontopic" title="Permalink to this headline">¶</a></h2>
+<p>As described in the section on regular expression
+topics, entitlements for a regular expression topic
+are applied to the regular expression topic as a
+whole. When entitlements are checked for a regular
+expression topic, AMPS provides the <code class="docutils literal"><span class="pre">Pattern</span></code>
+for the regular expression topic to the entitlement
+system. AMPS uses the permissions returned for that
+<code class="docutils literal"><span class="pre">Pattern</span></code> for every topic in the
+<code class="docutils literal"><span class="pre">RegularExpressionTopic</span></code>.</p>
+<p>AMPS does not support providing different entitlements
+to individual topics within a <code class="docutils literal"><span class="pre">RegularExpressionTopic</span></code>.</p>
+<div class="section" id="disabling-entitlement">
+<span id="ug-entitlement-disable"></span><span id="index-4"></span><h3>Disabling Entitlement<a class="headerlink" href="#disabling-entitlement" title="Permalink to this headline">¶</a></h3>
+<p>When AMPS starts, the entitlement system is always enabled. AMPS provides an administrative action,
+<code class="docutils literal"><span class="pre">amps-do-disable-entitlements</span></code> (see <a class="reference internal" href="actions.html#ug-actions-do-security"><span class="std std-ref">Manage Security</span></a>), that disables the
+entitlement system until AMPS is restarted, or the system is explicitly re-enabled with
+an action.</p>
+<p>When the entitlement system is disabled:</p>
+<ul class="simple">
+<li>AMPS no longer checks new requests for entitlements with the configured entitlement module</li>
+<li>All entitlement requests succeed (even requests for operations that have previously been disallowed)</li>
+<li>AMPS does not cache the entitlement results for any operation</li>
+</ul>
+<p>Notice that this means that all subscriptions succeed, no entitlement filters or entitlement
+select lists are applied to new subscriptions, and so on. In effect, any time that AMPS would
+check the entitlement cache or query the entitlement module, the operation immediately
+succeeds with full permissions.</p>
+<p>Disabling entitlements is designed to help mitigate failures in the entitlement system
+(including external systems that manage entitlements), allowing an administrator to maintain
+system availability at the cost of allowing full access to AMPS. This is most commonly used
+in shared development instances that are simultaneously doing application development and
+testing while working on updates to the set of allowable actions and/or the entitlement
+system itself.</p>
+<p>Entitlements can be re-enabled with the <code class="docutils literal"><span class="pre">amps-action-do-enable-entitlements</span></code> action (see
+<a class="reference internal" href="actions.html#ug-actions-do-security"><span class="std std-ref">Manage Security</span></a>). When entitlements are re-enabled, AMPS:</p>
+<ul class="simple">
+<li>Initializes new entitlement contexts for the instance and destroys previous contexts</li>
+<li>Clears the entitlement cache</li>
+<li>Again consults the entitlement module or the entitlement cache for new requests</li>
+</ul>
+<p>Notice that when entitlements are re-enabled, AMPS <em>does not</em> validate the current client
+logons or the current subscriptions to determine if the entitlement policy allows those
+logons or subscriptions. Likewise, AMPS <em>does not</em> update entitlement filters or
+entitlement select lists when entitlements are re-enabled. Unlike an entitlement
+reset, AMPS does not disconnect connected clients when the entitlement system is
+re-enabled. This means that any existing client connections are maintained (whether or
+not they would be allowed with the entitlement system enabled) and any existing
+subscriptions are maintained (whether or not they would be allowed with the
+entitlement system enabled).</p>
+<p>60East recommends running an entitlement reset (see <a class="reference internal" href="actions.html#ug-actions-do-security"><span class="std std-ref">Manage Security</span></a>) after re-enabling
+entitlement to ensure that all connections and subscriptions use the current entitlement policy. Otherwise,
+the state of connections and subscriptions may not match the current policy. This can lead to a client
+receiving messages that it is not currently entitled to (if the current policy is more restrictive than
+when the connection and subscription were created), or not receiving messages that it is currently
+entitled to (if the current policy is less restrictive than when the connection and subscription were
+created).</p>
+</div>
+</div>
+<div class="section" id="providing-an-identity-for-outbound-connections-authenticator">
+<span id="ug-authenticator"></span><span id="index-5"></span><h2>Providing an Identity for Outbound Connections (Authenticator)<a class="headerlink" href="#providing-an-identity-for-outbound-connections-authenticator" title="Permalink to this headline">¶</a></h2>
+<p>For outgoing replication connections, AMPS may need to provide an
+identity and credentials to the replication destination. AMPS uses a
+module type called an authenticator to provide those credentials and
+handle any challenge/response protocol required by the authentication
+module in the remote system.</p>
+<p>AMPS provides a default authenticator module,
+<code class="docutils literal"><span class="pre">amps-default-authenticator-module</span></code>, that is automatically configured
+as the Authenticator for the instance if no other instance Authenticator
+is provided. This module provides a user name with no password. To
+determine the user provided to AMPS, the module uses the value of the
+User option to the module if one is provided. Otherwise, the module uses
+the current user of the AMPS process: if the current user cannot be
+determined by the system, the module falls back to the value of the
+<code class="docutils literal"><span class="pre">USER</span></code> environment variable.</p>
+<p>The <code class="docutils literal"><span class="pre">amps-default-authenticator-module</span></code> provides the ability to send
+a specific password (available in version 5.3.0.0 and higher). To provide
+a specific password, use one of the following options:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Password</span></code></td>
+<td>Provide the contents of this option as the password.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PasswordFileName</span></code></td>
+<td>Read the password from the specified filename.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PasswordEnvironmentVariable</span></code></td>
+<td>Read the password from the specified environment variable.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 27.4:</strong> <em>Password Options for Simple Authenticator Module</em></p>
+<p>The Authenticator used for a replication Destination must provide
+credentials that are accepted by the Transport of the remote instance
+that the Destination is connecting to. See the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a>
+for information on configuring the Authenticator for a Destination.</p>
+<p>If an installation uses Kerberos for replication security, the AMPS server
+must be able to provide a kerberos token to authenticate itself to
+a downstream instance. For this situation, the AMPS distribution
+includes an authenticator that can provide Kerberos tokens, as
+described in the section <a class="reference internal" href="auxiliary_modules.html#ug-multi-authenticator"><span class="std std-ref">Providing Replication Credentials With the AMPS Multimechanism Authenticator Module</span></a>. The
+multi-authenticator also provides the ability to provide
+credentials to an LDAP server, with functionality similar
+to the <code class="docutils literal"><span class="pre">amps-default-authenticator-module</span></code>.</p>
+</div>
+<div class="section" id="protecting-data-in-transit-using-tls-ssl">
+<h2>Protecting Data in Transit Using TLS/SSL<a class="headerlink" href="#protecting-data-in-transit-using-tls-ssl" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides the ability to use Secure Sockets Layer (SSL)/
+Transport Layer Security (TLS) connections for communication with AMPS
+clients. See the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a> and the documentation for the AMPS clients for
+details.</p>
+<p>AMPS uses TLS to encrypt network traffic between clients and servers. No
+information about the transport is passed to the AMPS authentication and
+entitlement system. Encryption at the network level is completely
+independent of the AMPS authentication and entitlement system, and these
+features can be used independently.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this version of AMPS, a transport configured to use TLS
+defaults to accepting only TLS version 1.1 and TLS version 1.2
+protocols. It is possible to enable older protocols using the
+<code class="docutils literal"><span class="pre">SecureSocketProtocols</span></code> configuration directive. 60East
+recommends using the default settings unless there is a
+specific reason to enable older protocols and the security
+implications of enabling older protocols are well understood.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,11 @@
+package Test;
+
+option java_package = "com.example.test";
+option java_outer_classname = "Samples";
+
+message Order {
+  optional string CustomerName = 1;
+  optional string Address = 2 [default = '123 ABC Street'];
+  required int32 CustomerId = 3;
+  repeated string Product = 4;
+}

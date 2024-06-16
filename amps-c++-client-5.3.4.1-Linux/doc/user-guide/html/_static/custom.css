@@ -1,0 +1,161 @@
+.sphinxsidebar {
+    overflow: scroll !important;
+    height: 100%;
+}
+
+.logo {
+    margin:auto;
+    width: 75%;
+}
+
+
+div.body h2 {
+	border-top: 1.5ex solid #7ccadb !important;
+	padding-top: .75ex;
+	border-bottom: .5px solid grey !important;
+	padding-bottom: .75ex;
+	font-weight: 570;
+}
+
+div.body h3 {
+	border-top: .5px solid darkgrey !important;
+	padding-top: 1.25ex;
+	font-weight: 570;
+}
+
+div.body h4 {
+	border-top: .25px solid grey !important;
+	padding-top: 1.25ex;
+	font-weight: 525;
+	font-style: italic;
+}
+
+div.body h5 {
+        border-top: .25px solid lightgrey !important;
+	padding-top: 1ex;
+	font-weight: 525;
+	font-style: italic;
+}
+
+/*
+div.tip#title:before {
+	content: url("../_images/tip.svg");
+	width: 25%;
+	border-radius: 2em;
+}
+*/
+
+div.tip:before {
+	content: url("../_images/tip.png");
+	border-radius: 20em;
+        margin-right: 1em;
+        /*border-bottom-style: groove;*/
+	display: flex;
+	align-items: center;
+	float: left;
+}
+
+div.tip {
+	background: ivory;
+	border-style: ridge;
+}
+
+
+div.caution:before {
+	content: url("../_images/caution.png");
+	border-radius: 20em;
+	margin-right: 1em;
+	display: flex;
+	align-items: center;
+	float: left;
+}
+
+div.caution {
+	background: mistyrose;
+	border-style: ridge;
+}
+
+
+div.req::before {
+	content: "Required";
+        display: table-cell;
+	border-radius: 25em;
+        border: 2px solid #73AD21;
+        background: #e6ffe6;
+        background-image: linear-gradient(0deg, #00FF00, transparent);
+        padding: 2px; 
+        margin: 1px;
+        font-size: x-small;
+        font-family: 'Tahoma', sans-serif;
+}
+
+div.req
+{
+	font-family:'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+	background: #d1d1e0;
+}
+
+
+div.important:before {
+	content: url("../_images/important.png");
+        border-radius: 20em;
+        margin-right: 1em;
+	display: flex;
+	align-items: center;
+	float: left;
+}
+
+div.important {
+	background-color: #e6fff2;
+	border-style: ridge;
+}
+
+
+
+div.warning:before {
+	content: url("../_images/warning.png");
+	border-radius: 20em;
+        margin-right: 1em;
+	display: flex;
+	align-items: center;
+	float: left;
+}
+
+div.warning {
+	background: #f7bcbc;
+	border-style: ridge;
+}
+
+
+
+
+div.bodywrapper:before {
+   display: block;
+   content: "PRE-RELEASE DOCUMENTATION: DO NOT USE";
+   color: white;
+   font-size: 20px;
+   font-weight: 900;
+   text-align: center;
+   background: darkred;
+   margin: 10px;
+   padding: 10px;
+   border-radius: 5px;
+   width: 100%;
+   position: relative;
+}
+
+div.bodywrapper:after {
+   display: block;
+   content: "PRE-RELEASE DOCUMENTATION: DO NOT USE";
+   color: white;
+   font-size: 20px;
+   font-weight: 900;
+   text-align: center;
+   background: darkred;
+   margin: 10px;
+   padding: 10px;
+   border-radius: 5px;
+   width: 100%;
+   position: relative;
+}
+

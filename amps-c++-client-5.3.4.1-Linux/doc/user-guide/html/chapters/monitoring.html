@@ -1,0 +1,716 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>23. Monitoring Interface &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="24. Automating AMPS With Actions" href="actions.html" />
+    <link rel="prev" title="22. Utilities" href="utilities.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">23. Monitoring Interface</a><ul>
+<li><a class="reference internal" href="#statistics-collection">Statistics Collection</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#basic-monitoring-interface">Basic Monitoring Interface</a><ul>
+<li><a class="reference internal" href="#historical-time-based-selection">Historical Time Based Selection</a><ul>
+<li><a class="reference internal" href="#time-based-query-behavior">Time Based Query Behavior</a></li>
+<li><a class="reference internal" href="#leaf-nodes">Leaf Nodes</a></li>
+<li><a class="reference internal" href="#non-leaf-nodes">Non-Leaf Nodes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#output-formatting">Output Formatting</a><ul>
+<li><a class="reference internal" href="#xml-document-output">XML Document Output</a></li>
+<li><a class="reference internal" href="#csv-document-output">CSV Document Output</a></li>
+<li><a class="reference internal" href="#id2">Leaf Nodes</a></li>
+<li><a class="reference internal" href="#id3">Non-Leaf Nodes</a></li>
+<li><a class="reference internal" href="#json-document-output">JSON Document Output</a></li>
+<li><a class="reference internal" href="#rnc-document-output">RNC Document Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#galvanometer">Galvanometer</a><ul>
+<li><a class="reference internal" href="#using-tls-ssl-with-galvanometer">Using TLS/SSL with Galvanometer</a></li>
+<li><a class="reference internal" href="#authorization-and-entitlement-in-galvanometer">Authorization and Entitlement in Galvanometer</a><ul>
+<li><a class="reference internal" href="#using-anonymous-paths">Using Anonymous Paths</a></li>
+<li><a class="reference internal" href="#make-replication-page-work-with-ntlm-negotiate-authentication">Make Replication Page Work with NTLM / Negotiate Authentication</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#enabling-queries-and-subscriptions-in-galvanometer">Enabling Queries and Subscriptions in Galvanometer</a></li>
+<li><a class="reference internal" href="#queries-and-subscriptions-with-basic-auth-in-galvanometer">Queries and Subscriptions with Basic Auth in Galvanometer</a></li>
+<li><a class="reference internal" href="#disabling-galvanometer">Disabling Galvanometer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="utilities.html" title="previous chapter">22. Utilities</a></li>
+      <li>Next: <a href="actions.html" title="next chapter">24. Automating AMPS With Actions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="index-0"></span><div class="section" id="monitoring-interface">
+<span id="ug-monitoring"></span><h1>23. Monitoring Interface<a class="headerlink" href="#monitoring-interface" title="Permalink to this headline">¶</a></h1>
+<p>The AMPS monitoring interface has two distinct components:</p>
+<ol class="arabic simple">
+<li>A basic monitoring interface that provides statistics for the AMPS instance
+in common machine-readable formats. This interface also provides
+administrative functions, such as enabling and disabling transports,
+disconnecting clients, and upgrading and downgrading replication links.</li>
+<li>The AMPS <em>Galvanometer</em>, a browser-based monitoring tool that shows a
+graphical representation of the statistics for AMPS. The Galvanometer
+includes information about replication flow across the set of connected
+instances. It includes the ability to enter subscriptions and queries,
+and display the results in a grid.</li>
+</ol>
+<div class="section" id="statistics-collection">
+<h2>Statistics Collection<a class="headerlink" href="#statistics-collection" title="Permalink to this headline">¶</a></h2>
+<p>Most data provided in the AMPS monitoring interface is collected at
+the interval specified in the statistics configuration.</p>
+<p>This means that the statistics presented are not a continuous sample,
+or a sample when &#8220;all operations are complete&#8221;. Instead, the statistics
+reflect the point in time when the statistics are collected.</p>
+<p>When monitoring statistics, consider not only the values reported, but
+the change in values over time and how those values compare to other
+values.</p>
+<p>For example, the <code class="docutils literal"><span class="pre">transport_rx_queue</span></code> for a client connecting
+over the network indicates the number of bytes currently in the TCP
+buffer for a given connection. However, a single sample that shows
+a nonzero count for this metric simply means that, at the time
+statistics were collected, there were bytes in that buffer. Whether
+this indicates a problem or not depends on the context. If the
+next sample for that client shows that AMPS is consuming a large
+number of bytes for the client, then the fact that there are
+bytes in the queue simply means that the connection is active. On
+the other hand, if the <code class="docutils literal"><span class="pre">bytes_in</span></code> (total bytes consumed for
+this connection) and <code class="docutils literal"><span class="pre">bytes_in_per_second</span></code> (bytes per second
+consumed for this connection, averaged over the last statistics
+interval) indicate a slowdown, that might be cause for concern.
+Likewise, an empty <code class="docutils literal"><span class="pre">transport_rx_queue</span></code> does not mean that
+no messages are being received for the client if <code class="docutils literal"><span class="pre">bytes_in</span></code>
+and <code class="docutils literal"><span class="pre">bytes_in_per_second</span></code> show the expected traffic.</p>
+<p>Likewise, a client that connects, runs a query, consumes
+the results and disconnects in a period of time less than
+the statistics interval, may not be captured in the statistics
+database at all. If the client connection does not exist
+at any of the times that statistics are recorded, AMPS will not
+capture statistics for that client connection, so that client
+will not appear in the statistics database.</p>
+</div>
+<div class="section" id="configuration">
+<span id="monitoring-configuration"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS monitoring interface is defined in the configuration file used
+on AMPS start up. Below is an example configuration of the <code class="docutils literal"><span class="pre">Admin</span></code>
+tag.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Configure the monitoring interface: this</span>
+<span class="c">     starts an http server in the AMPS process. --&gt;</span>
+
+<span class="nt">&lt;Admin&gt;</span>
+    <span class="nt">&lt;FileName&gt;</span>stats.db<span class="nt">&lt;/FileName&gt;</span>
+    <span class="nt">&lt;InetAddr&gt;</span>localhost:8085<span class="nt">&lt;/InetAddr&gt;</span>
+    <span class="nt">&lt;Interval&gt;</span>10s<span class="nt">&lt;/Interval&gt;</span>
+<span class="nt">&lt;/Admin&gt;</span>
+</pre></div>
+</div>
+<p>In this example <code class="docutils literal"><span class="pre">localhost</span></code> is the hostname and <code class="docutils literal"><span class="pre">8085</span></code> is the port
+assigned to the monitoring interface.  With this configuration:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>http://localhost:8085/</td>
+<td>Root URI for Galvanometer.</td>
+</tr>
+<tr class="row-even"><td>http://localhost:8085/amps</td>
+<td>Root URI for simple monitoring
+interface.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal"><span class="pre">Interval</span></code> tag is used to set the update interval for the AMPS
+monitoring interface. In this example, statistics will be updated every
+10 seconds.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">By default, AMPS will store the monitoring interface database
+information in system memory. If
+the AMPS instance is going to be up for a long time, or the
+monitoring interface statistics interval will be updated
+frequently, or if this is a production system where it is
+important to be able to troubleshoot problems, it is strongly
+recommended that the <code class="docutils literal"><span class="pre">FileName</span></code>
+setting be specified to allow persistence of the data to a local
+file. See the <a class="reference external" href="../../../configuration/html/index.html">AMPS Configuration Reference</a> for more
+information.</p>
+</div>
+<p>The basic monitoring interface is accessible through a web browser, but also
+follows a Representational State Transfer (RESTful) URI style for
+programmatic traversal of the directory structure of the monitoring
+interface.</p>
+</div>
+<div class="section" id="basic-monitoring-interface">
+<span id="index-2"></span><h2>Basic Monitoring Interface<a class="headerlink" href="#basic-monitoring-interface" title="Permalink to this headline">¶</a></h2>
+<p>The basic monitoring interface is useful for examining many important aspects
+about an AMPS instance. This includes health and monitoring information for
+the AMPS engine as well as the host AMPS is running on. All of this information
+is designed to be easily accessible to make gathering performance and
+availability information from AMPS easy. The monitoring interface also
+provides easy access to perform administrative actions.</p>
+<p>The root of the AMPS Monitoring interface URI contains the following child resources:</p>
+<ul class="simple">
+<li>The <code class="docutils literal"><span class="pre">host</span></code> resource provides information about the current operating system state</li>
+<li>The <code class="docutils literal"><span class="pre">instance</span></code> resource provides information about the instance of AMPS</li>
+<li>The <code class="docutils literal"><span class="pre">administration</span></code> resource provides access to functions that modify the state of the instance (such as disconnecting a client)</li>
+</ul>
+<p>The information in the monitoring database is taken from the statistics
+database for the AMPS instance. AMPS provides actions for managing the
+statistics database, as described in the section on Actions, under
+<a class="reference internal" href="actions.html#ug-actions-do-stats"><span class="std std-ref">Manage the Statistics Database</span></a>.</p>
+<p>The fields provided through the basic monitoring interface (and the statistics database) are described in the
+<a class="reference external" href="../../../monitoring/html/index.html">AMPS Monitoring Reference</a>.</p>
+<div class="section" id="historical-time-based-selection">
+<span id="monitoring-timerange"></span><h3>Historical Time Based Selection<a class="headerlink" href="#historical-time-based-selection" title="Permalink to this headline">¶</a></h3>
+<p id="index-3">AMPS keeps a history of the monitoring interface statistics, and allows
+that data to be queried. By selecting a leaf node of the monitoring
+interface resources, a time-based query can be constructed to view a
+historical report of the information.</p>
+<p>A time-based query is created by appending either one or both of the
+<code class="docutils literal"><span class="pre">t0</span></code> or <code class="docutils literal"><span class="pre">t1</span></code> query parameters to a url of the admin REST interface.</p>
+<p>For example, if an administrator wanted to see the number of messages
+per second consumed by all processors from midnight UTC on November 30, 2011
+until 23:25:00 UTC on November 30, 2011, then pointing a browser to:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all/messages_received_per_sec?t0=20111130T0&amp;t1=20111130T232500</span></code></p>
+<p>will generate the report and output it in the following plain text
+format (note: entire dataset is not presented, but is truncated).</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="mi">20111130</span><span class="n">T000000</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20111130</span><span class="n">T000010</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20111130</span><span class="n">T000020</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20111130</span><span class="n">T000030</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">94244</span>
+<span class="mi">20111130</span><span class="n">T000040</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">304661</span>
+<span class="mi">20111130</span><span class="n">T000050</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">301078</span>
+<span class="mi">20111130</span><span class="n">T000100</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">308922</span>
+<span class="mi">20111130</span><span class="n">T000110</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">306177</span>
+<span class="mi">20111130</span><span class="n">T000120</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">302140</span>
+<span class="mi">20111130</span><span class="n">T000130</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">302390</span>
+<span class="mi">20111130</span><span class="n">T000140</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">307637</span>
+<span class="mi">20111130</span><span class="n">T000150</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">310109</span>
+<span class="mi">20111130</span><span class="n">T000200</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">309888</span>
+<span class="mi">20111130</span><span class="n">T000210</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">299993</span>
+<span class="mi">20111130</span><span class="n">T000220</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">310002</span>
+<span class="mi">20111130</span><span class="n">T000230</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">300612</span>
+<span class="mi">20111130</span><span class="n">T000240</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">299387</span>
+</pre></div>
+</div>
+<p>All times used for the report generation and presentation are
+ISO-8601 formatted. ISO-8601 formatting is of the following
+form: <code class="docutils literal"><span class="pre">YYYYMMDDThhmmss</span></code>, where <code class="docutils literal"><span class="pre">YYYY</span></code> is the year, <code class="docutils literal"><span class="pre">MM</span></code> is
+the month, <code class="docutils literal"><span class="pre">DD</span></code> is the year, <code class="docutils literal"><span class="pre">T</span></code> is a separator between the
+date and time, <code class="docutils literal"><span class="pre">hh</span></code> is the hours, <code class="docutils literal"><span class="pre">mm</span></code> is the minutes and
+<code class="docutils literal"><span class="pre">ss</span></code> is the seconds. Decimals are permitted after the <code class="docutils literal"><span class="pre">ss</span></code>
+units.</p>
+<p>All times used for the report generation and presentation are
+stored and returned in UTC time.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">As discussed in the following sections, the date-time range can
+be used with plain text (html), comma-separated values (csv),
+json, and XML formats.</p>
+</div>
+<div class="section" id="time-based-query-behavior">
+<h4>Time Based Query Behavior<a class="headerlink" href="#time-based-query-behavior" title="Permalink to this headline">¶</a></h4>
+<p>All times used for the <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code> parameters <strong>must be</strong>
+ISO-8601 formatted. ISO-8601 formatting is of the following
+form: <code class="docutils literal"><span class="pre">YYYYMMDDThhmmss</span></code>, where <code class="docutils literal"><span class="pre">YYYY</span></code> is the year, <code class="docutils literal"><span class="pre">MM</span></code> is
+the month, <code class="docutils literal"><span class="pre">DD</span></code> is the year, <code class="docutils literal"><span class="pre">T</span></code> is a separator between the
+date and time, <code class="docutils literal"><span class="pre">hh</span></code> is the hours, <code class="docutils literal"><span class="pre">mm</span></code> is the minutes and
+<code class="docutils literal"><span class="pre">ss</span></code> is the seconds. Decimals are permitted after the <code class="docutils literal"><span class="pre">ss</span></code>
+units.</p>
+<p>All times used for the <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code> parameters <strong>must be</strong>
+in UTC time. All times in the admin interface are stored
+and compared in UTC time.</p>
+<p>The behavior of time based queries is affected by the
+combination of the <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code> query parameters.
+These behaviors are described in the table below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Query Parameter Values</th>
+<th class="head">Behavior</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Only <code class="docutils literal"><span class="pre">t0</span></code> is set</td>
+<td>The result set is the list of values recorded
+from time <code class="docutils literal"><span class="pre">t0</span></code> until the latest recorded
+admin interval. The range is inclusive.</td>
+</tr>
+<tr class="row-odd"><td>Only <code class="docutils literal"><span class="pre">t1</span></code> is set</td>
+<td>The result set is the list of values recorded
+from the first admin interval recorded in the
+stats.db of the AMPS instance until time <code class="docutils literal"><span class="pre">t1</span></code>.
+The range is inclusive.</td>
+</tr>
+<tr class="row-even"><td>Both <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code> are set
+to <em>different</em> timestamp values</td>
+<td>The result set is the list of values recorded
+starting from time <code class="docutils literal"><span class="pre">t0</span></code> until time <code class="docutils literal"><span class="pre">t1</span></code>.
+This range is inclusive.</td>
+</tr>
+<tr class="row-odd"><td>Both <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code> are set
+to <em>the same</em> timestamp value</td>
+<td><p class="first">Returns a single value that represents the
+recorded value of that statistic at the
+specific admin interval set by
+<code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code>.</p>
+<div class="last admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Unlike the other time query behaviors,
+<code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code> <strong>must be</strong> set to a
+<a class="reference external" href="../../../monitoring/html/chapters/instance-interface.html#timestamp">Valid admin interval timestamps</a>. Valid timestamps can be
+obtained via the instance/timestamp admin
+API endpoint.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="leaf-nodes">
+<h4>Leaf Nodes<a class="headerlink" href="#leaf-nodes" title="Permalink to this headline">¶</a></h4>
+<p>A leaf node of the monitoring interface represents a single recorded statistic.
+Leaf nodes <strong>fully support</strong> time-range selections using the <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code>
+parameters as described above.</p>
+<p>Examples of leaf node endpoints include:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all/messages_received_per_sec</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/transaction_log/write_latency</span></code></p>
+</div>
+<div class="section" id="non-leaf-nodes">
+<h4>Non-Leaf Nodes<a class="headerlink" href="#non-leaf-nodes" title="Permalink to this headline">¶</a></h4>
+<p>A non-leaf node represents an aggregate of related statistics.
+Non-leaf nodes <strong>do not support</strong> time-range selections.</p>
+<p>Non-leaf nodes support historical queries for a specific
+valid historical admin interval timestamp.
+A query for a specific timestamp is achieved by setting the <code class="docutils literal"><span class="pre">t0</span></code> and <code class="docutils literal"><span class="pre">t1</span></code>
+parameters to the same timestamp value as described above.</p>
+<p>Examples of non-leaf node endpoints include:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/transaction_log</span></code></p>
+</div>
+</div>
+<div class="section" id="output-formatting">
+<span id="monitoring-output-format"></span><h3>Output Formatting<a class="headerlink" href="#output-formatting" title="Permalink to this headline">¶</a></h3>
+<p id="index-4">The AMPS monitoring interface offers several possible output formats to
+ease the consumption of monitoring reporting data. The possible options
+are XML, CSV and RNC output formats, each of which is discussed in more
+detail below.</p>
+<div class="section" id="xml-document-output">
+<h4>XML Document Output<a class="headerlink" href="#xml-document-output" title="Permalink to this headline">¶</a></h4>
+<p id="index-5">All monitoring interface resources can have the current node, along with
+all child nodes, list its output as an XML document by appending the
+<code class="docutils literal"><span class="pre">.xml</span></code> file extension to the end of the resource name. For example, if
+an administrator would like to have an XML document of all of the
+currently running processors, including all the relevant statistics about
+those processors, then the following URI will generate that information:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all.xml</span></code></p>
+<p>The document that is returned will be similar to the following:</p>
+<div class="highlight-XML"><div class="highlight"><pre><span></span><span class="nt">&lt;amps&gt;</span>
+    <span class="nt">&lt;instance&gt;</span>
+        <span class="nt">&lt;processors&gt;</span>
+            <span class="nt">&lt;processor</span> <span class="na">id=</span><span class="s">&#39;all&#39;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;denied_reads&gt;</span>0<span class="nt">&lt;/denied_reads&gt;</span>
+                <span class="nt">&lt;denied_writes&gt;</span>0<span class="nt">&lt;/denied_writes&gt;</span>
+                <span class="nt">&lt;description&gt;</span>AMPS Aggregate Processor Stats<span class="nt">&lt;/description&gt;</span>
+                <span class="nt">&lt;last_active&gt;</span>1855<span class="nt">&lt;/last_active&gt;</span>
+                <span class="nt">&lt;matches_found&gt;</span>0<span class="nt">&lt;/matches_found&gt;</span>
+                <span class="nt">&lt;matches_found_per_sec&gt;</span>0<span class="nt">&lt;/matches_found_per_sec&gt;</span>
+                <span class="nt">&lt;messages_received&gt;</span>0<span class="nt">&lt;/messages_received&gt;</span>
+                <span class="nt">&lt;messages_received_per_sec&gt;</span>0<span class="nt">&lt;/messages_received_per_sec&gt;</span>
+                <span class="nt">&lt;throttle_count&gt;</span>0<span class="nt">&lt;/throttle_count&gt;</span>
+            <span class="nt">&lt;/processor&gt;</span>
+        <span class="nt">&lt;/processors&gt;</span>
+    <span class="nt">&lt;/instance&gt;</span>
+<span class="nt">&lt;/amps&gt;</span>
+</pre></div>
+</div>
+<p>Appending the <code class="docutils literal"><span class="pre">.xml</span></code> file extension to any AMPS monitoring interface
+resource will generate the corresponding XML document.</p>
+</div>
+<div class="section" id="csv-document-output">
+<h4>CSV Document Output<a class="headerlink" href="#csv-document-output" title="Permalink to this headline">¶</a></h4>
+<p id="index-6">The <code class="docutils literal"><span class="pre">.csv</span></code> file extension can be appended to any <strong>leaf node</strong>
+resource to have a CSV file generated to examine those values.</p>
+<p>This can also be coupled with the time range selection to generate reports.
+See <a class="reference internal" href="#monitoring-timerange"><span class="std std-ref">Historical Time Based Selection</span></a> for more details
+on time range selection.</p>
+<p>Below is a sample of the <code class="docutils literal"><span class="pre">.csv</span></code> output from the monitoring interface
+from the following URL:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all/matches_found_per_sec.csv?t0=20230830T0</span></code></p>
+<p>This resource will create a file with the following contents:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="mi">20230830</span><span class="n">T000000</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">94244</span>
+<span class="mi">20230830</span><span class="n">T000010</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">304661</span>
+<span class="mi">20230830</span><span class="n">T000020</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">301078</span>
+<span class="mi">20230830</span><span class="n">T000030</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">304661</span>
+<span class="mi">20230830</span><span class="n">T000040</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20230830</span><span class="n">T000050</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20230830</span><span class="n">T000100</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20230830</span><span class="n">T000110</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20230830</span><span class="n">T000120</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">302390</span>
+<span class="mi">20230830</span><span class="n">T000130</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">307637</span>
+<span class="mi">20230830</span><span class="n">T000140</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20230830</span><span class="n">T000150</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">20230830</span><span class="n">T000200</span><span class="mf">.000000</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h4>Leaf Nodes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>A leaf node of the monitoring interface represents a single recorded statistic.
+Leaf nodes <strong>do support</strong> CSV document output.</p>
+<p>Examples of leaf node endpoints include:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all/messages_received_per_sec</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/transaction_log/write_latency</span></code></p>
+</div>
+<div class="section" id="id3">
+<h4>Non-Leaf Nodes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>A non-leaf node represents an aggregate of related statistics.
+Non-leaf nodes <strong>do not support</strong> CSV document output.
+Due to the limitations of the tabular format of CSV, there is no clear way
+to translate the hierarchical structure of a non-leaf node into a CSV document.</p>
+<p>Examples of non-leaf node endpoints include:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/processors/all</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/instance/transaction_log</span></code></p>
+</div>
+<div class="section" id="json-document-output">
+<span id="index-7"></span><h4>JSON Document Output<a class="headerlink" href="#json-document-output" title="Permalink to this headline">¶</a></h4>
+<p>All monitoring interface resources can have the current node, along with
+all child nodes, list its output as a JSON document by appending the
+<code class="docutils literal"><span class="pre">.json</span></code> file extension to the end of the resource name. For example,
+if an administrator would like to have a JSON document of all of the
+CPUs on the server, including all the relevant statistics about those
+CPUs, then the following URI will generate that information:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:8085/amps/host/cpus.json</span></code></p>
+<p>The document that is returned will be similar to the following:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;amps&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;host&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;cpus&quot;</span><span class="o">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;idle_percent&quot;</span><span class="o">:</span><span class="s2">&quot;62.452316076294&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;iowait_percent&quot;</span><span class="o">:</span><span class="s2">&quot;0.490463215259&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;system_percent&quot;</span><span class="o">:</span><span class="s2">&quot;10.681198910082&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;user_percent&quot;</span><span class="o">:</span><span class="s2">&quot;26.376021798365&quot;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;cpu0&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;idle_percent&quot;</span><span class="o">:</span><span class="s2">&quot;75.417130144605&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;iowait_percent&quot;</span><span class="o">:</span><span class="s2">&quot;0.333704115684&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;system_percent&quot;</span><span class="o">:</span><span class="s2">&quot;7.563959955506&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;user_percent&quot;</span><span class="o">:</span><span class="s2">&quot;16.685205784205&quot;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;cpu1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;idle_percent&quot;</span><span class="o">:</span><span class="s2">&quot;50.000000000000&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;iowait_percent&quot;</span><span class="o">:</span><span class="s2">&quot;0.642398286938&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;system_percent&quot;</span><span class="o">:</span><span class="s2">&quot;13.597430406852&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;user_percent&quot;</span><span class="o">:</span><span class="s2">&quot;35.760171306210&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Appending the <code class="docutils literal"><span class="pre">.json</span></code> file extension to any AMPS monitoring interface
+resource will generate the corresponding JSON document.</p>
+</div>
+<div class="section" id="rnc-document-output">
+<h4>RNC Document Output<a class="headerlink" href="#rnc-document-output" title="Permalink to this headline">¶</a></h4>
+<p id="index-8">AMPS supports generation of an XML schema via the Relax NG Compact (RNC)
+specification language. To generate an RNC file, enter the following URL
+in a browser:</p>
+<p><code class="docutils literal"><span class="pre">http://localhost:port/amps.rnc</span></code></p>
+<p>AMPS will display the RNC schema.</p>
+<p>To convert the RNC schema into an XML schema, first save the RNC output
+to a file:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="o">%&gt;</span> <span class="n">wget</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">9090</span><span class="o">/</span><span class="n">amps</span><span class="o">.</span><span class="n">rnc</span>
+</pre></div>
+</div>
+<p>The output can then be converted to an xml schema using Trang (available
+at <a class="reference external" href="http://code.google.com/p/jing-trang/">http://code.google.com/p/jing-trang/</a>) with:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">trang</span> <span class="o">-</span><span class="n">I</span> <span class="n">rnc</span> <span class="o">-</span><span class="n">O</span> <span class="n">xsd</span> <span class="n">amps</span><span class="o">.</span><span class="n">rnc</span> <span class="n">amps</span><span class="o">.</span><span class="n">xsd</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="galvanometer">
+<span id="ug-galvanometer"></span><h2>Galvanometer<a class="headerlink" href="#galvanometer" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS Galvanometer provides an extensive set of visualizations of the state
+of the instance. Galvanometer also provides the ability to query the instance
+and display the results.</p>
+<div class="section" id="using-tls-ssl-with-galvanometer">
+<h3>Using TLS/SSL with Galvanometer<a class="headerlink" href="#using-tls-ssl-with-galvanometer" title="Permalink to this headline">¶</a></h3>
+<p>When the <code class="docutils literal"><span class="pre">Admin</span></code> interface is configured to use TLS/SSL, Galvanometer will
+also use TLS/SSL with the certificate and key file specified.</p>
+<p>For the replication graph to be correctly displayed, the instances
+that replicate to each other must either <em>all</em> use TLS/SSL for the Admin interface
+or <em>none</em> of the instances can use TLS/SSL for the Admin interface.</p>
+<p>If some of the instances in the replication graph use TLS/SSL for the Admin
+interface and some do not, the information shown in the replication graph
+will be incomplete.</p>
+</div>
+<div class="section" id="authorization-and-entitlement-in-galvanometer">
+<span id="ug-galvanometer-subscribe"></span><h3>Authorization and Entitlement in Galvanometer<a class="headerlink" href="#authorization-and-entitlement-in-galvanometer" title="Permalink to this headline">¶</a></h3>
+<p>In order to enable Galvanometer to provide credentials to the AMPS
+instance (in case it is required to access AMPS monitoring information),
+the special <code class="docutils literal"><span class="pre">WWWAuthenticate</span></code> option is supported. This option
+specifies how credentials will be provided to AMPS.</p>
+<p>The option can have the following values:</p>
+<ul class="simple">
+<li>Negotiate (Kerberos)</li>
+<li>NTLM</li>
+<li>Basic realm=&#8221;&lt;SECURITY_DOMAIN&gt;&#8221; (Basic Auth)</li>
+</ul>
+<p>When using <code class="docutils literal"><span class="pre">Negotiate</span></code> or <code class="docutils literal"><span class="pre">NTLM</span></code>, Galvanometer will automatically
+supply corresponding authorization tokens to AMPS. If <code class="docutils literal"><span class="pre">Basic</span> <span class="pre">Auth</span></code>
+is used for authorization, the Login/Password dialog will require a
+user to enter credentials.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Admin&gt;</span>
+    ...
+
+    <span class="nt">&lt;WWWAuthenticate&gt;</span>Basic realm=&quot;AMPS Admin&quot;<span class="nt">&lt;/WWWAuthenticate&gt;</span>
+
+    ...
+<span class="nt">&lt;/Admin&gt;</span>
+</pre></div>
+</div>
+<div class="section" id="using-anonymous-paths">
+<span id="ug-anonymous-paths"></span><h4>Using Anonymous Paths<a class="headerlink" href="#using-anonymous-paths" title="Permalink to this headline">¶</a></h4>
+<p>The <code class="docutils literal"><span class="pre">AnonymousPaths</span></code> option allows Galvanometer to bypass authentication
+and/or entitlement for Admin paths that match a regular expression. For
+resources that match the <code class="docutils literal"><span class="pre">AnonymousPaths</span></code> option, the Admin interface
+does not require authentication and does not check entitlements.</p>
+<p>The most common use of <code class="docutils literal"><span class="pre">AnonymousPaths</span></code> is to allow Galvanometer to correctly
+display the replication graph when the instance is configured to use <code class="docutils literal"><span class="pre">Negotiate</span></code>
+or <code class="docutils literal"><span class="pre">NTLM</span></code> for authorization.  Galvanometer determines the replication graph
+by polling the instances that participate in replication. Since most browsers
+disallow sending cross-domain authorization tokens, it is necessary to provide
+access to replication paths without requiring authorization for Galvanometer to
+be able to display the replication graph. For installations that use <code class="docutils literal"><span class="pre">Negotiate</span></code>
+or <code class="docutils literal"><span class="pre">NTLM</span></code>, Galvanometer may not be allowed to construct a replication graph if this
+option is not set.</p>
+<p><code class="docutils literal"><span class="pre">AnonymousPaths</span></code> can also be used to provide access to a specific resource, without
+allowing access to any other information in the Admin interface. For example, an
+instance might specify <code class="docutils literal"><span class="pre">^/amps$</span></code> for unauthenticated users to be able to
+verify that the instance is running and processing Admin requests, but without
+allowing those users to obtain any other data about the instance.</p>
+<p>The following example shows how to add an <code class="docutils literal"><span class="pre">AnonymousPaths</span></code> directive that
+allows any connection to access replication information about the instance.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Admin&gt;</span>
+   <span class="c">&lt;!-- ... other configuration here ... --&gt;</span>
+
+   <span class="c">&lt;!--  Specify anonymous paths. In this</span>
+<span class="c">         case, allow any user to access replication</span>
+<span class="c">         information --&gt;</span>
+
+   <span class="nt">&lt;AnonymousPaths&gt;</span>^/amps/instance/replication<span class="nt">&lt;/AnonymousPaths&gt;</span>
+<span class="nt">&lt;/Admin&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">AnonymousPaths</span></code> option is <strong>disabled</strong> by default.</p>
+</div>
+<div class="section" id="make-replication-page-work-with-ntlm-negotiate-authentication">
+<h4>Make Replication Page Work with NTLM / Negotiate Authentication<a class="headerlink" href="#make-replication-page-work-with-ntlm-negotiate-authentication" title="Permalink to this headline">¶</a></h4>
+<p>When using <code class="docutils literal"><span class="pre">Negotiate</span></code> or <code class="docutils literal"><span class="pre">NTLM</span></code> for authorization and/or entitlement,
+it prevents Galvanometer from correctly displaying replication graphs by forbidding
+access to destination instances of AMPS since most browsers disallow sending
+cross-domain authorization tokens that are required in order to authorize AJAX
+data requests from a browser.</p>
+</div>
+</div>
+<div class="section" id="enabling-queries-and-subscriptions-in-galvanometer">
+<span id="index-9"></span><h3>Enabling Queries and Subscriptions in Galvanometer<a class="headerlink" href="#enabling-queries-and-subscriptions-in-galvanometer" title="Permalink to this headline">¶</a></h3>
+<p>Much of the functionality available in Galvanometer uses the basic monitoring
+interface.</p>
+<p>Galvanometer submits queries and subscriptions to AMPS using the <code class="docutils literal"><span class="pre">websocket</span></code>
+protocol. To use these functions in Galvanometer, you must provide the name
+of a <code class="docutils literal"><span class="pre">Transport</span></code> of type <code class="docutils literal"><span class="pre">websocket</span></code> for Galvanometer to use.</p>
+<p>For example, the following directive specifies that Galvanometer will use
+the <code class="docutils literal"><span class="pre">Transport</span></code> with the <code class="docutils literal"><span class="pre">Name</span></code> of <code class="docutils literal"><span class="pre">websocket-any</span></code> to submit commands
+to AMPS.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Admin&gt;</span>
+   <span class="c">&lt;!-- ... existing configuration ... --&gt;</span>
+
+   <span class="c">&lt;!-- look up the transport named websocket-any in</span>
+<span class="c">        this config file, and make connections to</span>
+<span class="c">        that Transport for sending commands to AMPS --&gt;</span>
+   <span class="nt">&lt;SQLTransport&gt;</span>websocket-any<span class="nt">&lt;/SQLTransport&gt;</span>
+<span class="nt">&lt;/Admin&gt;</span>
+</pre></div>
+</div>
+<p>The configuration block above requires that the AMPSConfig file contains a
+<code class="docutils literal"><span class="pre">Transport</span></code> with the <code class="docutils literal"><span class="pre">Name</span></code> of <code class="docutils literal"><span class="pre">websocket-any</span></code> of <code class="docutils literal"><span class="pre">Type</span></code> <code class="docutils literal"><span class="pre">websocket</span></code>.</p>
+<p>When this configuration item is specified, Galvanometer will enable the query
+and subscription capabilities, and submit commands to AMPS over the specified
+<code class="docutils literal"><span class="pre">Transport</span></code>.</p>
+<p>For example, the <code class="docutils literal"><span class="pre">websocket-any</span></code> transport referenced in the snippet
+above might be defined as follows:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Transports&gt;</span>
+   <span class="c">&lt;!-- ...</span>
+<span class="c">        existing transports remain --&gt;</span>
+
+    <span class="nt">&lt;Transport&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>websocket-any<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Protocol&gt;</span>websocket<span class="nt">&lt;/Protocol&gt;</span>
+        <span class="nt">&lt;Type&gt;</span>tcp<span class="nt">&lt;/Type&gt;</span>
+        <span class="nt">&lt;InetAddr&gt;</span>9008<span class="nt">&lt;/InetAddr&gt;</span>
+    <span class="nt">&lt;/Transport&gt;</span>
+
+<span class="nt">&lt;/Transports&gt;</span>
+</pre></div>
+</div>
+<p>Notice that Galvanometer connects as a client using this <code class="docutils literal"><span class="pre">Transport</span></code>. There
+is no special transport or protocol for Galvanometer, and the security
+configured for the instance (or the <code class="docutils literal"><span class="pre">Transport</span></code>) applies to Galvanometer.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">If the <code class="docutils literal"><span class="pre">Transport</span></code> is configured to use TLS/SSL, it must use certificates
+signed by a certificate authority (CA) known to the browser that will be used
+to access AMPS. For security reasons, browsers disallow self-signed certificates by
+default. This means that, although a client application may be able to connect,
+a browser will not allow a websocket connection to a transport that uses a
+self-signed certificate.</p>
+</div>
+</div>
+<div class="section" id="queries-and-subscriptions-with-basic-auth-in-galvanometer">
+<h3>Queries and Subscriptions with Basic Auth in Galvanometer<a class="headerlink" href="#queries-and-subscriptions-with-basic-auth-in-galvanometer" title="Permalink to this headline">¶</a></h3>
+<p>When Basic Auth is used for authorization and entitlement, an additional
+option <code class="docutils literal"><span class="pre">TrustedAdmin</span></code> allows Galvanometer to use a valid session
+cookie created after successful authorization for queries and subscriptions.
+This option forces AMPS to reuse credentials supplied by Galvanometer
+for websocket connections created by Galvanometer.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Protocols&gt;</span>
+
+    ...
+
+    <span class="nt">&lt;Protocol&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>websocket-portal<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Module&gt;</span>websocket<span class="nt">&lt;/Module&gt;</span>
+
+        <span class="c">&lt;!-- disabled by default --&gt;</span>
+        <span class="nt">&lt;TrustedAdmin&gt;</span>enabled<span class="nt">&lt;/TrustedAdmin&gt;</span>
+
+    <span class="nt">&lt;/Protocol&gt;</span>
+
+    ...
+
+<span class="nt">&lt;/Protocols&gt;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">TrustedAdmin</span></code> is only supported by the websocket-based protocols
+and is <strong>disabled</strong> by default.</p>
+</div>
+<div class="section" id="disabling-galvanometer">
+<span id="index-10"></span><h3>Disabling Galvanometer<a class="headerlink" href="#disabling-galvanometer" title="Permalink to this headline">¶</a></h3>
+<p>Galvanometer is enabled in the monitoring interface by default. To disable
+Galvanometer, add the following directive to the <code class="docutils literal"><span class="pre">Admin</span></code> configuration
+block:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Admin&gt;</span>
+   <span class="c">&lt;!-- ... existing configuration ... --&gt;</span>
+   <span class="nt">&lt;Galvanometer&gt;</span>disabled<span class="nt">&lt;/Galvanometer&gt;</span>
+<span class="nt">&lt;/Admin&gt;</span>
+</pre></div>
+</div>
+<p>Disabling Galvanometer with this configuration item has no effect on the basic
+monitoring interface.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

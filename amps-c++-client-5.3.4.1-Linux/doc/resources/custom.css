@@ -1,0 +1,9 @@
+.sphinxsidebar {
+    overflow: scroll !important;
+    height: 100%;
+}
+
+.logo {
+    margin:auto;
+    width: 75%;
+}

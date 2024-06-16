@@ -1,0 +1,2181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Querying and Subscribing &#8212; Advanced Message Processing System (AMPS) Command Reference develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. Removing Messages" href="removing.html" />
+    <link rel="prev" title="3. Publishing to AMPS" href="publishing.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. Querying and Subscribing</a><ul>
+<li><a class="reference internal" href="#delta-subscribe">delta_subscribe</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#header-fields">Header Fields</a></li>
+<li><a class="reference internal" href="#options-field">Options Field</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-and-delta-subscribe">sow_and_delta_subscribe</a><ul>
+<li><a class="reference internal" href="#id1">Description</a></li>
+<li><a class="reference internal" href="#id2">Header Fields</a></li>
+<li><a class="reference internal" href="#id3">Options Field</a></li>
+<li><a class="reference internal" href="#id4">Returns</a><ul>
+<li><a class="reference internal" href="#topicmatches">TopicMatches</a></li>
+<li><a class="reference internal" href="#matches">Matches</a></li>
+<li><a class="reference internal" href="#recordsreturned">RecordsReturned</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow-and-subscribe">sow_and_subscribe</a><ul>
+<li><a class="reference internal" href="#id6">Description</a></li>
+<li><a class="reference internal" href="#id7">Header Fields</a></li>
+<li><a class="reference internal" href="#id8">Returns</a><ul>
+<li><a class="reference internal" href="#id9">TopicMatches</a></li>
+<li><a class="reference internal" href="#id10">Matches</a></li>
+<li><a class="reference internal" href="#id11">RecordsReturned</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id12">Options Field</a></li>
+<li><a class="reference internal" href="#id13">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#subscribe">subscribe</a><ul>
+<li><a class="reference internal" href="#id14">Description</a></li>
+<li><a class="reference internal" href="#id15">Header Fields</a></li>
+<li><a class="reference internal" href="#id16">Options Field</a></li>
+<li><a class="reference internal" href="#id17">Returns</a></li>
+<li><a class="reference internal" href="#id18">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sow">sow</a><ul>
+<li><a class="reference internal" href="#id19">Description</a></li>
+<li><a class="reference internal" href="#id20">Header Fields</a></li>
+<li><a class="reference internal" href="#id21">Options Field</a></li>
+<li><a class="reference internal" href="#id22">Returns</a><ul>
+<li><a class="reference internal" href="#id23">TopicMatches</a></li>
+<li><a class="reference internal" href="#id24">Matches</a></li>
+<li><a class="reference internal" href="#id25">RecordsReturned</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id26">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#unsubscribe">unsubscribe</a><ul>
+<li><a class="reference internal" href="#id27">Description</a></li>
+<li><a class="reference internal" href="#id28">Header Fields</a></li>
+<li><a class="reference internal" href="#id29">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="publishing.html" title="previous chapter">3. Publishing to AMPS</a></li>
+      <li>Next: <a href="removing.html" title="next chapter">5. Removing Messages</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="querying-and-subscribing">
+<h1>4. Querying and Subscribing<a class="headerlink" href="#querying-and-subscribing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="delta-subscribe">
+<h2>delta_subscribe<a class="headerlink" href="#delta-subscribe" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">delta_subscribe</span></code> command is like the <code class="docutils literal"><span class="pre">subscribe</span></code> command except
+that subscriptions placed through <code class="docutils literal"><span class="pre">delta_subscribe</span></code> will receive only
+messages that have changed between the SOW record and the new update.</p>
+<p>If <code class="docutils literal"><span class="pre">delta_subscribe</span></code> is used on a topic which does not have a SOW
+store defined, then <code class="docutils literal"><span class="pre">delta_subscribe</span></code> behaves like a <code class="docutils literal"><span class="pre">subscribe</span></code>
+command.</p>
+</div>
+<div class="section" id="header-fields">
+<h3>Header Fields<a class="headerlink" href="#header-fields" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-delta-sub-header-field"><span class="std std-ref">Table 4.1</span></a>
+contains the header fields available to a <code class="docutils literal"><span class="pre">delta_subscribe</span></code> command.</p>
+<table border="1" class="docutils" id="command-delta-sub-header-field">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>Command to be executed. Value: <code class="docutils literal"><span class="pre">delta_publish</span></code></td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Topic with which to place a subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the <code class="docutils literal"><span class="pre">delta_subscribe</span></code>
+command. Value is a comma separated list of one
+or more of the following: <code class="docutils literal"><span class="pre">none</span></code>,
+<code class="docutils literal"><span class="pre">received</span></code>, <code class="docutils literal"><span class="pre">processed</span></code>, <code class="docutils literal"><span class="pre">completed</span></code> or
+<code class="docutils literal"><span class="pre">stats</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CommandId</span></code></td>
+<td>If specified with an AMPS command requesting an
+acknowledgment message, all requested
+acknowledgment messages will contain the
+<code class="docutils literal"><span class="pre">CommandId</span></code> in the acknowledgment response
+header.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">DataOnly</span></code></td>
+<td>A Boolean (<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>) used to
+determine the type of data sent to the
+subscriber. A value of <code class="docutils literal"><span class="pre">true</span></code> will, for
+example, not include a SOAP envelope.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>String which is used as a content filter
+expression. When using XML, the filter must be
+wrapped in a <code class="docutils literal"><span class="pre">CDATA</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma separated list of flags available to the
+<code class="docutils literal"><span class="pre">subscribe</span></code> command.
+<a class="reference internal" href="#command-delta-subscribe-options"><span class="std std-ref">Table 3.2</span></a>
+describes the <code class="docutils literal"><span class="pre">Options</span></code> available for use in
+the <code class="docutils literal"><span class="pre">delta-subscribe</span></code> command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SendEmpty</span></code></td>
+<td>Boolean (<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>) value used to
+determine whether empty messages which are
+published will be forwarded to matching
+subscriptions. The default value is <code class="docutils literal"><span class="pre">true</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SendSubscriptionIds</span></code></td>
+<td>Boolean (<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>) subscription
+identifiers will not be sent for all matched
+messages if set to <code class="docutils literal"><span class="pre">false</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SubscriptionId</span></code></td>
+<td><p class="first">The subscription ID for this command. When
+provided with a new subscription, this is the
+identifier that AMPS will use for the
+subscription. When provided with the <code class="docutils literal"><span class="pre">replace</span></code>
+option, this field specifies the subscription to
+replace. When provided with a <code class="docutils literal"><span class="pre">pause</span></code> or
+<code class="docutils literal"><span class="pre">resume</span></code> option, this field specifies the
+subscriptions to pause or resume.</p>
+<p class="last">For a new subscription, the AMPS clients will
+generate a subscription ID if one is not
+provided.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>A bookmark specifying the point in the
+transaction log at which to start the
+subscription. If the topic provided is not
+recorded in a transaction log, AMPS enters the
+subscription without replaying messages. You can
+provide a single bookmark, or a comma-delimited
+list of bookmarks. When a list is provided, AMPS
+starts the subscription at the earliest bookmark
+in the list.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.1:</strong> <em>Header fields supported by delta_subscribe</em></p>
+</div>
+<div class="section" id="options-field">
+<h3>Options Field<a class="headerlink" href="#options-field" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-delta-subscribe-options"><span class="std std-ref">Table 4.2</span></a>
+contains a list of the <code class="docutils literal"><span class="pre">Options</span></code> available and
+their definitions when used in the AMPS <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code>
+command.</p>
+<table border="1" class="docutils" id="command-delta-subscribe-options">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>This is the default <code class="docutils literal"><span class="pre">Options</span></code> type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bookmark</span></code></td>
+<td><p class="first">Specifies that the subscription should return
+bookmarks, if available, on each publish
+message. Bookmarks are only available if the
+topic that is subscribed to is recorded in the
+transaction log.</p>
+<p>Notice that this option does not set the
+starting point for a bookmark subscription: use
+the <code class="docutils literal"><span class="pre">Bookmark</span></code> header for that purpose.</p>
+<p class="last">This option is not required to receive bookmarks
+for a bookmark subscription. Those subscriptions
+always include bookmarks on each publish message.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">conflation=n</span></code></td>
+<td><p class="first">Specifies whether to conflate this
+subscription.The value provided can be a time
+interval, <code class="docutils literal"><span class="pre">auto</span></code>, or <code class="docutils literal"><span class="pre">none</span></code></p>
+<p>When present and set to a value other than none,
+enables conflation for the subscription.</p>
+<p>Can also be set to <code class="docutils literal"><span class="pre">auto</span></code>, which requests that
+AMPS attempt to determine an appropriate
+conflation interval based on client consumption.</p>
+<p>Recognizes the same time specifiers used in the
+AMPS configuration file (for example, <code class="docutils literal"><span class="pre">100ms</span></code>
+or <code class="docutils literal"><span class="pre">1s</span></code> or <code class="docutils literal"><span class="pre">1m</span></code>).</p>
+<p class="last">Defaults to <code class="docutils literal"><span class="pre">none</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">conflation_key=[key]</span></code></td>
+<td><p class="first">When conflation is enabled, specifies the fields
+to use to determine message uniqueness. The
+format of this option is a comma-delimited list
+of XPath identifiers within brackets. For
+example, to conflate based on the value of the
+<code class="docutils literal"><span class="pre">/tickerId</span></code> and <code class="docutils literal"><span class="pre">/customerId</span></code> within a
+message the value of this option would be
+<code class="docutils literal"><span class="pre">[/tickerId,/customerId]</span></code>.</p>
+<p>Defaults to the SOW key fields for SOW topics.
+No default for non-SOW topics. This option is
+required for non-SOW topics.</p>
+<p class="last">This option is not valid with the <code class="docutils literal"><span class="pre">oof</span></code> option
+unless the keys provided are identical to the
+keys for the topic.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">live</span></code></td>
+<td>Tells AMPS to send messages to subscribing
+clients before they have been persisted to the
+transaction log. This option is only valid for
+bookmark subscriptions.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">max_backlog=n</span></code></td>
+<td>When subscribing to a queue, the number of
+unacknowledged messages the client is willing to
+accept at a time. AMPS will not exceed this
+number, but may choose a smaller number
+depending on the queue configuration.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">no_empties</span></code></td>
+<td>Tells AMPS not to send empty publish messages to
+matching subscriptions. This can be useful for
+suppressing messages where no fields have
+changed.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">no_sowkey</span></code></td>
+<td>Tells AMPS not to send the AMPS-generated SowKey
+for messages.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">non_regex_topic</span></code></td>
+<td>Specifies that the topic name should be a literal
+match, even if the topic name contains regular
+expression characters.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Send an OOF message for records which have
+fallen out of focus from the original
+subscription. When focus tracking is enabled,
+AMPS will also deliver the full message to a
+subscription when a previously out-of-focus
+message comes into focus.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">pause</span></code></td>
+<td>Pause a bookmark subscription. This option is
+only valid for bookmark subscriptions that do
+not use the <code class="docutils literal"><span class="pre">live</span></code> option. When this option is
+present, AMPS pauses the subscription or
+subscriptions provided in the <code class="docutils literal"><span class="pre">SubId</span></code> of the
+command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">rate=n</span></code></td>
+<td>Set the maximum message delivery rate for a
+bookmark subscription. This option is only valid
+for bookmark subscriptions that do not use the
+<code class="docutils literal"><span class="pre">live</span></code> option. The rate can be specified as
+either the number of messages per second (for
+example, <code class="docutils literal"><span class="pre">1000</span></code>), the number of bytes per
+second (for example, <code class="docutils literal"><span class="pre">100KB</span></code>), or a multiple
+of the original replay rate (for example,
+<code class="docutils literal"><span class="pre">1.5X</span></code>).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">replace</span></code></td>
+<td>Replace the subscription associated with
+<code class="docutils literal"><span class="pre">CmdId</span></code> with another subscription. When
+provided as part of <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>, AMPS
+runs a SOW query for the new subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">resume</span></code></td>
+<td>Resume a bookmark subscription. This option is
+only valid for bookmark subscriptions that do
+not use the <code class="docutils literal"><span class="pre">live</span></code> option. When this option is
+present, AMPS resumes the subscription or
+subscriptions provided in the <code class="docutils literal"><span class="pre">SubId</span></code> of the
+command.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">send_keys</span></code></td>
+<td>AMPS will send the SOW keys fields back with
+messages from the SOW. Notice that
+without this option, messages will never contain
+these fields (since, by definition, they do not
+change from update to update).</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>AMPS will include a header with the time at
+which this instance of AMPS processed the
+incoming publish command for this message.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.2:</strong> <em>Options types supported by delta_subscribe</em></p>
+</div>
+<div class="section" id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">delta_subscribe</span></code> command returns the following command types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Command</strong></th>
+<th class="head"><em>Description</em></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">publish</span></code></td>
+<td>A message published to AMPS.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Returned when the <code class="docutils literal"><span class="pre">oof</span></code> option is requested
+on the command, the subscription is to a topic
+in the State of the World, and the subscription
+is not a bookmark subscribe.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ack</span></code></td>
+<td>Acknowledgements requested, as described
+in the following section.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.3:</strong> <em>Command types returned by delta_subscribe</em></p>
+<p>For a <code class="docutils literal"><span class="pre">delta_subscribe</span></code> message, AMPS will send acknowledgment
+messages for the following <code class="docutils literal"><span class="pre">AckType</span></code> fields: <code class="docutils literal"><span class="pre">received</span></code>,
+<code class="docutils literal"><span class="pre">processed</span></code>, <code class="docutils literal"><span class="pre">persisted</span></code> and <code class="docutils literal"><span class="pre">stats</span></code> along with a populated
+<code class="docutils literal"><span class="pre">Status</span></code> header field describing the acknowledgment.</p>
+<p><a class="reference internal" href="#command-delta-sub-acks"><span class="std std-ref">Table 4.4</span></a> contains the <code class="docutils literal"><span class="pre">AckType</span></code> messages which can be
+returned by a <code class="docutils literal"><span class="pre">delta_subscribe</span></code>.</p>
+<table border="1" class="docutils" id="command-delta-sub-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No <code class="docutils literal"><span class="pre">ack</span></code> is returned. This is the default
+behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>When a bookmark is present on the subscribe
+request and this acknowledgment is requested,
+AMPS sends a <code class="docutils literal"><span class="pre">completed</span></code> acknowledgment
+message to indicate that bookmark replay is
+complete. Further messages on this subscription
+are from new publishes.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>When a bookmark is present and this
+acknowledgment is requested, AMPS periodically
+sends a <code class="docutils literal"><span class="pre">persisted</span></code> acknowledgment message to
+indicate the most recent bookmark in the
+server&#8217;s transaction log.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has compiled the filters for the
+<code class="docutils literal"><span class="pre">delta_subscribe</span></code> message(s).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">delta_subscribe</span></code> message has been
+received.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Returns an acknowledgment message with
+<code class="docutils literal"><span class="pre">Matches</span></code>, <code class="docutils literal"><span class="pre">TopicMatches</span></code> and
+<code class="docutils literal"><span class="pre">RecordsReturned</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.4:</strong> <em>Acknowledgment messages supported by delta_publish</em></p>
+</div>
+<div class="section" id="errors">
+<h3>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h3>
+<p>Any errors that occur during this command will be returned in the status
+of a <code class="docutils literal"><span class="pre">processed</span></code> acknowledgment and logged to the log file. Regardless
+of success or failure, the <code class="docutils literal"><span class="pre">processed</span></code> acknowledgment will be returned
+only if requested by including processed in the <code class="docutils literal"><span class="pre">AckType</span></code> field of the
+<code class="docutils literal"><span class="pre">delta_subscribe</span></code> message header.</p>
+</div>
+</div>
+<div class="section" id="sow-and-delta-subscribe">
+<h2>sow_and_delta_subscribe<a class="headerlink" href="#sow-and-delta-subscribe" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Description<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command is used to combine the
+functionality of commands <code class="docutils literal"><span class="pre">sow</span></code> and a <code class="docutils literal"><span class="pre">delta_subscribe</span></code> in a single
+command.</p>
+<p>The <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command is used (a) to query the
+contents of a SOW topic (this is the <code class="docutils literal"><span class="pre">sow</span></code> command); and (b) to place
+a subscription such that any messages matching the subscribed SOW topic
+and query filter will be published to the AMPS client (this is the
+<code class="docutils literal"><span class="pre">delta_subscribe</span></code> command). As with the <code class="docutils literal"><span class="pre">delta_subscribe</span></code> command,
+<code class="docutils literal"><span class="pre">publish</span></code> messages representing updates to SOW records will contain
+only the information that has changed.</p>
+<p>If a <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> is issued on a record that does not
+currently exist in the SOW topic, or if it is used on a topic that does
+not have a SOW-topic store defined, then a <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code>
+will behave like a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command.</p>
+</div>
+<div class="section" id="id2">
+<h3>Header Fields<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-sow-and-delta-subscribe-headers"><span class="std std-ref">Table 4.5</span></a>
+contains the header fields supported by a <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command.</p>
+<table border="1" class="docutils" id="command-sow-and-delta-subscribe-headers">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>The command to be executed. Value:
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code></td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>The target SOW topic to query and subscribe to.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated string of one of more of
+the following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">received</span></code>,
+<code class="docutils literal"><span class="pre">processed</span></code>, <code class="docutils literal"><span class="pre">completed</span></code> or <code class="docutils literal"><span class="pre">stats</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">BatchSize</span></code></td>
+<td>Number of records to return in a single sow
+query results message. While the default value
+is 1, it is recommended to use a higher value,
+as even small increases can yield greater
+performance in query result delivery.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">A bookmark specifying the historical state of
+the SOW to return results from. For SOW topics
+where historical query is enabled, AMPS returns
+the saved state of the SOW as of that bookmark.
+For SOW topics where historical query is not
+enabled, AMPS ignores this parameter.</p>
+<p class="last">If the topic is enabled for historical query and
+AMPS has a transaction log that covers the
+topic, AMPS returns the saved state of the SOW
+as of that bookmark and starts a bookmark
+subscription at a point in the transaction log
+immediately after the point at which the SOW
+state was saved. In other words, if the
+granularity of the historical SOW preserves the
+state of the SOW at 11:30:10 AM and 11:30:50 AM,
+a request for a bookmark at 11:30:20 AM will
+provide the SOW state as of 11:30:10 AM, and
+begin the replay immediately after that SOW
+state. This ensures no messages are missed, but
+means that the subscription may begin before the
+bookmark.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CommandId</span></code></td>
+<td>If specified with an AMPS command requesting an
+acknowledgment message, all <code class="docutils literal"><span class="pre">ack</span></code> messages
+will contain the <code class="docutils literal"><span class="pre">CommandId</span></code> in the
+acknowledgment message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">DataOnly</span></code></td>
+<td>If <code class="docutils literal"><span class="pre">true</span></code>, send only raw data to subscriber
+for a matching publish message. For example:
+this will remove the SOAP envelope in an XML
+message.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Content filter expression.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma separated list of one or more of the
+options in
+<a class="reference internal" href="#command-sow-and-delta-subscribe-options"><span class="std std-ref">Table 3.5</span></a>
+, which describes all of the
+<code class="docutils literal"><span class="pre">Options</span></code> available.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td>Return the SOW results sorted by the specified
+fields. Fields are a comma-delimited list of
+AMPS identifiers, and may optionally include a
+sort specifier, <code class="docutils literal"><span class="pre">ASC</span></code> or <code class="docutils literal"><span class="pre">DESC</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">QueryId</span></code></td>
+<td>Identifier used to identify the client&#8217;s SOW
+topic query. This identifier will be added to
+all messages that represent a response to the
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SendEmpty</span></code></td>
+<td>If set to <code class="docutils literal"><span class="pre">true</span></code>, empty published messages are
+forwarded to matching subscriptions. Default is
+<code class="docutils literal"><span class="pre">true</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SendOOF</span></code></td>
+<td>Messages that have fallen out of focus from the
+subscription are sent to the client. Default is
+<code class="docutils literal"><span class="pre">false</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SendKeys</span></code></td>
+<td>Option to instruct AMPS that the client would
+like to receive the <code class="docutils literal"><span class="pre">SowKey</span></code> back.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SendSubscriptionIds</span></code></td>
+<td>If <code class="docutils literal"><span class="pre">true</span></code> subscription identifiers will be
+sent for a matched message.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SowKeys</span></code></td>
+<td>A comma-delimited list of <code class="docutils literal"><span class="pre">SowKeys</span></code> that
+identify the messages to return from the query.
+For example, you might send a query with the
+SowKeys value <code class="docutils literal"><span class="pre">42,100,3467</span></code> which would return
+records with those SowKey values, if any exist
+in the SOW.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SubscriptionId</span></code></td>
+<td><p class="first">The subscription ID for this command. When
+provided with a new subscription, this is the
+identifier that AMPS will use for the
+subscription. When provided with the <code class="docutils literal"><span class="pre">replace</span></code>
+option, this field specifies the subscription to
+replace. When provided with a <code class="docutils literal"><span class="pre">pause</span></code> or
+<code class="docutils literal"><span class="pre">resume</span></code> option, this field specifies the
+subscriptions to pause or resume.</p>
+<p class="last">For a new subscription, the AMPS clients will
+generate a subscription ID if one is not
+provided.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TopN</span></code></td>
+<td>Return up to the number of messages specified
+from the SOW query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.5:</strong> <em>Header fields supported by sow_and_delta_subscribe</em></p>
+</div>
+<div class="section" id="id3">
+<h3>Options Field<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-sow-and-delta-subscribe-options"><span class="std std-ref">Table 4.6</span></a> contains a list of the <code class="docutils literal"><span class="pre">Options</span></code> available and
+their definitions when used in the AMPS <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code>
+command.</p>
+<table border="1" class="docutils" id="command-sow-and-delta-subscribe-options">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>This is the default <code class="docutils literal"><span class="pre">Options</span></code> type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bookmark</span></code></td>
+<td><p class="first">Specifies that the subscription should return
+bookmarks, if available, on each publish
+message. Bookmarks are only available if the
+topic that is subscribed to is recorded in the
+transaction log.</p>
+<p>Notice that this option does not set the
+starting point for a bookmark subscription: use
+the <code class="docutils literal"><span class="pre">Bookmark</span></code> header for that purpose.</p>
+<p class="last">This option is not required to receive bookmarks
+for a bookmark subscription. Those subscriptions
+always include bookmarks on each publish message.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">conflation=n</span></code></td>
+<td><p class="first">Specifies whether to conflate this
+subscription.The value provided can be a time
+interval, <code class="docutils literal"><span class="pre">auto</span></code>, or <code class="docutils literal"><span class="pre">none</span></code></p>
+<p>When present and set to a value other than none,
+enables conflation for the subscription.</p>
+<p>Can also be set to <code class="docutils literal"><span class="pre">auto</span></code>, which requests that
+AMPS attempt to determine an appropriate
+conflation interval based on client consumption.</p>
+<p>Recognizes the same time specifiers used in the
+AMPS configuration file (for example, <code class="docutils literal"><span class="pre">100ms</span></code>
+or <code class="docutils literal"><span class="pre">1s</span></code> or <code class="docutils literal"><span class="pre">1m</span></code>).</p>
+<p class="last">Defaults to <code class="docutils literal"><span class="pre">none</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">conflation_key=[key]</span></code></td>
+<td><p class="first">When conflation is enabled, specifies the fields
+to use to determine message uniqueness. The
+format of this option is a comma-delimited list
+of XPath identifiers within brackets. For
+example, to conflate based on the value of the
+<code class="docutils literal"><span class="pre">/tickerId</span></code> and <code class="docutils literal"><span class="pre">/customerId</span></code> within a
+message the value of this option would be
+<code class="docutils literal"><span class="pre">[/tickerId,/customerId]</span></code>.</p>
+<p>Defaults to the SOW key fields for SOW topics.
+No default for non-SOW topics. This option is
+required for non-SOW topics.</p>
+<p class="last">This option is not valid with the <code class="docutils literal"><span class="pre">oof</span></code> option
+unless the keys provided are identical to the
+keys for the topic.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">grouping=[keys]</span></code></td>
+<td><p class="first">For use with aggregated subscriptions.</p>
+<p>The format of this option is a comma-delimited
+list of XPath identifiers within brackets. For
+example, to aggregate entries based on their
+<code class="docutils literal"><span class="pre">/description</span></code> (producing one record in the
+aggregation for each distinct value in
+<code class="docutils literal"><span class="pre">/description</span></code>), you would use the following
+option:</p>
+<p>This option must contain an entry for every
+field in the aggregated message. If there is no
+entry for a field in this option, that field
+will not appear in the aggregated message, even
+if the field is in the underlying message.</p>
+<p class="last">When this option is provided, a <code class="docutils literal"><span class="pre">projection</span></code>
+must also be provided. This option cannot be
+used with a bookmark.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">live</span></code></td>
+<td>Tells AMPS to send messages to subscribing
+clients before they have been persisted to the
+transaction log.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">no_empties</span></code></td>
+<td>Tells AMPS not to send empty publish messages to
+matching subscriptions. This can be useful for
+suppressing messages where no fields have
+changed.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">no_sowkey</span></code></td>
+<td>Tells AMPS not to send the AMPS-generated
+<code class="docutils literal"><span class="pre">SowKey</span></code> for messages.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">non_regex_topic</span></code></td>
+<td>Specifies that the topic name should be a literal
+match, even if the topic name contains
+regular expression characters.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Send an <code class="docutils literal"><span class="pre">OOF</span></code> message for records that have
+fallen out of focus from the original
+subscription. When focus tracking is enabled,
+AMPS will also deliver the full message to a
+subscription when a previously out-of-focus
+message comes into focus.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">projection=[fields]</span></code></td>
+<td><p class="first">For use with aggregated subscriptions.</p>
+<p>Specifies a comma-delimited set of fields to
+project, within brackets. Each entry has the
+format described in the AMPS User Guide.</p>
+<p>This option must contain an entry for every
+field in the aggregated message. If there is no
+entry for a field in this option, that field
+will not appear in the aggregated message, even
+if the field is in the underlying message.</p>
+<p>There is no default for this option. When this
+option is provided, a <code class="docutils literal"><span class="pre">grouping</span></code> must also be
+provided. This option cannot be used with a
+bookmark.</p>
+<p class="last">The maximum size of this option is 64KB.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">replace</span></code></td>
+<td>Replace the subscription associated with
+<code class="docutils literal"><span class="pre">CmdId</span></code> with another subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">top_n=n</span></code></td>
+<td>AMPS will provide at most <code class="docutils literal"><span class="pre">n</span></code> records, starting
+at the beginning of the result set as defined by
+the <code class="docutils literal"><span class="pre">OrderBy</span></code> header. This option is equivalent
+to providing a <code class="docutils literal"><span class="pre">TopN</span></code> header.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">skip_n=n</span></code></td>
+<td>AMPS will skip the specified number of records
+in the result set before returning results.
+This option is used with the <code class="docutils literal"><span class="pre">top_n</span></code> option
+to create a paginated subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">send_keys</span></code></td>
+<td>AMPS will send the SOW keys (that is, the data
+fields used to identify unique messages in the
+SOW) back with matching messages from the SOW.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">select</span></code></td>
+<td>Specifies the fields to include in messages
+provided on this subscription. The contents
+of this option are a comma-delimited list of
+inclusion specifiers.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>AMPS will include a header with the time at
+which this instance of AMPS processed the
+incoming publish command for this message.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.6:</strong> <em>Options supported by sow_and_delta_subscribe</em></p>
+</div>
+<div class="section" id="id4">
+<h3>Returns<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command returns the following command types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Command</strong></th>
+<th class="head"><em>Description</em></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">group_begin</span></code></td>
+<td>Indicates the beginning of results from a
+SOW query.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">group_end</span></code></td>
+<td>Indicates the end of results from a SOW
+query.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">sow</span></code></td>
+<td>Indicates a record returned from a SOW query</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">publish</span></code></td>
+<td>A new message or update published to AMPS.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Returned when the <code class="docutils literal"><span class="pre">oof</span></code> option is requested
+on the command, the subscription is to a topic
+in the State of the World, and the subscription
+is not a bookmark subscribe.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ack</span></code></td>
+<td>Acknowledgements requested, as described
+in the following section.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.7:</strong> <em>Command types returned by sow_and_delta_subscribe</em></p>
+<p>AMPS will send acknowledgment messages for the following <code class="docutils literal"><span class="pre">AckType</span></code>
+fields: <code class="docutils literal"><span class="pre">received</span></code> and <code class="docutils literal"><span class="pre">processed</span></code>, along with a populated
+<code class="docutils literal"><span class="pre">Status</span></code> header field describing the acknowledgment message.</p>
+<p>If the <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> command is successful, AMPS will
+return a <code class="docutils literal"><span class="pre">group_begin</span></code> message to notify the client that a group of
+messages is being returned as part of the <code class="docutils literal"><span class="pre">sow</span></code> portion of the
+command. The <em>SOW Queries</em> chapter in the <em>AMPS User Guide</em> provides
+more information about SOW topic query behavior.
+<a class="reference internal" href="#command-sow-and-delta-subscribe-acks"><span class="std std-ref">Table 4.8</span></a>
+contains the <code class="docutils literal"><span class="pre">AckType</span></code> messages which can be returned by a
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code>.</p>
+<table border="1" class="docutils" id="command-sow-and-delta-subscribe-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No <code class="docutils literal"><span class="pre">ack</span></code> message is returned. This is the
+default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> message has
+completed the <code class="docutils literal"><span class="pre">sow</span></code> portion of the command,
+and all future messages will be updated based on
+publishes.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has compiled the filter(s) for the
+<code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> message(s).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> message has been
+received.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Returns an <code class="docutils literal"><span class="pre">ack</span></code> message with <code class="docutils literal"><span class="pre">Matches</span></code>,
+<code class="docutils literal"><span class="pre">TopicMatches</span></code> and <code class="docutils literal"><span class="pre">RecordsReturned</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.8:</strong> <em>Acknowledgment messages supported by sow_and_delta_subscribe</em></p>
+<p>The <code class="docutils literal"><span class="pre">stats</span></code> acknowledgment message includes three values in the
+header, the <code class="docutils literal"><span class="pre">Matches</span></code>, <code class="docutils literal"><span class="pre">TopicMatches</span></code> and the <code class="docutils literal"><span class="pre">RecordsReturned</span></code>.
+These are defined below:</p>
+<div class="section" id="topicmatches">
+<h4>TopicMatches<a class="headerlink" href="#topicmatches" title="Permalink to this headline">¶</a></h4>
+<p>The total number of records compared across all matching SOW topics.</p>
+</div>
+<div class="section" id="matches">
+<h4>Matches<a class="headerlink" href="#matches" title="Permalink to this headline">¶</a></h4>
+<p>The number of records returned that match the topic regular expression
+and the content filter. This value can be greater than
+<code class="docutils literal"><span class="pre">RecordsReturned</span></code> in the case where the number of returned records is
+limited by <code class="docutils literal"><span class="pre">TopN</span></code>.</p>
+</div>
+<div class="section" id="recordsreturned">
+<h4>RecordsReturned<a class="headerlink" href="#recordsreturned" title="Permalink to this headline">¶</a></h4>
+<p>The total number of records returned to the client, which can be limited
+by the <code class="docutils literal"><span class="pre">TopN</span></code> header value.</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>Errors<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Errors for a <code class="docutils literal"><span class="pre">sow_and_delta_subscribe</span></code> query are either returned in
+the <code class="docutils literal"><span class="pre">Status</span></code> field if an <code class="docutils literal"><span class="pre">AckType</span></code> has been defined, or the errors
+may be inserted into the AMPS log.</p>
+</div>
+</div>
+<div class="section" id="sow-and-subscribe">
+<h2>sow_and_subscribe<a class="headerlink" href="#sow-and-subscribe" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h3>Description<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command is used to combine the functionality of
+<code class="docutils literal"><span class="pre">sow</span></code> and a <code class="docutils literal"><span class="pre">subscribe</span></code> command in a single command.</p>
+<p>The <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command is used (a) to query the contents of a
+SOW topic (this is the <code class="docutils literal"><span class="pre">sow</span></code> command); and (b) to place a subscription
+such that any messages matching the subscribed SOW topic and query
+filter will be published to the AMPS client (this is the <code class="docutils literal"><span class="pre">subscribe</span></code>
+command). As with the <code class="docutils literal"><span class="pre">subscribe</span></code> command, <code class="docutils literal"><span class="pre">publish</span></code> messages
+representing updates to SOW records are provided for records
+that match the filter when there is an update published to that
+record.</p>
+</div>
+<div class="section" id="id7">
+<h3>Header Fields<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-sow-and-subscribe-headers"><span class="std std-ref">Table 4.9</span></a>
+contains the header fields supported by a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command.</p>
+<table border="1" class="docutils" id="command-sow-and-subscribe-headers">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>The command to be executed. Value:
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>The target SOW topic to query and subscribe.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated string of one of more of
+the following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">received</span></code>,
+<code class="docutils literal"><span class="pre">processed</span></code>, <code class="docutils literal"><span class="pre">completed</span></code> or <code class="docutils literal"><span class="pre">stats</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">BatchSize</span></code></td>
+<td>Number of records to return in a single sow
+query results message. While the default value
+is 1, it is recommended to use a higher value,
+as even small increases can yield greater
+performance in query result delivery.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td><p class="first">A bookmark specifying the historical state of
+the SOW to return results from. For SOW topics
+where historical query is enabled, AMPS returns
+the saved state of the SOW as of that bookmark.
+For SOW topics where historical query is not
+enabled, AMPS ignores this parameter.</p>
+<p class="last">If the topic is enabled for historical query and
+AMPS has a transaction log that covers the
+topic, AMPS returns the saved state of the SOW
+as of that bookmark and starts a bookmark
+subscription at a point in the transaction log
+immediately after the point at which the SOW
+state was saved. In other words, if the
+granularity of the historical SOW preserves the
+state of the SOW at 11:30:10 AM and 11:30:50 AM,
+a request for a bookmark at 11:30:20 AM will
+provide the SOW state as of 11:30:10 AM, and
+begin the replay immediately after that SOW
+state. This ensures no messages are missed, but
+means that the subscription may begin before the
+bookmark.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CommandId</span></code></td>
+<td>If specified with an AMPS command requesting an
+acknowledgment message, all <code class="docutils literal"><span class="pre">ack</span></code> messages
+will contain the <code class="docutils literal"><span class="pre">CommandId</span></code> in the
+acknowledgment message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">DataOnly</span></code></td>
+<td>Only send raw data to subscriber for a matching
+<code class="docutils literal"><span class="pre">publish</span></code> message if <code class="docutils literal"><span class="pre">true</span></code>. For example:
+this will remove the SOAP envelope in an XML
+message.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Content filter expression.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma separated list of flags available to the
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command.
+<a class="reference internal" href="#command-sow-and-subscribe-options"><span class="std std-ref">Table &#8220;Options types supported by sow_and_subscribe&#8221;</span></a>
+describes the options available.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td>Return the SOW results sorted by the specified
+fields. Fields are a comma-delimited list of
+AMPS identifiers, and may optionally include a
+sort specifier, <code class="docutils literal"><span class="pre">ASC</span></code> or <code class="docutils literal"><span class="pre">DESC</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">QueryId</span></code></td>
+<td>Identifier used to identify the client&#8217;s SOW
+topic query. This identifier will be added to
+all messages representing a response to the
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SendOOF</span></code></td>
+<td>Messages that have fallen out of focus from the
+subscription are sent to the client. Default is
+<code class="docutils literal"><span class="pre">false</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SendKeys</span></code></td>
+<td>Option to instruct AMPS that the client would
+like to receive the <code class="docutils literal"><span class="pre">SowKey</span></code> back.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SendSubscriptionIds</span></code></td>
+<td>If <code class="docutils literal"><span class="pre">true</span></code>, subscription identifiers will be
+sent for a matched message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SowKeys</span></code></td>
+<td>A comma-delimited list of <code class="docutils literal"><span class="pre">SowKeys</span></code> that
+identify the messages to return from the query.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SubscriptionId</span></code></td>
+<td><p class="first">The subscription ID for this command. When
+provided with a new subscription, this is the
+identifier that AMPS will use for the
+subscription. When provided with the <code class="docutils literal"><span class="pre">replace</span></code>
+option, this field specifies the subscription to
+replace. When provided with a <code class="docutils literal"><span class="pre">pause</span></code> or
+<code class="docutils literal"><span class="pre">resume</span></code> option, this field specifies the
+subscriptions to pause or resume.</p>
+<p class="last">For a new subscription, the AMPS clients will
+generate a subscription ID if one is not
+provided.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TopN</span></code></td>
+<td>Return up to the number of messages specified
+from the SOW query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.9:</strong> <em>Header fields supported by sow_and_subscribe</em></p>
+</div>
+<div class="section" id="id8">
+<h3>Returns<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command returns the following command types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Command</strong></th>
+<th class="head"><em>Description</em></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">group_begin</span></code></td>
+<td>Indicates the beginning of results from a
+SOW query.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">group_end</span></code></td>
+<td>Indicates the end of results from a SOW
+query.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">sow</span></code></td>
+<td>Indicates a record returned from a SOW query</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">publish</span></code></td>
+<td>A new message or update published to AMPS.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Returned when the <code class="docutils literal"><span class="pre">oof</span></code> option is requested
+on the command, the subscription is to a topic
+in the State of the World, and the subscription
+is not a bookmark subscribe.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ack</span></code></td>
+<td>Acknowledgements requested, as described
+in the following section.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.10:</strong> <em>Command types returned by sow_and_subscribe</em></p>
+<p>AMPS will send acknowledgment messages for the following <code class="docutils literal"><span class="pre">AckType</span></code>
+fields: <code class="docutils literal"><span class="pre">received</span></code>, <code class="docutils literal"><span class="pre">processed</span></code> along with a populated <code class="docutils literal"><span class="pre">Status</span></code>
+header field describing the acknowledgment message.</p>
+<p>If the <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command is successful, AMPS will return a
+<code class="docutils literal"><span class="pre">group_begin</span></code> message to notify the client that a group of messages is
+being returned as part of the <code class="docutils literal"><span class="pre">sow</span></code> portion of the command.</p>
+<p>The <em>SOW Queries</em> chapter in the <em>AMPS User Guide</em> will provide more
+information about SOW topic query behavior.
+<a class="reference internal" href="#command-sow-and-subscribe-acks"><span class="std std-ref">Table 4.11</span></a>
+contains the <code class="docutils literal"><span class="pre">AckType</span></code> messages that can be returned by a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>.</p>
+<table border="1" class="docutils" id="command-sow-and-subscribe-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No <code class="docutils literal"><span class="pre">ack</span></code> message is returned. This is the
+default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bookmark</span></code></td>
+<td><p class="first">Specifies that the subscription should return
+bookmarks, if available, on each publish
+message. Bookmarks are only available if the
+topic that is subscribed to is recorded in the
+transaction log.</p>
+<p>Notice that this option does not set the
+starting point for a bookmark subscription: use
+the <code class="docutils literal"><span class="pre">Bookmark</span></code> header for that purpose.</p>
+<p class="last">This option is not required to receive bookmarks
+for a bookmark subscription. Those subscriptions
+always include bookmarks on each publish message.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> message has completed
+the <code class="docutils literal"><span class="pre">sow</span></code> portion of the command, and all
+future messages will be updated based on
+publishes.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has completed the work necessary to
+register the subscription and begin the SOW
+query.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> message has been
+received.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Returns an <code class="docutils literal"><span class="pre">ack</span></code> message with <code class="docutils literal"><span class="pre">Matches</span></code>,
+<code class="docutils literal"><span class="pre">TopicMatches</span></code> and <code class="docutils literal"><span class="pre">RecordsReturned</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.11:</strong> <em>Acknowledgment messages supported by sow_and_subscribe</em></p>
+<p>The <code class="docutils literal"><span class="pre">stats</span></code> acknowledgment message includes three values in the
+header, the <code class="docutils literal"><span class="pre">Matches</span></code>, <code class="docutils literal"><span class="pre">TopicMatches</span></code> and the <code class="docutils literal"><span class="pre">RecordsReturned</span></code>.
+These are defined below:</p>
+<div class="section" id="id9">
+<h4>TopicMatches<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>The total number of records compared across all matching SOW topics.</p>
+</div>
+<div class="section" id="id10">
+<h4>Matches<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<p>The number of records returned that match the topic regular expression
+and the content filter. This value can be greater than
+<code class="docutils literal"><span class="pre">RecordsReturned</span></code> in the case where the number of returned records is
+limited by <code class="docutils literal"><span class="pre">TopN</span></code>.</p>
+</div>
+<div class="section" id="id11">
+<h4>RecordsReturned<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<p>The total number of records returned to the client, which can be limited
+by the <code class="docutils literal"><span class="pre">TopN</span></code> header value.</p>
+</div>
+</div>
+<div class="section" id="id12">
+<h3>Options Field<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-sow-and-subscribe-options"><span class="std std-ref">Table 4.12</span></a>
+contains a list of the <code class="docutils literal"><span class="pre">Options</span></code> available and their definitions when used in the AMPS
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command.</p>
+<table border="1" class="docutils" id="command-sow-and-subscribe-options">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>This is the default <code class="docutils literal"><span class="pre">Options</span></code> type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">conflation=n</span></code></td>
+<td><p class="first">Specifies whether to conflate this
+subscription.The value provided can be a time
+interval, <code class="docutils literal"><span class="pre">auto</span></code>, or <code class="docutils literal"><span class="pre">none</span></code></p>
+<p>When present and set to a value other than none,
+enables conflation for the subscription.</p>
+<p>Can also be set to <code class="docutils literal"><span class="pre">auto</span></code>, which requests that
+AMPS attempt to determine an appropriate
+conflation interval based on client consumption.</p>
+<p>Recognizes the same time specifiers used in the
+AMPS configuration file (for example, <code class="docutils literal"><span class="pre">100ms</span></code>
+or <code class="docutils literal"><span class="pre">1s</span></code> or <code class="docutils literal"><span class="pre">1m</span></code>).</p>
+<p class="last">Defaults to <code class="docutils literal"><span class="pre">none</span></code>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">conflation_key=[key]</span></code></td>
+<td><p class="first">When conflation is enabled, specifies the fields
+to use to determine message uniqueness. The
+format of this option is a comma-delimited list
+of XPath identifiers within brackets. For
+example, to conflate based on the value of the
+<code class="docutils literal"><span class="pre">/tickerId</span></code> and <code class="docutils literal"><span class="pre">/customerId</span></code> within a
+message the value of this option would be
+<code class="docutils literal"><span class="pre">[/tickerId,/customerId]</span></code>.</p>
+<p>Defaults to the SOW key fields for SOW topics.
+No default for non-SOW topics. This option is
+required for non-SOW topics.</p>
+<p class="last">This option is not valid with the <code class="docutils literal"><span class="pre">oof</span></code> option
+unless the keys provided are the same as the
+keys for the underlying topic.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">grouping=[keys]</span></code></td>
+<td><p class="first">For use with aggregated subscriptions.</p>
+<p>The format of this option is a comma-delimited
+list of XPath identifiers within brackets. For
+example, to aggregate entries based on their
+<code class="docutils literal"><span class="pre">/description</span></code> (producing one record in the
+aggregation for each distinct value in
+<code class="docutils literal"><span class="pre">/description</span></code>), you would use the following
+option:</p>
+<p>This option must contain an entry for every
+field in the aggregated message. If there is no
+entry for a field in this option, that field
+will not appear in the aggregated message, even
+if the field is in the underlying message.</p>
+<p class="last">When this option is provided, a <code class="docutils literal"><span class="pre">projection</span></code>
+must also be provided. This option cannot be
+used with a bookmark.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">live</span></code></td>
+<td>Tells AMPS to send messages to subscribing
+clients before they have been persisted to the
+transaction log. This option is only valid for
+bookmark subscriptions.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">no_sowkey</span></code></td>
+<td>Tells AMPS not to send the AMPS-generated
+<code class="docutils literal"><span class="pre">SowKey</span></code> for messages.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">non_regex_topic</span></code></td>
+<td>Specifies that the topic name should be a literal
+match, even if the topic name contains
+regular expression characters.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Send on <code class="docutils literal"><span class="pre">OOF</span></code> message for records which have
+fallen out of focus from the original
+subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">pause</span></code></td>
+<td>Pause a bookmark subscription. This option is
+only valid for bookmark subscriptions that do
+not use the <code class="docutils literal"><span class="pre">live</span></code> option. When this option is
+present, AMPS pauses the subscription or
+subscriptions provided in the <code class="docutils literal"><span class="pre">SubId</span></code> of the
+command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">projection[fields]</span></code></td>
+<td><p class="first">For use with aggregated subscriptions.</p>
+<p>Specifies a comma-delimited set of fields to
+project, within brackets. Each entry has the
+format described in the AMPS User Guide.</p>
+<p>This option must contain an entry for every
+field in the aggregated message. If there is no
+entry for a field in this option, that field
+will not appear in the aggregated message, even
+if the field is in the underlying message.</p>
+<p>There is no default for this option. When this
+option is provided, a <code class="docutils literal"><span class="pre">grouping</span></code> must also be
+provided. This option cannot be used with a
+bookmark.</p>
+<p class="last">The maximum size of this option is 64KB.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">rate=n</span></code></td>
+<td>Set the maximum message delivery rate for a
+bookmark subscription. This option is only valid
+for bookmark subscriptions that do not use the
+<code class="docutils literal"><span class="pre">live</span></code> option. The rate can be specified as
+either the number of messages per second (for
+example, <code class="docutils literal"><span class="pre">1000</span></code>), the number of bytes per
+second (for example, <code class="docutils literal"><span class="pre">100KB</span></code>), or a multiple
+of the original replay rate (for example,
+<code class="docutils literal"><span class="pre">1.5X</span></code>).</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">replace</span></code></td>
+<td>Replace the subscription associated with
+<code class="docutils literal"><span class="pre">CmdId</span></code> with another subscription. When
+provided as part of <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>, AMPS
+runs a SOW query for the new subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">resume</span></code></td>
+<td>Resume a bookmark subscription. This option is
+only valid for bookmark subscriptions that do
+not use the <code class="docutils literal"><span class="pre">live</span></code> option. When this option is
+present, AMPS resumes the subscription or
+subscriptions provided in the <code class="docutils literal"><span class="pre">SubId</span></code> of the
+command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">top_n=n</span></code></td>
+<td>AMPS will provide at most <code class="docutils literal"><span class="pre">n</span></code> records, starting
+at the beginning of the result set as defined by
+the <code class="docutils literal"><span class="pre">OrderBy</span></code> header. This option is equivalent
+to providing a <code class="docutils literal"><span class="pre">TopN</span></code> header.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">skip_n=n</span></code></td>
+<td>AMPS will skip the specified number of records
+in the result set before returning results.
+This option is used with the <code class="docutils literal"><span class="pre">top_n</span></code> option
+to create a paginated subscription.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">send_keys</span></code></td>
+<td>AMPS will send the SOW keys (that is, the data
+fields used to identify unique messages in the
+SOW) back with matching messages from the SOW.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">select</span></code></td>
+<td>Specifies the fields to include in messages
+provided on this subscription. The contents of
+this option are a comma-delimited list of
+inclusion specifiers.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>AMPS will include a header with the time at
+which this instance of AMPS processed the
+incoming publish command for this message.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.12:</strong> <em>Options types supported by sow_and_subscribe</em></p>
+</div>
+<div class="section" id="id13">
+<h3>Errors<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>Errors for a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> query are either returned in the
+<code class="docutils literal"><span class="pre">Status</span></code> field if an <code class="docutils literal"><span class="pre">AckType</span></code> has been defined, or the errors may
+be inserted into the AMPS log.</p>
+</div>
+</div>
+<div class="section" id="subscribe">
+<h2>subscribe<a class="headerlink" href="#subscribe" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id14">
+<h3>Description<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">subscribe</span></code> command is the primary way to retrieve messages from
+the AMPS processing stream. A client can issue a <code class="docutils literal"><span class="pre">subscribe</span></code> command
+on a topic to receive all published messages to that topic in the
+future. Additionally, content filtering can be used to choose which
+messages the client is interested in receiving.</p>
+</div>
+<div class="section" id="id15">
+<h3>Header Fields<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="command-subscribe-headers">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>Command to be executed. Value: <code class="docutils literal"><span class="pre">subscribe</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>Topic to place a subscription against.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated list of one or more of the
+following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">received</span></code>, <code class="docutils literal"><span class="pre">processed</span></code>
+or <code class="docutils literal"><span class="pre">completed</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>A bookmark specifying the point in the
+transaction log at which to start the
+subscription. If the topic provided is not
+recorded in a transaction log, AMPS enters the
+subscription without replaying messages. You can
+provide a single bookmark, or a comma-delimited
+list of bookmarks. When a list is provided, AMPS
+starts the subscription at the earliest bookmark
+in the list.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CommandId</span></code></td>
+<td>If specified with an AMPS command requesting an
+acknowledgment message, all requested
+acknowledgment messages will contain the
+<code class="docutils literal"><span class="pre">CommandId</span></code> in the <code class="docutils literal"><span class="pre">ack</span></code> response header.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">DataOnly</span></code></td>
+<td>A Boolean value (<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>) which,
+if <code class="docutils literal"><span class="pre">true</span></code>, will send only raw data to
+subscriber for a matching publish message. In
+the case where the message type is XML, the SOAP
+envelope will not be included.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>A CDATA wrapped string, used as a content filter
+expression.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td>A comma separated list of flags available to the
+<code class="docutils literal"><span class="pre">subscribe</span></code> command.
+<a class="reference internal" href="#command-subscribe-options"><span class="std std-ref">Table 4.11</span></a>
+describes the <code class="docutils literal"><span class="pre">Options</span></code> available for use in
+the <code class="docutils literal"><span class="pre">subscribe</span></code> command.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SendSubscriptionIds</span></code></td>
+<td>Boolean (<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>) that tells if
+<code class="docutils literal"><span class="pre">true</span></code> requests AMPS to send subscription
+identifiers with a matched message.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SubscriptionId</span></code></td>
+<td><p class="first">The subscription ID for this command. When
+provided with a new subscription, this is the
+identifier that AMPS will use for the
+subscription. When provided with the <code class="docutils literal"><span class="pre">replace</span></code>
+option, this field specifies the subscription to
+replace. When provided with a <code class="docutils literal"><span class="pre">pause</span></code> or
+<code class="docutils literal"><span class="pre">resume</span></code> option, this field specifies the
+subscriptions to pause or resume.</p>
+<p class="last">For a new subscription, the AMPS clients will
+generate a subscription ID if one is not
+provided.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TopN</span></code></td>
+<td>The maximum number of messages to provide from a
+bookmark subscription. This parameter is only
+valid for replay from the transaction log. This
+parameter is not valid if no bookmark is
+provided, if the provided bookmark is <code class="docutils literal"><span class="pre">0|1|</span></code>
+(start from now), or if the command includes the
+<code class="docutils literal"><span class="pre">live</span></code> option.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.13:</strong> <em>Header fields supported by subscribe</em></p>
+</div>
+<div class="section" id="id16">
+<h3>Options Field<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-subscribe-options"><span class="std std-ref">Table 4.14</span></a> contains a
+list of the <code class="docutils literal"><span class="pre">Options</span></code> available and their definitions when used in the AMPS <code class="docutils literal"><span class="pre">subscribe</span></code> command.</p>
+<table border="1" class="docutils" id="command-subscribe-options">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>This is the default <code class="docutils literal"><span class="pre">Options</span></code> type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bookmark</span></code></td>
+<td><p class="first">Specifies that the subscription should return
+bookmarks, if available, on each publish
+message. Bookmarks are only available if the
+topic that is subscribed to is recorded in the
+transaction log.</p>
+<p>Notice that this option does not set the
+starting point for a bookmark subscription: use
+the <code class="docutils literal"><span class="pre">Bookmark</span></code> header for that purpose.</p>
+<p class="last">This option is not required to receive bookmarks
+for a bookmark subscription. Those subscriptions
+always include bookmarks on each publish message.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">conflation=n</span></code></td>
+<td><p class="first">Specifies whether to conflate this
+subscription.The value provided can be a time
+interval, <code class="docutils literal"><span class="pre">auto</span></code>, or <code class="docutils literal"><span class="pre">none</span></code></p>
+<p>When present and set to a value other than none,
+enables conflation for the subscription.</p>
+<p>Can also be set to <code class="docutils literal"><span class="pre">auto</span></code>, which requests that
+AMPS attempt to determine an appropriate
+conflation interval based on client consumption.</p>
+<p>Recognizes the same time specifiers used in the
+AMPS configuration file (for example, <code class="docutils literal"><span class="pre">100ms</span></code>
+or <code class="docutils literal"><span class="pre">1s</span></code> or <code class="docutils literal"><span class="pre">1m</span></code>).</p>
+<p class="last">Defaults to <code class="docutils literal"><span class="pre">none</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">conflation_key=[keys]</span></code></td>
+<td><p class="first">When conflation is enabled, specifies the fields
+to use to determine message uniqueness. The
+format of this option is a comma-delimited list
+of XPath identifiers within brackets. For
+example, to conflate based on the value of the
+<code class="docutils literal"><span class="pre">/tickerId</span></code> and <code class="docutils literal"><span class="pre">/customerId</span></code> within a
+message the value of this option would be
+<code class="docutils literal"><span class="pre">[/tickerId,/customerId]</span></code>.</p>
+<p>Defaults to the SOW key fields for SOW topics.
+No default for non-SOW topics. This option is
+required for non-SOW topics.</p>
+<p class="last">This option is not valid with the <code class="docutils literal"><span class="pre">oof</span></code>
+option unless the keys provided are identical
+to the keys for the topic.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">fully_durable</span></code></td>
+<td><p class="first">Tells AMPS to send messages to subscribing
+clients only after they have been persisted to
+the local transaction log and acknowledged by
+all downstream instances that use synchronous
+replication.</p>
+<p class="last">This option is only valid for bookmark
+subscriptions.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">live</span></code></td>
+<td>Tells AMPS to send messages to subscribing
+clients before they have been persisted to the
+transaction log. This option is only valid for
+bookmark subscriptions.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">max_backlog=n</span></code></td>
+<td>When subscribing to a queue, the number of
+unacknowledged messages the client is willing to
+accept at a time. AMPS will not exceed this
+number, but may choose a smaller number
+depending on the queue configuration.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">non_regex_topic</span></code></td>
+<td>Specifies that the topic name should be a
+literal match, even if the topic name contains
+regular expression characters.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">no_sowkey</span></code></td>
+<td>Tells AMPS not to send the AMPS-generated SowKey
+for messages.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Not supported by this command type.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">pause</span></code></td>
+<td>Pause a bookmark subscription. This option is
+only valid for bookmark subscriptions that do
+not use the <code class="docutils literal"><span class="pre">live</span></code> option. When this option is
+present, AMPS pauses the subscription or
+subscriptions provided in the <code class="docutils literal"><span class="pre">SubId</span></code> of the
+command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">rate=n</span></code></td>
+<td>Set the maximum message delivery rate for a
+bookmark subscription. This option is only valid
+for bookmark subscriptions that do not use the
+<code class="docutils literal"><span class="pre">live</span></code> option. The rate can be specified as
+either the number of messages per second (for
+example, <code class="docutils literal"><span class="pre">1000</span></code>), the number of bytes per
+second (for example, <code class="docutils literal"><span class="pre">100KB</span></code>), or a multiple
+of the original replay rate (for example,
+<code class="docutils literal"><span class="pre">1.5X</span></code>).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">rate_max_gap=n</span></code></td>
+<td>When entering a bookmark subscribe that is
+rate-limited, specify the maximum amount of
+time that AMPS will wait between messages.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">replace</span></code></td>
+<td>Replace the subscription associated with
+<code class="docutils literal"><span class="pre">CmdId</span></code> with another subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">resume</span></code></td>
+<td>Resume a bookmark subscription. This option is
+only valid for bookmark subscriptions that do
+not use the <code class="docutils literal"><span class="pre">live</span></code> option. When this option is
+present, AMPS resumes the subscription or
+subscriptions provided in the <code class="docutils literal"><span class="pre">SubId</span></code> of the
+command.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">select</span></code></td>
+<td>Specifies the fields to include in messages
+provided on this subscription. The contents
+of this option are a comma-delimited list of
+inclusion specifiers.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">send_keys</span></code></td>
+<td>Not supported by this command type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>AMPS will include a header with the time at
+which this instance of AMPS processed the
+incoming publish command for this message.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.14:</strong> <em>Options types supported by subscribe</em></p>
+</div>
+<div class="section" id="id17">
+<h3>Returns<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal"><span class="pre">subscribe</span></code> command returns the following command types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Command</strong></th>
+<th class="head"><em>Description</em></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">publish</span></code></td>
+<td>A message published to AMPS.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Returned when the <code class="docutils literal"><span class="pre">oof</span></code> option is requested
+on the command, the subscription is to a topic
+in the State of the World, and the subscription
+is not a bookmark subscribe.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ack</span></code></td>
+<td>Acknowledgements requested, as described
+in the following section.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.15:</strong> <em>Command types returned by subscribe</em></p>
+<p>It is possible to specify a <code class="docutils literal"><span class="pre">processed</span></code> acknowledgment be sent back to
+the client that issued the <code class="docutils literal"><span class="pre">subscribe</span></code> command. Within this
+<code class="docutils literal"><span class="pre">processed</span></code> acknowledgment, a client can get back the result of
+placing the subscription (success or failure) and the
+<code class="docutils literal"><span class="pre">SubscriptionId</span></code>, which uniquely identifies the subscription within
+AMPS. Keeping track of the <code class="docutils literal"><span class="pre">SubscriptionId</span></code> is useful for
+unsubscribing from subscriptions and issuing SOW queries.</p>
+<p><a class="reference internal" href="#command-subscribe-acks"><span class="std std-ref">Table 4.16</span></a> contains a list
+of the supported acknowledgment messages available to the <code class="docutils literal"><span class="pre">subscribe</span></code> command.</p>
+<table border="1" class="docutils" id="command-subscribe-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><em>Description</em></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No acknowledgment message is returned. This is
+the default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td><p class="first">Used by bookmark subscriptions to identify the
+point at which replay is completed.</p>
+<p class="last">When a bookmark is present on the subscribe
+request and this acknowledgment is requested,
+AMPS sends a <code class="docutils literal"><span class="pre">completed</span></code> acknowledgment
+message to indicate that bookmark replay is
+complete and the subscription has reached the
+point in the transaction log at which the
+subscribe command was received. Messages
+delivered after the <code class="docutils literal"><span class="pre">completed</span></code> ack are from
+new publishes.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has completed the work necessary to
+register the subscription. When a bookmark is
+present and this acknowledgment is requested,
+this acknowledgment indicates that AMPS is
+about to begin replay.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>When a bookmark is present and this
+acknowledgment is requested, AMPS periodically
+sends a <code class="docutils literal"><span class="pre">persisted</span></code> acknowledgment message to
+indicate the most recent bookmark in the
+server&#8217;s transaction log.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">subscribe</span></code> message has been received.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.16:</strong> <em>Acknowledgment messages supported by subscribe</em></p>
+</div>
+<div class="section" id="id18">
+<h3>Errors<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<p>Any errors that occur during this command will be returned in the status
+of a <code class="docutils literal"><span class="pre">processed</span></code> acknowledgment and logged to the log file. Regardless
+of success or failure, the processed acknowledgment will only be
+returned if requested by including <code class="docutils literal"><span class="pre">processed</span></code> in the <code class="docutils literal"><span class="pre">AckType</span></code>
+field.</p>
+</div>
+</div>
+<div class="section" id="sow">
+<h2>sow<a class="headerlink" href="#sow" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id19">
+<h3>Description<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">sow</span></code> command is use to query the contents of a previously defined
+SOW Topic. A <code class="docutils literal"><span class="pre">sow</span></code> command can be used to query an entire SOW Topic,
+or a filter can be used to further refine the results found inside a SOW
+Topic. For more information, see the <em>State of the World</em> and <em>SOW
+Queries</em> chapters in the <em>AMPS User Guide</em></p>
+</div>
+<div class="section" id="id20">
+<h3>Header Fields<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="command-sow-headers">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>Command to be executed. Value: <code class="docutils literal"><span class="pre">sow</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Topic</span>
+</pre></div>
+</div>
+</td>
+<td>The SOW topic from which the records will be
+queried.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated list of one or more of the
+following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">received</span></code>,
+<code class="docutils literal"><span class="pre">processed</span></code>, <code class="docutils literal"><span class="pre">completed</span></code> or <code class="docutils literal"><span class="pre">stats</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">BatchSize</span></code></td>
+<td>Number of records to return in a single <code class="docutils literal"><span class="pre">sow</span></code>
+query result message. While the default value is
+1, it is recommended to use a higher
+<code class="docutils literal"><span class="pre">BatchSize</span></code> value, as even small increases can
+yield greater performance in query result
+delivery.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Bookmark</span></code></td>
+<td>A bookmark specifying the historical state of
+the SOW to return results from. For SOW topics
+where historical query is enabled, AMPS returns
+the saved state of the SOW as of that bookmark.
+For SOW topics where historical query is not
+enabled, AMPS ignores this parameter.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CommandId</span></code></td>
+<td>If specified with an AMPS command requesting an
+acknowledgment message, all requested
+acknowledgment messages will contain the
+<code class="docutils literal"><span class="pre">CommandId</span></code> in the <code class="docutils literal"><span class="pre">ack</span></code> response header.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td>Content filter expression. See the <em>Content
+Filtering</em> chapter in the <em>AMPS User Guide</em> for
+more information on using content filters.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">OrderBy</span></code></td>
+<td>Return the SOW results sorted by the specified
+fields. Fields are a comma-delimited list of
+AMPS identifiers, and may optionally include a
+sort specifier, <code class="docutils literal"><span class="pre">ASC</span></code> or <code class="docutils literal"><span class="pre">DESC</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">QueryId</span></code></td>
+<td>Unique identifier which is returned as part of
+the response delivered back to the client.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SowKeys</span></code></td>
+<td>A comma-delimited list of <code class="docutils literal"><span class="pre">SowKeys</span></code> that
+identify the messages to return from the query.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TopN</span></code></td>
+<td>Return up to the number of messages specified
+from the SOW query.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.17:</strong> <em>Header fields supported by sow</em></p>
+</div>
+<div class="section" id="id21">
+<h3>Options Field<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#command-sow-options"><span class="std std-ref">Table 4.18</span></a> contains a list of
+the <code class="docutils literal"><span class="pre">Options</span></code> available and their definitions when used in the AMPS <code class="docutils literal"><span class="pre">sow</span></code> command.</p>
+<table border="1" class="docutils" id="command-sow-options">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Option</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>This is the default <code class="docutils literal"><span class="pre">Options</span></code> type.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">no_sowkey</span></code></td>
+<td>Tells AMPS not to send the AMPS-generated
+<code class="docutils literal"><span class="pre">SowKey</span></code> for messages.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">grouping=[keys]</span></code></td>
+<td><p class="first">For use with aggregated SOW queries.</p>
+<p>The format of this option is a comma-delimited
+list of XPath identifiers within brackets. For
+example, to aggregate entries based on their
+<code class="docutils literal"><span class="pre">/description</span></code> (producing one record in the
+aggregation for each distinct value in
+<code class="docutils literal"><span class="pre">/description</span></code>), you would use the following
+option:</p>
+<p>This option must contain an entry for every
+field in the aggregated message. If there is no
+entry for a field in this option, that field
+will not appear in the aggregated message, even
+if the field is in the underlying message.</p>
+<p>When this option is provided, a <code class="docutils literal"><span class="pre">projection</span></code>
+must also be provided.</p>
+<p class="last">When the topic has <code class="docutils literal"><span class="pre">History</span></code> enabled, this
+option can be used with a bookmark to aggregate
+the historical state of the SOW.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">oof</span></code></td>
+<td>Send on <code class="docutils literal"><span class="pre">OOF</span></code> message for records which have
+fallen out of focus from the original
+subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">projection=[fields]</span></code></td>
+<td><p class="first">For use with aggregated SOW queries.</p>
+<p>Specifies a comma-delimited set of fields to
+project, within brackets. Each entry has the
+format described in the AMPS User Guide.</p>
+<p>This option must contain an entry for every
+field in the aggregated message. If there is no
+entry for a field in this option, that field
+will not appear in the aggregated message, even
+if the field is in the underlying message.</p>
+<p>There is no default for this option. When this
+option is provided, a <code class="docutils literal"><span class="pre">grouping</span></code> must also be
+provided.</p>
+<p>When the topic has <code class="docutils literal"><span class="pre">History</span></code> enabled, this
+option can be used with a bookmark to aggregate
+the historical state of the SOW.</p>
+<p class="last">The maximum size of this option is 64KB.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">replace</span></code></td>
+<td>Replace the subscription associated with
+<code class="docutils literal"><span class="pre">CmdId</span></code> with another subscription. When
+provided as part of <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code>, AMPS
+runs a SOW query for the new subscription.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">skip_n</span></code></td>
+<td>Skips the number of messages specified before
+returning results. A command that provides this
+option must also provide a <code class="docutils literal"><span class="pre">top_n</span></code> option (or
+header) and an <code class="docutils literal"><span class="pre">OrderBy</span></code> header.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">top_n</span></code></td>
+<td>Return up to the number of messages specified
+from the SOW query.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">select</span></code></td>
+<td>Specifies the fields to include in messages
+provided on this subscription. The contents of
+this option are a comma-delimited list of
+inclusion specifiers.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">send_keys</span></code></td>
+<td>AMPS will send the SOW keys (that is, the data
+fields used to identify unique messages in the
+SOW) back with matching messages from the SOW.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>AMPS will include a header with the time at
+which AMPS processed the incoming publish
+command for this message.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.18:</strong> <em>Options types supported by sow</em></p>
+</div>
+<div class="section" id="id22">
+<h3>Returns<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<p>When a <code class="docutils literal"><span class="pre">sow</span></code> message is received, AMPS can return a <code class="docutils literal"><span class="pre">received</span></code>
+message as notification that the message has arrived. When the message
+filter has been processed, AMPS will return the <code class="docutils literal"><span class="pre">processed</span></code>
+acknowledgment message along with any errors that might have occurred.</p>
+<p>The results returned by a SOW are put into a <code class="docutils literal"><span class="pre">sow</span></code> record group by
+first sending a <code class="docutils literal"><span class="pre">group_begin</span></code> message, followed by the matching SOW
+records. A <code class="docutils literal"><span class="pre">group_end</span></code> message is used to denote the close of query
+results processing.</p>
+<p><a class="reference internal" href="#command-sow-acks"><span class="std std-ref">Table 4.19</span></a> contains a listing
+of the acknowledgment messages supported by the <code class="docutils literal"><span class="pre">sow</span></code> command.</p>
+<table border="1" class="docutils" id="command-sow-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No acknowledgment message is returned. This is
+the default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">sow</span></code> command has completed.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has compiled the filter(s) for the <code class="docutils literal"><span class="pre">sow</span></code>
+message.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">sow</span></code> command has been received.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Returns statistics related to the state of the
+SOW query results.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.19:</strong> <em>Acknowledgment messages returned by sow</em></p>
+<p>The stats message include three values in the header: <code class="docutils literal"><span class="pre">Matches</span></code>,
+<code class="docutils literal"><span class="pre">TopicMatches</span></code>, and the <code class="docutils literal"><span class="pre">RecordsReturned</span></code>. These are defined below:</p>
+<div class="section" id="id23">
+<h4>TopicMatches<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<p>The total number of records compared across all matching SOW topics.</p>
+</div>
+<div class="section" id="id24">
+<h4>Matches<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h4>
+<p>The number of records returned that match the topic regular expression
+and the content filter. This value can be greater than
+<code class="docutils literal"><span class="pre">RecordsReturned</span></code> in the case where the number of returned records is
+limited by <code class="docutils literal"><span class="pre">TopN</span></code>.</p>
+</div>
+<div class="section" id="id25">
+<h4>RecordsReturned<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h4>
+<p>The total number of records returned to the client, which can be limited
+by the <code class="docutils literal"><span class="pre">TopN</span></code> header value.</p>
+</div>
+</div>
+<div class="section" id="id26">
+<h3>Errors<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<p>Any errors which occur during a <code class="docutils literal"><span class="pre">sow</span></code> command are returned in the
+<code class="docutils literal"><span class="pre">processed</span></code> acknowledgment message. The error is identified in the
+<code class="docutils literal"><span class="pre">Status</span></code> header field in the acknowledgment message, and the reason
+given in the <code class="docutils literal"><span class="pre">Reason</span></code> header field.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><img alt="caution" src="../_images/caution.svg" /></td>
+<td>The ordering of records returned by a SOW query is undefined.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="unsubscribe">
+<h2>unsubscribe<a class="headerlink" href="#unsubscribe" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id27">
+<h3>Description<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">unsubscribe</span></code> command allows a client to notify AMPS that it no
+longer wishes to receive messages related to a previous subscription.</p>
+<p>There are two ways that a client can unsubscribe from an existing
+subscription:</p>
+<ol class="arabic simple">
+<li>Adding the <code class="docutils literal"><span class="pre">all</span></code> keyword to the <code class="docutils literal"><span class="pre">SubId</span></code> header field in the
+<code class="docutils literal"><span class="pre">unsubscribe</span></code> message will unsubscribe the client from all AMPS SOW
+topic subscriptions.</li>
+<li>With each <code class="docutils literal"><span class="pre">subscription</span></code> command issued, AMPS will return a
+<code class="docutils literal"><span class="pre">SubId</span></code> with the <code class="docutils literal"><span class="pre">processed</span></code> acknowledgment message. Issuing an
+<code class="docutils literal"><span class="pre">unsubscribe</span></code> command using the same <code class="docutils literal"><span class="pre">SubId</span></code> header field which
+was returned as part of the original <code class="docutils literal"><span class="pre">subscribe</span></code> command&#8217;s
+<code class="docutils literal"><span class="pre">processed</span></code> acknowledgment message will unsubscribe a client from a
+single subscription.</li>
+</ol>
+</div>
+<div class="section" id="id28">
+<h3>Header Fields<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="command-unsubscribe-headers">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Field</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">Command</span>
+</pre></div>
+</div>
+</td>
+<td>Command to be executed. Value: <code class="docutils literal"><span class="pre">unsubscribe</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SubId</span></code></td>
+<td><p class="first">Subscription ID entered in AMPS by the client
+when the original <code class="docutils literal"><span class="pre">subscription</span></code> was placed.
+AMPS accepts a single subscription ID or a
+comma-delimited list of subscription ID. The
+keyword <code class="docutils literal"><span class="pre">all</span></code> can also be used to unsubscribe
+from all current subscriptions for the client.
+When both <code class="docutils literal"><span class="pre">SubId</span></code> and <code class="docutils literal"><span class="pre">QueryId</span></code> are
+provided, AMPS removes all matching
+subscriptions and SOW queries.</p>
+<p class="last">This command requires at least one of the
+<code class="docutils literal"><span class="pre">SubId</span></code> or <code class="docutils literal"><span class="pre">QueryIdY</span></code> fields to be set.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">QueryId</span></code></td>
+<td><p class="first">To cancel an in-progress SOW query, the
+unsubscribe command accepts the Query ID entered
+in AMPS by the client when the original <code class="docutils literal"><span class="pre">sow</span></code>
+command was placed. AMPS accepts a single query
+ID or a comma-delimited list of query IDs. When
+both <code class="docutils literal"><span class="pre">SubId</span></code> and <code class="docutils literal"><span class="pre">QueryId</span></code> are provided,
+AMPS removes all matching subscriptions and SOW
+queries.</p>
+<p class="last">This command requires at least one of the
+<code class="docutils literal"><span class="pre">SubId</span></code> or <code class="docutils literal"><span class="pre">QueryId</span></code> fields to be set.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">AckType</span></code></td>
+<td>Acknowledgment type for the given command. Value
+is a comma separated list of one or more of the
+following: <code class="docutils literal"><span class="pre">none</span></code>, <code class="docutils literal"><span class="pre">received</span></code> or
+<code class="docutils literal"><span class="pre">persisted</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">CommandId</span></code></td>
+<td>If specified within an AMPS command requesting
+an acknowledgment message, all requested
+acknowledgment messages will contain the
+<code class="docutils literal"><span class="pre">CommandId</span></code> in the <code class="docutils literal"><span class="pre">ack</span></code> response header.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.20:</strong> <em>Header fields supported by unsubscribe</em></p>
+</div>
+<div class="section" id="id29">
+<h3>Returns<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">unsubscribe</span></code> command supports the <code class="docutils literal"><span class="pre">received</span></code> and <code class="docutils literal"><span class="pre">processed</span></code>
+acknowledgment message types, as described in
+<a class="reference internal" href="#command-unsubscribe-acks"><span class="std std-ref">Table 4.21</span></a>.</p>
+<table border="1" class="docutils" id="command-unsubscribe-acks">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Acknowledgment</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">none</span></code></td>
+<td>No acknowledgment message is returned. This is
+the default behavior.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">completed</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">processed</span></code></td>
+<td>AMPS has processed the <code class="docutils literal"><span class="pre">unsubscribe</span></code>
+message(s).</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">persisted</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">received</span></code></td>
+<td>The <code class="docutils literal"><span class="pre">unsubscribe</span></code> message has been received.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stats</span></code></td>
+<td>Not supported at this time.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4.21:</strong> <em>Acknowledgment messages supported by unsubscribe</em></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

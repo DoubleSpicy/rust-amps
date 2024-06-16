@@ -1,0 +1,525 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>28. Troubleshooting AMPS &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="29. Sample Use Cases" href="usecases.html" />
+    <link rel="prev" title="27. Securing AMPS" href="securing.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">28. Troubleshooting AMPS</a><ul>
+<li><a class="reference internal" href="#planning-for-troubleshooting">Planning for Troubleshooting</a></li>
+<li><a class="reference internal" href="#diagnostic-utilities">Diagnostic Utilities</a></li>
+<li><a class="reference internal" href="#finding-information-in-the-log">Finding Information in the Log</a></li>
+<li><a class="reference internal" href="#reading-replication-log-messages">Reading Replication Log Messages</a></li>
+<li><a class="reference internal" href="#troubleshooting-disconnected-clients">Troubleshooting Disconnected Clients</a><ul>
+<li><a class="reference internal" href="#locating-the-reason-for-disconnection">Locating the Reason for Disconnection</a></li>
+<li><a class="reference internal" href="#duplicate-client-name-disconnection">Duplicate Client Name Disconnection</a></li>
+<li><a class="reference internal" href="#missed-heartbeat-disconnection">Missed Heartbeat Disconnection</a></li>
+<li><a class="reference internal" href="#slow-client-disconnection">Slow Client Disconnection</a></li>
+<li><a class="reference internal" href="#admin-console-client-disconnection">Admin Console Client Disconnection</a></li>
+<li><a class="reference internal" href="#admin-console-transport-disabled">Admin Console Transport Disabled</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#troubleshooting-regular-expression-subscriptions">Troubleshooting Regular Expression Subscriptions</a><ul>
+<li><a class="reference internal" href="#troubleshooting-whether-topics-match">Troubleshooting Whether Topics Match</a></li>
+<li><a class="reference internal" href="#troubleshooting-entitlement-issues">Troubleshooting Entitlement Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="securing.html" title="previous chapter">27. Securing AMPS</a></li>
+      <li>Next: <a href="usecases.html" title="next chapter">29. Sample Use Cases</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="troubleshooting-amps">
+<span id="ug-troubleshooting"></span><h1>28. Troubleshooting AMPS<a class="headerlink" href="#troubleshooting-amps" title="Permalink to this headline">¶</a></h1>
+<p>This chapter presents common techniques for troubleshooting AMPS.
+Additional troubleshooting information and answers to common questions
+about AMPS are included on our support site at
+<a class="reference external" href="http://support.crankuptheamps.com/hc">http://support.crankuptheamps.com/hc</a>.</p>
+<div class="section" id="planning-for-troubleshooting">
+<span id="index-0"></span><h2>Planning for Troubleshooting<a class="headerlink" href="#planning-for-troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>There are several steps that you can take before you need to
+troubleshoot a problem that will make troubleshooting easier. 60East
+recommends that you consider taking the following steps for a production
+instance of AMPS:</p>
+<ol class="arabic simple">
+<li>Configure the instance to log messages of <code class="docutils literal"><span class="pre">info</span></code> level or more
+verbose if possible, or a minimum of <code class="docutils literal"><span class="pre">warning</span></code> level. Some
+problems require more information, so increasing the amount of
+logging typically makes troubleshooting easier if your instance
+has storage available. 60East recommends that production instances
+log at <code class="docutils literal"><span class="pre">info</span></code> level or more verbose. If space is extremely
+restricted, <code class="docutils literal"><span class="pre">warning</span></code> level will provide some information,
+although more logging may be required to completely troubleshoot
+a problem.</li>
+<li>Ensure that client applications use unique names. Wherever possible,
+ensure that those names can easily be traced back to the instance of
+the application. For example, you might use the name of application
+combined with the name of the logged on user as a unique name. This
+will help you to more quickly find log messages related to a problem.</li>
+<li>Enable the administrative server. The administrative console is a
+good way to get a snapshot of the current state of a running
+instance, and the Galvanometer provides graphing and historical
+analysis capabilities.</li>
+<li>If you are using replication, ensure that your AMPS instances have
+unique names. Where possible, use names that make it easy to relate
+replication messages to the servers that process the message. For
+example, you might relate the AMPS instance name to the purpose that
+the instance serves, the physical server that the instance runs on,
+or both.</li>
+<li>Learn what normal operation looks like for your application. If
+possible, take the time to inspect the AMPS logs and the output of
+the administrator console when everything is working as expected.
+Applications vary in how they use AMPS, and what is normal for your
+application might indicate a problem in a different application. For
+example, if your application normally has a few publishers and many
+subscribers, seeing dozens of publishers come online may indicate
+that an application has unexpectedly started more publishers.
+Likewise, if no publishers are online, that may indicate an issue
+with connectivity to the AMPS server. Understanding normal behavior
+will help you to more easily and accurately spot problems.</li>
+</ol>
+</div>
+<div class="section" id="diagnostic-utilities">
+<span id="index-1"></span><h2>Diagnostic Utilities<a class="headerlink" href="#diagnostic-utilities" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS distribution provides the following utilities for analyzing
+and displaying data from the files used by the AMPS server.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps-grep</span></code></td>
+<td><p class="first">Utility for searching AMPS error and
+event logs <em>or</em> AMPS journal files.</p>
+<p>For error and event logs, the utility
+is aware of the structure of AMPS
+messages, and searches message by
+message rather than line by line.</p>
+<p>For journal files, the utility is able
+to interpret the journal file format
+and is aware of the structure of AMPS
+bookmarks and is also able to correlate
+client names to the hash values in
+journal files, making it much easier to
+locate specific messages or the activity
+of a specific publisher.</p>
+<p>See <a class="reference internal" href="logging.html#logging-finding-messages"><span class="std std-ref">Using amps-grep to
+Find Information In Logs</span></a> for tips on
+using the utility to search the error
+and event log.</p>
+<p class="last">See <a class="reference internal" href="txlog.html#txlog-finding-entries"><span class="std std-ref">Using amps-grep to
+Find Messages in the Transaction Log</span></a> for tips on
+using the utility to search the
+transaction log.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_journal_dump</span></code></td>
+<td><p class="first">Utility for extracting information from
+the journal files that comprise the
+AMPS transaction log.</p>
+<p class="last">This utility fully supports compressed
+journal files.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_journal_search</span></code></td>
+<td><p class="first">Utility for searching for a specific
+message within the journal files that
+comprise the AMPS transaction log.</p>
+<p>This utility is optimized for locating
+a specific message by exact bookmark.</p>
+<p class="last">For other searches, use <code class="docutils literal"><span class="pre">amps-grep</span></code>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_sow_dump</span></code></td>
+<td>Utility for extracting information from
+the file that holds SOW topic data.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_sqlite3</span></code></td>
+<td>Utility for running SQL queries over the
+the SQLite3 database that holds AMPS
+statistics.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_file</span></code></td>
+<td>Utility for providing filetype and
+version information for AMPS files.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_clients_ack_dump</span></code></td>
+<td>Utility for displaying the contents of
+the file that contains information on
+the last message persisted for a given
+publisher.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_queues_ack_dump</span></code></td>
+<td>Utility for displaying the contents of
+the file that contains information on
+the last acknowledged message for a
+given queue.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ampserr</span></code></td>
+<td>Utility that provides information about
+AMPS errors and events.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="finding-information-in-the-log">
+<span id="index-2"></span><h2>Finding Information in the Log<a class="headerlink" href="#finding-information-in-the-log" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS log is one of the most useful places to find information when
+there&#8217;s a problem with your application. Here are some techniques to use
+for finding relevant information in the log.</p>
+<ul>
+<li><p class="first">Ensure the log is capturing information that will be useful for
+diagnosing the problem. In general production use, 60East recommends
+logging at <code class="docutils literal"><span class="pre">info</span></code> level (or more verbose). To fully troubleshoot
+an error, it may be necessary to log at <code class="docutils literal"><span class="pre">trace</span></code> level to see the
+exact behavior in AMPS. Some deployments may find it useful to keep
+a separate log at <code class="docutils literal"><span class="pre">warning</span></code> level and above to more easily detect errors
+and potential problems, while maintaining an <code class="docutils literal"><span class="pre">info</span></code> level log for being
+able to troubleshoot problems.</p>
+</li>
+<li><p class="first">To find log messages that may indicate a problem, use <code class="docutils literal"><span class="pre">amps-grep</span></code> or
+the Linux <code class="docutils literal"><span class="pre">grep</span></code> tool to find log messages at warning, error, critical, or
+emergency levels. For example, you might use the following command line:</p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">amps-grep</span> <span class="pre">-E</span> <span class="pre">'warning|error|critical|emergency'</span> <span class="pre">log_file</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">grep</span> <span class="pre">-E</span> <span class="pre">'warning|error|critical|emergency'</span> <span class="pre">log_file</span></code></p>
+</div></blockquote>
+<p>This will show lines from the log that contain messages logged at
+those levels. The text that AMPS uses for log messages is guaranteed
+not to include strings that duplicate one of the log levels, although
+information that you configure (such as client names, topic names,
+and so on) may contain those strings.</p>
+</li>
+<li><p class="first">If you know the name of the client that experienced the problem, you
+can use that name to get information about the client. It&#8217;s often
+helpful to get log messages that include the client name and several
+lines of output after the client name to help you understand the
+context in which AMPS produced the message for the client name. To do
+this, you might you use the following command line:</p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">amps-grep</span> <span class="pre">client_name</span> <span class="pre">log_file</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">grep</span> <span class="pre">–B2</span> <span class="pre">–A10</span> <span class="pre">client_name</span> <span class="pre">log_file</span></code></p>
+</div></blockquote>
+</li>
+</ul>
+<p>This command line looks for all occurrences of the <em>client_name</em> in
+the log file. The <code class="docutils literal"><span class="pre">amps-grep</span></code> version prints the full messages where
+the <em>client_name</em> appears. The <code class="docutils literal"><span class="pre">grep</span></code> version attempts to approximate this
+by printing two lines of context before the line that contains the client name,
+and ten lines of context after the line that contains the client name.</p>
+<p>Once you&#8217;ve found the information you&#8217;re looking for, the <code class="docutils literal"><span class="pre">ampserr</span></code>
+utility can help you look up more information on messages, as described
+in <a class="reference internal" href="logging.html#logging-error-discovery"><span class="std std-ref">Looking Up Errors with ampserr</span></a>.</p>
+</div>
+<div class="section" id="reading-replication-log-messages">
+<span id="index-3"></span><h2>Reading Replication Log Messages<a class="headerlink" href="#reading-replication-log-messages" title="Permalink to this headline">¶</a></h2>
+<p>For replication connections, the replication source creates a client
+name that it uses to connect to the downstream instance. This client
+name contains the source, destination, sync setting, and protocol for
+the connection. The client name uses the following format:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>source!destination!sync_setting!protocol
+</pre></div>
+</div>
+<p>Notice, however, that this is a <em>client name</em>. The client name is the
+name used for the connection, but it does not indicate the direction of
+any particular message. As an example, consider a client name of:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>OrderServer!HotBackup!sync!amps-replication
+</pre></div>
+</div>
+<p>This client name is used for a connection that the AMPS instance named
+<em>OrderServer</em> has made to AMPS instance named <em>HotBackup</em>. The
+connection uses the amps-replication protocol, and was configured for
+synchronous replication at the time the client connected. In this case,
+a message like the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>12-1002 client[OrderServer!HotBackup!sync!amps-replication] replication ack received: publish ack
+      [txid=35922]
+</pre></div>
+</div>
+<p>Means that a publish acknowledgment was received on the connection that
+<em>OrderServer</em> made to <em>HotBackup</em>.</p>
+</div>
+<div class="section" id="troubleshooting-disconnected-clients">
+<span id="index-4"></span><h2>Troubleshooting Disconnected Clients<a class="headerlink" href="#troubleshooting-disconnected-clients" title="Permalink to this headline">¶</a></h2>
+<p>One common symptom of problems in an AMPS application is that AMPS
+disconnects clients unexpectedly. AMPS disconnects clients in the
+following situations:</p>
+<ul class="simple">
+<li>When transaction logging is configured for the instance and a client
+with a duplicate name logs on</li>
+<li>When heartbeating is enabled, and the client misses a heartbeat</li>
+<li>When a slow client falls behind by more than the configured threshold</li>
+<li>When the entitlement cache for an instance is reset</li>
+<li>When the administration console disconnects a client</li>
+<li>When the transport is disabled</li>
+</ul>
+<p>This section presents techniques to help you identify why clients are
+disconnected and correct any problems that may exist.</p>
+<div class="section" id="locating-the-reason-for-disconnection">
+<h3>Locating the Reason for Disconnection<a class="headerlink" href="#locating-the-reason-for-disconnection" title="Permalink to this headline">¶</a></h3>
+<p>To discover the reason that a client was disconnected, use the following
+command to find the client name in the logs:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">amps</span><span class="o">-</span><span class="n">grep</span> <span class="n">client_name</span> <span class="n">log_file</span>
+</pre></div>
+</div>
+<p>The results of this can provide information as to why the client was
+disconnected. AMPS logs a reason for the disconnection if the
+disconnection was the result of an internal action by AMPS.</p>
+<p>If the client chose to disconnect, or the disconnection is the result
+of network instability, the disconnection is logged but no further
+information is available to AMPS.</p>
+<p>The reasons that AMPS will log for a client disconnection are
+shown below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><em>Reason</em></th>
+<th class="head">Explanation</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">connection</span> <span class="pre">closed</span></code></td>
+<td>AMPS has detected that the socket
+has been closed.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">entitlement</span> <span class="pre">reset</span></code></td>
+<td>Entitlements have been reset for
+this user (or the full transport).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">name</span> <span class="pre">in</span> <span class="pre">use</span></code></td>
+<td>A client session (as identified by
+the client name) has reconnected,
+and the redundant connection has
+been closed.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">heartbeat</span></code></td>
+<td>The connection failed to provide
+a heartbeat within the period of
+time set by the connection, so AMPS
+has closed the connection.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">slow</span> <span class="pre">client</span></code></td>
+<td>The connection was closed due to
+the client capacity settings being
+exceeded.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">unknown</span> <span class="pre">command</span></code></td>
+<td>The client sent an unknown or
+malformed command, so AMPS closed
+the connection.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">auth</span></code></td>
+<td>The connection failed to
+authenticate.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">entitlement</span></code></td>
+<td>The connection successfully
+authenticated, but the user does
+have permission to log in.</td>
+</tr>
+</tbody>
+</table>
+<p>These reasons are included in the <code class="docutils literal"><span class="pre">07-0013</span></code> log message
+that records that the connection has closed.</p>
+</div>
+<div class="section" id="duplicate-client-name-disconnection">
+<h3>Duplicate Client Name Disconnection<a class="headerlink" href="#duplicate-client-name-disconnection" title="Permalink to this headline">¶</a></h3>
+<p>When a client is disconnected due to another client with the same name
+logging on, the messages produced might look like:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T16</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mf">59.6408410</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="n">warning</span><span class="p">:</span> <span class="mi">02</span><span class="o">-</span><span class="mi">0025</span> <span class="n">A</span> <span class="n">client</span> <span class="n">logon</span> <span class="k">with</span> <span class="n">an</span> <span class="s1">&#39;in use&#39;</span> <span class="n">client</span> <span class="n">name</span> <span class="k">for</span> <span class="n">the</span> <span class="n">same</span> <span class="n">user</span> <span class="nb">id</span> <span class="n">forced</span> <span class="n">a</span> <span class="n">disconnect</span> <span class="n">of</span> <span class="n">client</span><span class="p">:</span> <span class="n">client</span><span class="p">[</span><span class="n">my</span><span class="o">-</span><span class="n">name</span><span class="p">]</span> <span class="k">with</span> <span class="n">user</span> <span class="nb">id</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>To resolve this issue, ensure that clients use unique names when
+connecting to instances that configure a transaction log.</p>
+</div>
+<div class="section" id="missed-heartbeat-disconnection">
+<h3>Missed Heartbeat Disconnection<a class="headerlink" href="#missed-heartbeat-disconnection" title="Permalink to this headline">¶</a></h3>
+<p>When AMPS disconnects a client due to the client failing to heartbeat,
+the log messages produced look like the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T16</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mf">23.9185690</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="n">error</span><span class="p">:</span> <span class="mi">07</span><span class="o">-</span><span class="mi">0042</span> <span class="n">AMPS</span> <span class="n">heartbeat</span> <span class="n">manager</span> <span class="ow">is</span> <span class="n">disconnecting</span> <span class="n">an</span> <span class="n">unresponsive</span> <span class="n">client</span><span class="p">:</span> <span class="n">no</span><span class="o">-</span><span class="n">heartbeat</span><span class="o">-</span><span class="n">client</span>
+</pre></div>
+</div>
+<p>This error most often arises from severe network congestion, a deadlock
+or similar problem in the application that is preventing the AMPS client
+library from producing heartbeats, or a problem in AMPS that prevents
+AMPS from servicing heartbeat requests.</p>
+</div>
+<div class="section" id="slow-client-disconnection">
+<h3>Slow Client Disconnection<a class="headerlink" href="#slow-client-disconnection" title="Permalink to this headline">¶</a></h3>
+<p>The following shows sample log entries for slow client disconnection. If
+a client named <code class="docutils literal"><span class="pre">sleepy-client</span></code> was disconnected for being a slow
+client, the relevant entries in the transaction log might look like:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T15</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mf">06.8496430</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="n">warning</span><span class="p">:</span> <span class="mi">70</span><span class="o">-</span><span class="mi">0011</span> <span class="n">client</span><span class="p">[</span><span class="n">sleepy</span><span class="o">-</span><span class="n">client</span><span class="p">]</span> <span class="n">slow</span> <span class="n">consumption</span> <span class="n">detected</span><span class="p">,</span> <span class="n">offline</span> <span class="n">messages</span><span class="o">.</span>
+<span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T15</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mf">06.8498130</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="n">error</span><span class="p">:</span> <span class="mi">70</span><span class="o">-</span><span class="mi">0004</span> <span class="n">client</span><span class="p">[</span><span class="n">sleepy</span><span class="o">-</span><span class="n">client</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">consuming</span> <span class="n">messages</span><span class="p">,</span> <span class="n">disconnecting</span> <span class="n">slow</span> <span class="n">client</span>
+</pre></div>
+</div>
+<p>Notice that there may be a considerable period of time between the
+client being offlined and the client being disconnected.</p>
+<p>There are several approaches to solving the problem:</p>
+<ul class="simple">
+<li><em>Reduce the number of messages returned</em>. Clients most often fall
+behind when a SOW query or a replay from the transaction log returns
+a large number of messages. If possible, use content filtering to
+return a more precise set of messages.</li>
+<li><em>Improve the rate at which the client handles messages</em>. If the
+client message handler takes a relatively long time to process the
+message, moving message processing onto a different thread or
+streamlining the processing may improve the speed of the client and
+allow the client to keep up.</li>
+<li><em>Adjust the client offlining threshold</em>. You can also increase the
+capacity of messages that AMPS will buffer for clients connected to
+a specific transport, as described in <a class="reference internal" href="ha.html#ug-slow-client-management"><span class="std std-ref">Slow Client Management and Capacity Limits</span></a>.</li>
+</ul>
+</div>
+<div class="section" id="admin-console-client-disconnection">
+<h3>Admin Console Client Disconnection<a class="headerlink" href="#admin-console-client-disconnection" title="Permalink to this headline">¶</a></h3>
+<p>Disconnection from the admin console provides no additional information,
+and produces a log message like the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T15</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mf">06.8502350</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="n">info</span><span class="p">:</span> <span class="mi">07</span><span class="o">-</span><span class="mi">0013</span> <span class="n">client</span><span class="p">[</span><span class="n">sleepy</span><span class="o">-</span><span class="n">client</span><span class="p">]</span> <span class="n">disconnected</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="admin-console-transport-disabled">
+<h3>Admin Console Transport Disabled<a class="headerlink" href="#admin-console-transport-disabled" title="Permalink to this headline">¶</a></h3>
+<p>A transport being disabled through the admin console produces messages
+like the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T16</span><span class="p">:</span><span class="mi">04</span><span class="p">:</span><span class="mf">00.9548130</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="n">info</span><span class="p">:</span> <span class="mi">07</span><span class="o">-</span><span class="mi">0047</span> <span class="n">Transport</span><span class="p">[</span><span class="n">json</span><span class="o">-</span><span class="n">tcp</span><span class="p">]</span> <span class="n">being</span> <span class="n">disabled</span><span class="o">.</span>
+<span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span><span class="n">T16</span><span class="p">:</span><span class="mi">04</span><span class="p">:</span><span class="mf">00.9550150</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="n">info</span><span class="p">:</span> <span class="mi">07</span><span class="o">-</span><span class="mi">0013</span> <span class="n">client</span><span class="p">[</span><span class="n">amps</span><span class="o">-</span><span class="n">json</span><span class="o">-</span><span class="n">tcp</span><span class="o">-</span><span class="mi">18</span><span class="p">]</span> <span class="n">disconnected</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="troubleshooting-regular-expression-subscriptions">
+<span id="index-5"></span><h2>Troubleshooting Regular Expression Subscriptions<a class="headerlink" href="#troubleshooting-regular-expression-subscriptions" title="Permalink to this headline">¶</a></h2>
+<p>When a regular expression subscription does not receive the messages that it
+expects, the two most common reasons are:</p>
+<ul class="simple">
+<li>The regular expression does not match the topic, or topics, expected; _or_</li>
+<li>The user submitting the subscription is not entitled to one or more of
+the expected topics</li>
+</ul>
+<p>As with any other subscription, it would also be important to verify that
+the messages match any content or entitlement filters in place, and that
+messages are actively being published to the topic in question.</p>
+<div class="section" id="troubleshooting-whether-topics-match">
+<h3>Troubleshooting Whether Topics Match<a class="headerlink" href="#troubleshooting-whether-topics-match" title="Permalink to this headline">¶</a></h3>
+<p>To determine whether the regular expression matches the topic in question,
+use an external regex tester to verify that the regular expression
+matches the topic names that the subscription intends to subscribe
+to. Keep in mind that AMPS regular expression matches are not limited
+to the beginning of the topic name unless the expression contains
+an explicit anchor (that is, <code class="docutils literal"><span class="pre">^</span></code>).</p>
+</div>
+<div class="section" id="troubleshooting-entitlement-issues">
+<h3>Troubleshooting Entitlement Issues<a class="headerlink" href="#troubleshooting-entitlement-issues" title="Permalink to this headline">¶</a></h3>
+<p>There are two ways to troubleshoot entitlement issues:</p>
+<ol class="arabic simple">
+<li>An entitlement module will typically log whether it allows or
+denies an entitlement request. Check the AMPS logs for logging
+indicating whether the entitlement request was allowed or
+denied. Since AMPS caches the results of entitlement requests,
+using <code class="docutils literal"><span class="pre">amps-grep</span></code> to quickly scan the logs for the name of
+the topic is recommended.</li>
+<li>With a connection logged on with the same credentials as
+the user, enter a subscription with the <strong>exact</strong> name of
+the topic in question. That is, rather than using a regular
+expression subscription, supply the literal topic name on
+the subscription request. In this case, AMPS will refuse
+the subscription and log an error if the user is not
+entitled.</li>
+</ol>
+<p>In either case, if the user is not entitled to a topic that
+matches a regular expression subscription, no messages from
+that topic will be delivered to the user.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

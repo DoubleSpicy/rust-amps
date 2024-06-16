@@ -1,0 +1,43 @@
+.. index:: Publish and subscribe, Pub/sub, Publish, Subscribe,
+
+.. _#ug-pub_sub:
+
+3. Publish and Subscribe
+========================
+
+AMPS is a rich message delivery system. At the core of the system, the
+AMPS engine is highly-optimized for publish and subscribe delivery. In
+this style of messaging, publishers send messages to a message broker
+(such as AMPS) which then routes and delivers messages to the
+subscribers. "Pub/Sub" systems, as they are often called, are a key part
+of most enterprise message buses, where publishers broadcast messages
+without necessarily knowing all of the subscribers that will receive
+them. This decoupling of the publishers from the subscribers allows
+maximum flexibility when adding new data sources or consumers.
+
+.. _#pub_sub-fig1:
+
+.. figure:: ../../common/chapters/pub_sub/svg/PubSub1.svg
+   :alt: Publish and Subscribe
+   :width: 75.0%
+
+**Figure 3.1:** *Publish and Subscribe*
+
+AMPS can route messages from publishers to subscribers using a topic
+identifier and/or content within the message's payload. For example, in
+:ref:`Figure 3.1<#pub_sub-fig1>`, 
+there is a Publisher sending AMPS a message pertaining to the ``LN_ORDERS`` topic. The 
+message being sent contains information on Ticker "IBM" with a Price of 125, both of these
+properties are contained within the message payload itself (i.e., the
+message content). AMPS routes the message to Subscriber 1 because it is
+subscribing to all messages on the ``LN_ORDERS`` topic. Similarly, AMPS
+routes the message to Subscriber 2 because it is subscribed to any
+messages having the Ticker equal to "IBM". Subscriber 3 is looking for a
+different Ticker value and is not sent the message.
+
+.. include:: ./topics.inc
+.. include:: ./content.inc
+.. include:: ./conflation.inc
+.. include:: ./replace.inc
+.. include:: ./messages.inc
+.. include:: ./ordering.inc

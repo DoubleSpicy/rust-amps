@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>13. Advanced Topics &#8212; Advanced Message Processing System (AMPS) C++ Developer Guide develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="13. Performance Tips and Best Practices" href="performance-tips.html" />
+    <link rel="prev" title="12. Utilities" href="utilities.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">13. Advanced Topics</a><ul>
+<li><a class="reference internal" href="#transport-filtering">Transport Filtering</a></li>
+<li><a class="reference internal" href="#using-ssl">Using SSL</a></li>
+<li><a class="reference internal" href="#loading-the-ssl-library">Loading the SSL Library</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="utilities.html" title="previous chapter">12. Utilities</a></li>
+      <li>Next: <a href="performance-tips.html" title="next chapter">13. Performance Tips and Best Practices</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="advanced-topics">
+<h1>13. Advanced Topics<a class="headerlink" href="#advanced-topics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="transport-filtering">
+<h2>Transport Filtering<a class="headerlink" href="#transport-filtering" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS C/C++ client offers the ability to filter incoming and outgoing
+messages in the format they are sent and received on the network. This
+allows you to inspect or modify outgoing messages before they are sent
+to the network, and incoming messages as they arrive from the network.
+This can be especially useful when using SSL connections, since this
+gives you a way to monitor outgoing network traffic before it is
+encrypted, and incoming network traffic after it is decrypted.</p>
+<p>To create a transport filter, you create a function with the following
+signature</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">amps_tcp_filter_function</span><span class="p">(</span><span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">data</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">short</span> <span class="n">direction</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">userdata</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>You then register the filter by calling <code class="docutils literal"><span class="pre">setTransportFilterFunction</span></code>
+with a pointer to the function and a pointer to the data to be provided
+in the userdata parameter of the callback.</p>
+<p>For example, the following filter function simply prints the data
+provided to the standard output:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">amps_tcp_trace_filter_function</span><span class="p">(</span><span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">data</span><span class="p">,</span>
+                                    <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span>
+                                    <span class="kt">short</span> <span class="n">direction</span><span class="p">,</span>
+                                    <span class="kt">void</span><span class="o">*</span> <span class="n">userdata</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* Output the direction marker */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">direction</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;OUTGOING ---&gt; &quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;INCOMING ---&gt; &quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* Output the data */</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">len</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Registering the function is a matter of calling
+<code class="docutils literal"><span class="pre">setTransportFilterFunction</span></code> with this function and any callback
+data, as shown below:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cm">/* client is an existing Client object */</span>
+<span class="n">client</span><span class="p">.</span><span class="n">setTransportFilterFunction</span><span class="p">(</span>
+                              <span class="o">&amp;</span><span class="n">amps_tcp_trace_filter_function</span><span class="p">,</span>
+                              <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="nb">NULL</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The snippet above installs the filter function for the client.</p>
+<p>Notice that the transport filter function is called with the verbatim
+contents of data received from AMPS. This means that, for incoming data,
+the function may not be called precisely on message boundaries, and that
+the binary length encoding used by the client and server will be presented
+to the transport filter.</p>
+</div>
+<div class="section" id="using-ssl">
+<span id="index-0"></span><h2>Using SSL<a class="headerlink" href="#using-ssl" title="Permalink to this headline">¶</a></h2>
+<p>The AMPS C++ client includes support for Secure Sockets Layer (SSL)
+connections to AMPS. The client automatically attempts to make an SSL
+connection when the transport in the connection string is set to
+<code class="docutils literal"><span class="pre">tcps</span></code>, as described in connection string is set to <code class="docutils literal"><span class="pre">tcps</span></code>, as
+described in Chapter 3 Connection Strings.</p>
+<p>To use the <code class="docutils literal"><span class="pre">tcps</span></code> transport, your application must have an SSL library
+loaded before making the <code class="docutils literal"><span class="pre">tcps</span></code> connection. Notice that the AMPS C++
+client uses the OpenSSL implementation that you provide. The AMPS client
+distribution doesn&#8217;t include OpenSSL, and doesn&#8217;t provide facilities for
+certificate generation, certificate signing, key management, and so
+forth. Those facilities are provided by the OpenSSL implementation you choose.</p>
+</div>
+<div class="section" id="loading-the-ssl-library">
+<span id="index-1"></span><h2>Loading the SSL Library<a class="headerlink" href="#loading-the-ssl-library" title="Permalink to this headline">¶</a></h2>
+<p>To make an SSL connection, the AMPS client must have an SSL library
+loaded before making the SSL connection.</p>
+<p>There are two common ways to load the library:</p>
+<ol class="arabic simple">
+<li>At link time, specify the OpenSSL shared object file (Linux) or DLL
+(Windows) to the linker. With this approach, the operating system
+will load the SSL library for your application automatically when the
+application starts up.</li>
+<li>Use the <code class="docutils literal"><span class="pre">amps_ssl_init</span></code> function to load the SSL library. This
+function accepts either the library name, or a full path including
+the library name. When called with the library name, the AMPS C++
+client will search appropriate system paths for shared libraries (for
+example, the <code class="docutils literal"><span class="pre">LD_LIBRARY_PATH</span></code> on Linux) and load the first object
+found that matches the provided name. When called with a full path,
+the AMPS C++ client will load exactly the object specified.</li>
+</ol>
+<p>Once the SSL library is loaded, you can connect using <code class="docutils literal"><span class="pre">tcps</span></code> as a
+transport type. The fact that the connection uses a secure socket is
+only important when making the connection, and does not affect the
+operation of the client once the connection has been made.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

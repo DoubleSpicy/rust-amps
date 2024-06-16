@@ -1,0 +1,1087 @@
+.. index:: Message types, Message types; FIX, Message types; NVFIX,
+   Message types; XML, Message types; JSON, Message types; BSON, Message
+   types; composite, Message types; protobuf, Message types; msgpack
+
+.. _#ug-messagetypes:
+
+16. Message Types
+==================
+
+Message communication between the publisher and subscriber in AMPS is
+managed through the use of message types. Message types define the data
+contained within an AMPS message. Each topic has a specific message
+type. Transports used for publishers and subscribers can also define
+specific message types. For a given transport, AMPS will only process
+messages of the type or types that the transport accepts.
+
+When AMPS needs to use the data within a message, AMPS uses the message
+type to parse the message into an internal representation. AMPS uses the
+same internal representation for all message types. Likewise, if AMPS
+needs to create a new message from a set of values (for example, for a
+view), AMPS uses the message type to serialize that set of values into
+the correct format. AMPS filters, commands, processing flow, and so
+forth are the same for every message type. Message types do not change
+how AMPS processes messages. A message type simply allows AMPS to work
+with data of a particular format.
+
+In some cases, a given message type cannot support all of the
+capabilities in AMPS. For example, the unparsed ``binary`` message type
+allows arbitrary payloads. This can be extremely useful, but because
+there is no set format for that message type, none of the capabilities
+that rely on parsing data are supported by the ``binary`` message type.
+Where a message type cannot provide a specific capability to AMPS, those
+limitations are described below.
+
+Except where limitations are described in this section, all message
+types provided with the AMPS server support all AMPS features. The AMPS
+engine itself is message-type agnostic. There is no difference in
+configuring a SOW that uses a composite type than there is configuring a
+SOW that uses JSON, or BFlat, or Google Protocol buffers.
+
+Message types in AMPS are implemented as plug-in modules. For more
+information on plug-in modules, contact 60East support for access to the
+AMPS Server SDK.
+
+Default Message Types
+----------------------
+
+AMPS automatically loads modules for the following message types:
+
++--------------+----------------------------------------------------------------------------------------------+
+| Message Type | Description                                                                                  |
++==============+==============================================================================================+
+| ``bson``     | Binary JSON (BSON) messages. See http://www.bsonspec.org for information on this format.     |
++--------------+----------------------------------------------------------------------------------------------+
+| ``bflat``    | BFlat, a schemaless message format based on key-value pairs that includes support for binary |
+|              | representations of numeric data. See http://bflat.io for information on this format.         |
++--------------+----------------------------------------------------------------------------------------------+
+| ``fix``      | FIX messages using numeric tags. FIX is a standard format widely used in the financial       |
+|              | industry. See https://www.fixtrading.org/what-is-fix/ for more information on                |
+|              | this format.                                                                                 |
++--------------+----------------------------------------------------------------------------------------------+
+| ``json``     | JSON (JavaScript Object Notation) messages. See http://www.json.org for information on this  |
+|              | format.                                                                                      |
++--------------+----------------------------------------------------------------------------------------------+
+| ``msgpack``  | MessagePack messages. MessagePack is a schemaless serialization format designed to           |
+|              | efficiently encode data. See http://msgpack.org/index.html for more information on           |
+|              | MessagePack.                                                                                 |
++--------------+----------------------------------------------------------------------------------------------+
+| ``nvfix``    | NVFIX (name/value FIX) messages. NVFIX uses the same basic format as FIX, but allows tags to |
+|              | contain any byte that is not ``=`` or the configured field separator character (by default,  |
+|              | the ASCII ``SOH`` character.) By contrast, FIX requires that tags are numeric.               |
++--------------+----------------------------------------------------------------------------------------------+
+| ``xml``      | XML messages (of any schema)                                                                 |
++--------------+----------------------------------------------------------------------------------------------+
+| ``binary``   | Uninterpreted binary payload. Because this module does not attempt to parse the payload, it  |
+|              | does not support content filtering, views and aggregates. Likewise, because there is no set  |
+|              | format for the payload, this message type cannot support features that construct messages    |
+|              | (such as delta messaging, ``/AMPS/.*`` topic subscriptions and ``stats`` acks).              |
++--------------+----------------------------------------------------------------------------------------------+
+| ``protobuf`` | Google protocol buffer messages. To use this message type, you must configure a              |
+|              | ``MessageType`` with the format of the messages (the ``.proto`` files).                      |
++--------------+----------------------------------------------------------------------------------------------+
+
+**Table 16.1:** *AMPS Default Message Types*
+
+With these message types, AMPS automatically loads the module that
+provides the message type. AMPS declares message types for all of the
+above message types except for ``protobuf``.
+
+.. index:: message parsing, message validation; not enforced by AMPS,
+
+For efficiency, AMPS only parses the content of a message if required,
+and only to the extent required. For example, if AMPS only needs to find
+the ``id`` tag in an NVFIX message, AMPS will not fully parse the
+message, but will stop parsing the message after finding the ``id`` tag.
+This provides significant performance improvements, and also means that
+AMPS does not verify the format or validity of messages unless it needs
+to parse the messages. When AMPS parses a message, it may only partially
+parse a message, and may not detect corruption or invalid format in a
+message if that corruption occurs after the point at which AMPS has all
+of the required information from the message.
+
+The FIX and NVFIX message types support configuration of the field and
+message delimiters.
+
+AMPS also allows you to create new message types by assembling existing
+message types into a composite message. Composite message types are
+described in :ref:`Composite Messages <#ug-messagetypes-composite>`, and
+require additional configuration:
+
++-----------------------+-----------------------------------------------------------------------------------+
+| Message Type Name     | Description                                                                       |
++=======================+===================================================================================+
+| ``composite-global``  | Composite message type that combines message parts for content filtering. This    |
+|                       | message type combines one or more existing message types into a message. This     |
+|                       | type is described in more detail in                                               |
+|                       | :ref:`Composite Messages<#ug-messagetypes-composite>`.                            |
++-----------------------+-----------------------------------------------------------------------------------+
+| ``composite-local``   | Composite message type, filterable by individual parts. This message type         |
+|                       | combines one or more existing message types into a message. This type is          |
+|                       | described in more detail in                                                       |
+|                       | :ref:`Composite Messages <#ug-messagetypes-composite>`.                           |
++-----------------------+-----------------------------------------------------------------------------------+
+
+**Table 16.2:** *AMPS Composite Message Types*
+
+.. index:: bflat,
+
+BFlat Messages
+---------------
+
+The BFlat message format combines the simplicity and efficiency of
+simple, schemaless data formats such as FIX and NVFIX with the ability
+to manage binary data and preserve the full precision of numeric values.
+BFlat is especially useful for applications that deal with binary data
+or precise numeric values while demanding high levels of throughput.
+
+A BFlat message is composed of any number of tag/value pairs, similar to
+FIX and NVFIX messages. Tags and values can contain any value and can
+be of any length. Unlike formats such as FIX, there are no reserved
+characters. In practical terms, the name of a tag must be a valid XPath
+identifier to filter the message in AMPS. However, this is a limitation
+of XPath and not of the BFlat message format.
+
+The BFlat message type supports all AMPS features and there are no
+special considerations when using the BFlat message type.
+
+Open-source libraries for producing and parsing BFlat messages are available
+from the `BFlat project <http://bflat.io>`_ site.
+
+BFlat Data Types
+^^^^^^^^^^^^^^^^^
+
+BFlat messages are strongly typed.  For numeric values, BFlat can preserve
+the precise value of the following numeric types:
+
++--------------------------------------+--------------------------------------+
+| Type                                 | Description                          |
++======================================+======================================+
+| int8                                 | 8-bit integer                        |
++--------------------------------------+--------------------------------------+
+| int16                                | 16-bit integer                       |
++--------------------------------------+--------------------------------------+
+| int32                                | 32-bit integer                       |
++--------------------------------------+--------------------------------------+
+| int64                                | 64-bit integer                       |
++--------------------------------------+--------------------------------------+
+| double                               | 64-bit IEEE 754 floating point       |
+|                                      | number                               |
++--------------------------------------+--------------------------------------+
+| datetime                             | UTC datetime containing milliseconds |
+|                                      | since Unix epoch (64-bit             |
+|                                      | representation)                      |
++--------------------------------------+--------------------------------------+
+| leb128                               | Signed LEB128 integer (variable      |
+|                                      | length)                              |
++--------------------------------------+--------------------------------------+
+
+**Table 16.3:** *BFlat Numeric Types*
+
+BFlat also includes the following non-numeric types:
+
++--------------------------------------+--------------------------------------+
+| Type                                 | Description                          |
++======================================+======================================+
+| null                                 | Empty field                          |
++--------------------------------------+--------------------------------------+
+| string                               | String of bytes                      |
+|                                      |                                      |
+|                                      | BFlat does not specify the encoding  |
+|                                      | of a string; this is up to the       |
+|                                      | application to determine.            |
++--------------------------------------+--------------------------------------+
+| binary                               | Untyped sequence of bytes            |
++--------------------------------------+--------------------------------------+
+
+**Table 16.4:** *BFlat Non-numeric Types*
+
+
+BFlat includes the ability to represent arrays of values.
+
+
+Representing Data in BFlat
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By convention, BFlat serializers should choose the most compact representation of a
+given value. For example, if an integer value can fit into 8 bits, it should be
+serialized as a value of type ``int8``. An application that parses BFlat should
+assume that a serializer may use different types for values in the same field,
+to optimize for a compact representation, and should not rely on a value being
+of a specific type.
+
+For example, a ``TotalValue`` field that can have any integer value could
+be serialized with a type of ``int8`` for values that fit in 8 bits, but could
+be serialized with a integer type that includes more bits if the value is larger,
+and could be serialized with the ``leb128`` type for integer values that cannot
+be represented in 64 bits.
+
+When the AMPS server must serialize a BFlat message (for example, when projecting
+a view or as a result of enrichment), AMPS tries to optimize for the most compact message size,
+which could change the representation if the serializer did not choose the most
+compact type for a value.
+
+
+
+.. index:: messagepack, msgpack
+
+MessagePack Messages
+--------------------
+
+AMPS fully supports MessagePack messages, with the following
+implementation decisions to represent MessagePack messages in
+the AMPS type system. See :ref:`#ug-expressions-data-types` for
+information on the AMPS data types. Notice, in particular, that
+the AMPS expression language supports automatic type conversion,
+so while this table shows the default AMPS representation for
+a given MessagePack type, AMPS will convert a value as needed
+once the message has been parsed.
+
++--------------------------------------+--------------------------------------+
+| MessagePack Type                     | AMPS Representation                  |
++======================================+======================================+
+| nil                                  | NULL                                 |
++--------------------------------------+--------------------------------------+
+| bool                                 | Boolean                              |
++--------------------------------------+--------------------------------------+
+| int (all widths)                     | Integer                              |
++--------------------------------------+--------------------------------------+
+| float (all widths)                   | Float                                |
++--------------------------------------+--------------------------------------+
+| str (all widths)                     | String                               |
++--------------------------------------+--------------------------------------+
+| bin (all widths)                     | String                               |
++--------------------------------------+--------------------------------------+
+| array (all widths)                   | array of AMPS values                 |
++--------------------------------------+--------------------------------------+
+| map (all widths)                     | nested AMPS values                   |
++--------------------------------------+--------------------------------------+
+| ext (all widths)                     | String                               |
++--------------------------------------+--------------------------------------+
+
+**Table 16.5:** *MessagePack Types and AMPS Types*
+
+
+
+Notice that AMPS does not attempt to interpret extension types, and instead
+represents them as arrays of bytes (a String in the AMPS type system).
+
+.. _#ug-messagetypes-composite:
+
+Composite Messages
+-------------------
+
+Sometimes, applications only need to filter on a small subset of the
+fields in a message. Sometimes applications need to send and receive
+messages that cannot be meaningfully parsed by AMPS, such as images or
+audio files. For these cases, AMPS provides a composite message type
+that lets you create a new message type by combining existing message
+types.
+
+For example, you might create a message type that includes three parts:
+the metadata for an image as a ``json`` document, a small JPG thumbnail
+as a ``binary`` message part, and a full size PNG image as another
+``binary`` message part.
+
+Composite messages can also be useful when the message itself is large
+or resource-intensive to parse. In this case, you can create a message
+type that includes the information needed to filter messages in a JSON
+or NVFIX part, and include the full message in the unparsed payload of
+the composite message, as described below.
+
+AMPS provides two different types of composite messages. Messages
+created using the ``composite-local`` module preserve information about
+the individual parts for filtering, aggregation, and projection.
+Messages created using the ``composite-global`` module treat the
+individual parts as elements of a single document.
+
+
+.. index:: unparsed payload,
+
+
+Configuring Composite Message Types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To use a composite message type, you must first configure the type by
+declaring it in the ``MessageTypes`` section of the AMPS configuration
+file. The declaration contains the name of the new composite message
+type, specifies that the new type is composite, and lists the parts of
+the composite message type.
+
+For example, the ``MessageType`` element below declares a new composite
+message type named ``images``. The new type contains a ``json`` document
+at the beginning of the message, followed by two uninterpreted binary
+message parts. AMPS will combine the XPath identifiers for all message
+parts into a single set of identifiers. Notice that, because only one
+part of the message type is parsable, using ``composite-global``
+simplifies the identifiers for the message.
+
+.. code-block:: xml
+
+    <MessageTypes>
+        ...
+        
+        <MessageType>
+            <Name>images</Name>
+            <Module>composite-global</Module>
+            <MessageType>json</MessageType>
+            <MessageType>binary</MessageType>
+            <MessageType>binary</MessageType>
+        </MessageType>
+
+        ...
+
+    </MessageTypes>
+
+The ``MessageType`` entries for the composite message can be any AMPS
+message type, including both the built-in types and any previously
+defined message type.
+
+Once the new composite message type is created, you can use the new type
+in the configuration file.
+
+Composite message types have the following restrictions:
+
+-  Delta subscribe and delta publish are not supported for message types
+   that use ``composite-global``.
+
+-  Views, joins, and aggregation cannot project message types that use
+   ``composite-global``. (However, composite message types that use
+   ``composite-global`` *can* be an ``UnderlyingTopic`` or one of the
+   topics in a ``Join``.)
+
+-  Composite message types do not support features that automatically
+   construct messages, such as subscriptions to the ``AMPS/.*`` topics and
+   stats acks, regardless of the module the type uses.
+
+Unparsed Payload Section
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All composite message types, regardless of how they are defined, provide
+an *unparsed payload* section. The unparsed payload section does not
+need to be declared in the ``MessageType`` declaration. As the name
+suggests, AMPS does not parse or interpret this section, so the unparsed
+payload can contain any content of any type. In an AMPS client,
+the unparsed payload section is represented as bytes that appear
+at the end of the message, after the last defined part.
+
+The unparsed payload is included to simplify the common technique where
+a message type contains a header that is used for filtering followed by
+an unparsed binary. If your composite message type contains a single
+binary part, consider using the unparsed payload section in your
+application rather than declaring a binary message part. Notice,
+however, that since AMPS does not parse or interpret this section,
+it may not appear in serialized representations of the message
+(for example, log messages, Galvanometer display, and so on).
+
+Content Filtering with Composite Message Types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Composite message types support filtering on the contents of the
+composite message. There are some simple conventions to remember when
+constructing expressions to filter on. For more details about content
+filtering, see :ref:`Filtering Subscriptions by Content<#pub-sub-content>`.
+
+These conventions are consistent anywhere that AMPS needs to find a
+value within the composite message type. That includes content filters
+for client subscriptions, identifying SOW keys, creating views and
+aggregates, creating conflated topics, and so on.
+
+composite-global
+~~~~~~~~~~~~~~~~
+
+When using the ``composite-global`` message type, AMPS combines all
+parts of the message into a unified set of XPath identifiers. AMPS
+creates the set of identifiers for each part of the message. If
+different parts of the message contain the same identifier, AMPS treats
+that identifier as though the identifier contained an array of values:
+AMPS creates an array that contains all of the values in the different
+parts of the message. Message types that do not support content
+filtering do not provide XPath identifiers.
+
+For example, consider the message below for a ``composite-global``
+message type that includes two ``json`` parts and a ``binary`` part:
+
+.. code::
+
+    {"id":1,"data":"sample","message":"part one message"}
+    {"message":"another part","customer":"Awesome Amalgamated, Ltd."}
+    0xDEEA0934DF23A37780934...
+
+AMPS constructs the following set of XPath identifiers and values:
+
++--------------------------------------+--------------------------------------+
+| Identifier                           | Value                                |
++======================================+======================================+
+| ``/id``                              | ``1``                                |
++--------------------------------------+--------------------------------------+
+| ``/data``                            | ``"sample"``                         |
++--------------------------------------+--------------------------------------+
+| ``/message``                         | ``["part one message", "another part |
+|                                      | "]``                                 |
++--------------------------------------+--------------------------------------+
+| ``/customer``                        | ``"Awesome Amalgamated, Ltd."``      |
++--------------------------------------+--------------------------------------+
+
+**Table 16.6:** *Composite-global Message Identifiers*
+
+In short, when using ``composite-global``, AMPS combines the parsable
+parts of the message into a single global set of XPath values, and
+ignores any part of the message that cannot be parsed.
+
+composite-local
+~~~~~~~~~~~~~~~~
+
+When using the ``composite-local`` message type, AMPS creates a distinct
+set of XPath identifiers for each part of the message. AMPS adds an
+XPath step with the position of the message part at the beginning of the
+identifier. Message types that do not support content filtering do not
+provide XPath identifiers, and AMPS skips over them.
+
+For example, consider the message below for a ``composite-local``
+message type that includes two ``json`` parts and a ``binary`` part:
+
+.. code::
+
+    {"id":1,"data":"sample","message":"part one message"}
+    {"message":"another part","customer":"Awesome Amalgamated, Ltd."}
+    0xDEEA0934DF23A37780934...
+
+AMPS constructs the following set of XPath identifiers and values:
+
++--------------------------------------+--------------------------------------+
+| Identifier                           | Value                                |
++======================================+======================================+
+| ``/0/id``                            | ``1``                                |
++--------------------------------------+--------------------------------------+
+| ``/0/data``                          | ``"sample"``                         |
++--------------------------------------+--------------------------------------+
+| ``/0/message``                       | ``"part one message"``               |
++--------------------------------------+--------------------------------------+
+| ``/1/message``                       | ``"another part"``                   |
++--------------------------------------+--------------------------------------+
+| ``/1/customer``                      | ``"Awesome Amalgamated, Ltd."``      |
++--------------------------------------+--------------------------------------+
+
+**Table 16.7:** *Composite-local Message Identifiers*
+
+In short, when using ``composite-local``, AMPS creates XPath identifiers
+for each part of the message, using the position of the message part
+within the composite as the first part of the identifier. AMPS skips
+over any part of the message that cannot be parsed, and simply produces
+no values for that part of the message.
+
+Choosing A Composite Type
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To choose which composite type best fits your application, consider the
+following factors:
+
+-  If you need to use delta messaging with this message type, use
+   ``composite-local``.
+
+-  If there may be redundant field names in the parts of the message,
+   and it is important to be able to filter based on which part contains
+   the field, use ``composite-local``.
+
+-  If you need to be able to create views of this type, use
+   ``composite-local``.
+
+Otherwise, ``composite-global`` may be easier and more straightforward
+for client filtering, since clients do not need to know the detailed
+structure of the message type to be able to filter on the message.
+
+Protobuf Message Types
+------------------------
+
+Protocol buffers, or protobufs for short, is an efficient, automated
+mechanism for serializing structured data. AMPS supports Google protobuf
+messages (version 2 and version 3) as a message format.
+
+Because Google protocol buffers use a fixed format for messages, to use
+protobuf, you must configure AMPS with the definition of the messages
+AMPS will process. This involves defining a ``MessageType``. You must
+define a ``MessageType`` for AMPS to be able to parse protobuf messages.
+
+60East recommends that the ``.proto`` files used with AMPS explicitly
+declare the protocol buffer syntax version used. If there is no explicit
+declaration, AMPS assumes the file uses protocol buffer 2 syntax.
+
+The AMPS engine is message-type agnostic. Except for the limitations
+described in this section, there is no difference to the AMPS engine
+between message types that use protocol buffers and other message types
+such as JSON or XML or FIX.
+
+Configuring Protobuf Message Types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To use a protobuf message, you must first edit the configuration file to
+include a new ``MessageType``. Then, specify the path to the protobuf
+file and the name of the protobuf file itself inside the
+``MessageType``. Below is a sample configuration of a protobuf message
+type:
+
+.. code-block:: xml
+
+    ...
+
+    <MessageType>
+        <Name>my-protobuf-messages</Name>
+        <Module>protobuf</Module>
+        <ProtoPath>proto-archive;/mnt/shared/protofiles</ProtoPath>
+        <ProtoFile>proto-archive/person.proto</ProtoFile>
+        <Type>MyNamespace.Message</Type>
+    </MessageType>
+
+    ...
+
+Each message type references a ``ProtoFile``, and specifies a single
+top-level type from the file. The ``ProtoFile`` may include other files
+through the standard protocol buffer include mechanism. Likewise, the
+top-level type may be any valid protocol buffer definition, including
+definitions that contain other types.
+
+Once the protocol buffer ``MessageType`` is created as described
+above, you must either create a ``Transport`` that specifies that
+message type exactly, or you must create a ``Transport`` that can
+accept any known message type and ensure that the client specifies the
+new message type (in the example case, ``my-protobuf-message``) in the
+connect string.
+
+When creating a ``protobuf`` message type, you must provide the
+following parameters:
+
++-------------------+---------------------------------------------------------------------------------------+
+| Parameter         | Description                                                                           |
++===================+=======================================================================================+
+| ::                | The name of the new, customized message type. The rest of the configuration file will |
+|                   | use this name to refer to the message type.                                           |
+|     Name          |                                                                                       |
++-------------------+---------------------------------------------------------------------------------------+
+| ::                | The module that contains the message type. Use ``protobuf`` for protocol buffer       |
+|                   | messages.                                                                             |
+|     Module        |                                                                                       |
++-------------------+---------------------------------------------------------------------------------------+
+| ::                | The path in which to search for ``.proto`` files. The content of this element has the |
+|                   | following syntax:                                                                     |
+|     ProtoPath     |                                                                                       |
+|                   | ::                                                                                    |
+|                   |                                                                                       |
+|                   |     alias ; full-path                                                                 |
+|                   |                                                                                       |
+|                   | The alias provides a short identifier to use when searching for .proto files. The     |
+|                   | full path is the path that is substituted for that identifier.                        |
+|                   |                                                                                       |
+|                   | For example, in the sample above, ``proto-archive`` is an alias for                   |
+|                   | ``/mnt/shared/protofiles``.                                                           |
+|                   |                                                                                       |
+|                   | A configuration may omit the alias and simply provide the path. For example:          |
+|                   |                                                                                       |
+|                   | ::                                                                                    |
+|                   |                                                                                       |
+|                   |     ;/mnt/repository/protodefs                                                        |
+|                   |                                                                                       |
+|                   | You may specify any number of ``ProtoPath`` declarations.                             |
++-------------------+---------------------------------------------------------------------------------------+
+| ::                | The name of the ``.proto`` file to use for this message type. To use an alias, prefix |
+|                   | the name of the file with the alias, as shown in the example above.                   |
+|     ProtoFile     |                                                                                       |
++-------------------+---------------------------------------------------------------------------------------+
+| ::                | The name of the type inside the ``.proto`` file to use for this message type. AMPS    |
+|                   | requires a single type.                                                               |
+|     Type          |                                                                                       |
++-------------------+---------------------------------------------------------------------------------------+
+
+**Table 16.8:** *Protobuf Message Type Parameters*
+
+Filtering with Protobuf Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To filter protobuf messages, there are a couple of conventions you must
+remember. AMPS XPath identifiers begin at the outermost message, so you
+can simply use member names for that message. If you have nested
+messages, you use the name of the nested message and the member name
+when creating an XPath identifier.
+
+For example, suppose you have the following definition in a
+``.proto`` file:
+
+.. code-block:: cpp
+
+    message person {
+        required string name = 1;
+        required int32 personID = 2;
+    }
+
+To access the ``personID`` data member, you simply use the name of the
+data member as the XPath identifier. An example filter that verifies
+that a ``personID`` is greater than 1000 would be:
+
+.. code::
+
+    /personID > 1000
+
+If you have nested messages, you simply provide the path to the nested
+message you want to access.
+
+Let's assume that the ``person`` message from the above example was
+nested inside another message with the name of ``record``. The example
+filter below shows how to access the nested ``person`` message, and then
+filter to the ``personID``:
+
+.. code::
+
+    /person/personID > 1000
+
+In this case, the first part of the identifier (``/person``) specifies
+the sub-message. The second part of the identifier (``/personID``)
+specifies the field within that sub-message. Notice that, as always,
+there is no need to specify the name of the message for the outermost
+message.
+
+Working With Multiple Protocol Buffer Types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some applications require messages of different types: for example, an
+inventory management system may work with customer records,
+inventory records, and shipping order records.
+
+When using protocol buffers, each of these messages would use a
+different ``.proto`` file, and therefore would be a different
+message type. Unlike a self-describing format such as JSON or
+XML, the serialized form of a protocol buffer message type
+does not automatically contain any information about the type
+of message or the fields that the message contains. Therefore,
+each protocol buffer message type is best considered as a
+completely distinct type. For example, the parser created for
+an order record and the parser created for a customer record
+are different. Unlike self-describing formats, it is not possible
+to use a single parser for these types, or for a parser to
+correctly handle a previously-unknown message structure.
+
+There are two approaches to working with multiple protocol
+buffer types in an AMPS application:
+
+1. Keep the message types distinct. Each message type requires
+   a separate connection to AMPS. The advantage of this approach
+   is that the ``.proto`` files can be maintained and updated
+   separately. Each connection has a distinct type and only
+   needs to handle messages of that type. The disadvantage of
+   this approach is that the application must make a connection
+   to AMPS for each type of message received.
+
+2. Create a "container" type that can
+   *optionally* contain any of the needed message types. The
+   advantage of this approach is that this requires only a
+   single connection to AMPS. Since there is a single 
+   "container" type, a topic can hold this "container" type
+   and have heterogeneous actual contents. The disadvantage
+   to this approach is that it requires a consumer to
+   understand the "container" type and changes to the
+   contained types may need to be carefully managed across
+   the consumers that use the container. A "container" type
+   is typically a ``oneof`` of the contained types.
+
+For example, you might define a container as follows:
+
+.. code-block:: cpp
+
+    message Container {
+
+        oneof {
+          Order      order_type = 1;
+          Payment    payment_type = 2;
+        }
+    }
+
+    message Order {
+        required string customer_id = 1;
+        ...
+    }
+
+    message Payment {
+        required string customer_id = 1;
+        ...
+    }
+
+In this case, the container type will include **either** an
+``Order`` or a ``Payment``.
+
+
+
+
+.. _#ug-protobuf-union-types:
+
+Union Types
+^^^^^^^^^^^
+
+When using a protocol buffer message type that contains a union, you can
+navigate the union using the names defined in the top-level element. For
+example, given the union defined below:
+
+.. code-block:: cpp
+
+    message MyUnion {
+        optional Order      order_type = 1;
+        optional Payment    payment_type = 2;
+    }
+
+    message Order {
+        required string customer_id = 1;
+        ...
+    }
+
+    message Payment {
+        required string customer_id = 1;
+        ...
+    }
+
+Providing a filter of ``/order_type IS NOT NULL`` will return all of the
+``MyUnion`` messages that contain an ``Order``, while providing a filter
+of ``/payment_type/customer_id = '42'`` will return only the ``MyUnion``
+messages that contain a ``Payment`` message with a ``customer_id`` of
+``42``.
+
+Limitations of the Protobuf Message Type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because the ``protobuf`` message type requires a specific, fixed
+definition for messages, AMPS does not support operations that construct
+messages that may contain arbitrary values. In particular, protobuf does
+not support:
+
+-  Creating a View with a ``protobuf`` type as the ``MessageType``. AMPS
+   allows you to aggregate protobuf messages and project the results as
+   another type, but the destination ``MessageType`` for a View cannot be a
+   ``protobuf`` message type.
+
+-  Creating an aggregated subscription for a topic that contains messages
+   of  a ``protobuf`` message type.
+
+-  Subscriptions to AMPS internal topics. Protobuf message types do not
+   support creating messages for AMPS internal topics, such as
+   ``/AMPS/ClientStatus``.
+
+-  Enriching or preprocessing ``protobuf`` message types. AMPS does
+   not support enrichment or preprocessing of ``protobuf`` messages.
+
+
+Protocol buffer version 3 messages provide fixed default values for
+omitted fields. This means that there is no reliable way for AMPS to
+determine if a missing field has been intentionally left out of the
+message, or simply contains the fixed default value. The result
+is an additional limitation for protocol buffer version 3 message types:
+
+- Protocol buffer version 3 message types do not support delta publish
+  or delta subscribe.
+
+Protocol buffer version 2 message types can require that specific
+fields are provided in a message (that is, fields can be marked
+required). The result is an additional limitation for
+protocol buffer version 2 message types:
+
+- Protocol buffer version 2 message types do not support providing a
+  subset of fields in a message by specifying a select list.
+
+There are no other limitations in working with protocol buffer message
+types.
+
+Working with Optional Default Values
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Google protocol buffers provide the ability for a message to have fields
+that are both *optional*, so they need not be provided in the serialized
+message, and *defaulted*, so that there is a specific value interpreted
+when there is no value provided.
+
+When no value is provided in the serialized message for an optional
+default value, AMPS interprets the message differently depending on the
+context:
+
+-  For most uses, AMPS interprets the message as though the value is
+   *present and set to the default value*. This means that you can
+   filter on optional default values, use them as SOW keys, and
+   aggregate optional default values regardless of whether a value is
+   present in the serialized message.
+
+-  For *delta messaging* with protocol buffer version 2, AMPS treats an
+   optional default value as though there is *no value present*. AMPS does
+   not provide the default value. This means that a delta update must provide
+   the default value *explicitly* in the serialized message to set the field to the
+   default value. This also means that, if the value present in the
+   message is not the default value, but was not changed on the current
+   update, AMPS will not emit that value in messages to delta
+   subscribers. (Since delta messaging is not supported with protocol
+   buffer version 3, this issue does not arise with that version.)
+
+
+Struct Message Types
+---------------------
+
+AMPS includes a message type that allows the server to parse and interpret
+binary data in a fixed format. When configuring the message type, you must
+include a definition of the format.
+
+This format is designed to allow AMPS to process messages serialized from
+raw memory, such as would be specified in a C-language ``struct``.
+
+Configuring a Struct Message Type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To configure a ``struct`` message type, you must define each field that
+AMPS will use. This does not necessarily have to match the original definition
+of the data.  It is possible to "skip over" parts of the binary data
+that AMPS should ignore by declaring that data to be padding.
+
+A ``struct`` message type definition must include one or more ``Field`` elements,
+specified in the order in which the data appears in the message. Each ``Field`` specifies
+the name of the field, and the type and length of the data to be used for that
+``Field``.  The specifier for a field is composed of: *field name* ``=`` *data format specifier*
+where the field name is the XPath identifier that AMPS will use for this field and the
+data format specifier is a specifier for the type of data and number of bytes for this field.  
+
+The data format specifier is modeled after the specifiers for the Python
+``struct`` module. The format requires a data type specifier. The data
+type specifier may be preceded by an optional byte order specifier. For
+variable-width data types (for example, strings), include
+an optional byte order specifier and an optional count specifier.
+
+The following data type specifiers are recognized by the module:
+
++-----------+------------------------+---------------------------+--------------------------------+
+| Specifier | C Type                 | Size (bytes)              | AMPS Type                      |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``x``     | *n/a*                  | (number of                | Padding bytes, ignored by AMPS |
+|           |                        | bytes must                |                                |
+|           |                        | be specified)             |                                |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``c``     | ``char``               | 1                         | string                         |
+|           |                        | (number of bytes may      |                                |
+|           |                        | be specified)             |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``b``     | ``signed char``        | 1                         | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``B``     | ``unsigned char``      | 1                         | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``?``     | ``bool``               | 1                         | boolean                        |
+|           |                        |                           |                                |
+|           | (as though             |                           |                                |
+|           | ``stdbool.h`` were     |                           |                                |
+|           | included)              |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``h``     | ``short``              | 2                         | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``H``     | ``unsigned short``     | 2                         | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``i``     | ``int``                | 4                         | integer                        |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``I``     | ``unsigned int``       | 4                         | integer                        |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``l``     | ``long``               | 4                         | integer                        |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``L``     | ``unsigned long``      | 4                         | integer                        |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``q``     | ``long long``          | 8                         | integer                        |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``Q``     | ``unsigned long long`` | 8                         | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``n``     | ``ssize_t``            |                           | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``N``     | ``size_t``             |                           | integer                        |
+|           |                        |                           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``f``     | ``float``              | 4                         | double                         |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``d``     | ``double``             | 8                         | double                         |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``s``     | ``char[]``             | number of bytes           | string                         |
+|           |                        | must be specified,        |                                |
+|           |                        | AMPS will interpret       |                                |
+|           |                        | the specified number of   |                                |
+|           |                        | bytes as the string       |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``S``     | ``char[]``             | number of bytes           | string                         |
+|           |                        | must be specified,        |                                |
+|           |                        | AMPS will interpret       |                                |
+|           |                        | the string up to the      |                                |
+|           |                        | first NULL character      |                                |
+|           |                        | or the number of          |                                |
+|           |                        | bytes specified           |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+| ``p``     | ``uint8_t``            | number of bytes           | string                         |
+|           | followed by            | must be specified         |                                |
+|           | ``char[]``             |                           |                                |
+|           |                        | AMPS will consume the     |                                |
+|           |                        | number of bytes           |                                |
+|           |                        | specified in the          |                                |
+|           |                        | ``Field`` configuration.  |                                |
+|           |                        | The first byte of data    |                                |
+|           |                        | specifies the length of   |                                |
+|           |                        | the string. Only that     |                                |
+|           |                        | number of bytes, starting |                                |
+|           |                        | with the second byte of   |                                |
+|           |                        | the data, will be         |                                |
+|           |                        | interpreted as the value. |                                |
++-----------+------------------------+---------------------------+--------------------------------+
+
+The byte order specifiers are as follows:
+
++-----------+----------------------------------------+
+| Specifier | Byte order                             |
++-----------+----------------------------------------+
+| ``@``     | Native (little-endian for AMPS server) |
+|           |                                        |
++-----------+----------------------------------------+
+| ``=``     | Native (little-endian for AMPS server) |
+|           |                                        |
++-----------+----------------------------------------+
+| ``<``     | Little-endian                          |
++-----------+----------------------------------------+
+| ``>``     | Big-endian                             |
++-----------+----------------------------------------+
+
+If no byte order is specified, AMPS assumes a little-endian byte order to
+match the native byte order of the AMPS server.
+
+For example, given the following C struct:
+
+.. code-block:: c
+
+   struct data_type
+   {
+      int32_t  id;
+      int32_t  internal_id;
+      float    price;
+      char     label[32];
+      char     code[16];
+      char     routing_instructions[32];
+   };
+
+A message type declaration that would make the `id`, `price`, and `code`
+members available to AMPS could be constructed as follows:
+
+.. code-block:: xml
+
+  <MessageType>
+     <Name>sample_struct_type</Name>
+     <Module>struct</Module>
+     <Field>/id = i</Field>
+     <Field>/ignored = 4x</Field>
+     <Field>/price = f</Field>
+     <Field>/ignored = 32x</Field>
+     <Field>/code = 16s</Field>
+  </MessageType>
+
+This configuration declares that the message will be interpreted as follows:
+
+* The first four bytes of the message will be interpreted
+  as a (little-endian) integer, and that value will be considered to be the `/id`
+  field of the message.
+* The next four bytes are skipped as padding -- notice that,
+  although a field name is required in the specifier syntax, padding bytes are
+  ignored by AMPS, so there is no field named ``/ignored`` generated. However, if
+  the message is pretty-printed (or displayed in Galvanometer), AMPS will indicate
+  that there are padding bytes present for this field.
+* The next four bytes are interpreted as a (little-endian) float, and that value
+  will be considered the value of the ``/price`` field.
+* The next 32 bytes (the ``label`` in the C struct) are skipped as padding. Again,
+  if the message is pretty-printed (or displayed in Galvanometer), AMPS will indicate
+  that there are padding bytes present for this field.
+* The next 16 bytes of the message are an AMPS string that will be used for the value
+  of the ``/code`` field.
+* Any remaining bytes (the ``routing_instructions`` from the C struct, in this case)
+  are ignored. If the message is pretty-printed (or displayed in Galvanometer), AMPS
+  will indicate that there are extra bytes present.
+
+Limitations of Struct Message Types
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because the ``struct`` message type requires a specific, fixed
+definition for messages, AMPS does not support operations that
+construct messages that may contain arbitrary values. In
+particular, message types defined using the ``struct`` message type
+do not support:
+
+* Creating a View with a ``struct`` message type as the ``MessageType``.
+  AMPS allows you to aggregate ``struct`` message types and project the
+  results as another message type, but the destination ``MessageType`` for
+  a View cannot be a ``struct`` message type.
+
+* Creating an aggregated subscription for a topic that contains
+  messages of a ``struct`` message type.
+
+* Subscriptions to AMPS internal topics (for example, ``/AMPS/ClientStatus``).
+
+* Enriching or preprocessing messages of a ``struct`` message type.
+
+* Delta publish or delta subscribe.
+* Select lists.
+
+Loading Additional Message Types
+--------------------------------
+
+AMPS includes the ability to load custom message types in external
+modules. As with all AMPS modules, custom message types are compiled
+into shared object files. AMPS dynamically loads these message types on
+startup, using the information provided in the configuration file. Once
+you have loaded and declared those types, you can use the type just as
+you use the default message types.
+
+For example, the configuration below creates a message type named
+``custom-type`` that uses a module named ``libmy-type-module.so`` and
+specifies a transport for messages of that type:
+
+.. code-block:: xml
+
+    <Modules>
+        <Module>
+            <!-- Specifies the name to use to refer to this module in the rest of the
+                configuration file -->
+            <Name>custom-type-module</Name>
+        
+            <!-- Path to the library to load for this module. In this example, the path is a
+                relative path below the directory where AMPS is started. -->
+            <Library>./custom-modules/libmy-type-module.so</Library>
+        </Module>
+    </Modules>
+
+    <MessageTypes>
+        <MessageType>
+            <!-- The name to use for this message type in the rest of the configuration file. -->
+            <Name>custom-type</Name>
+        
+            <!-- Reference to the module that implements this message type, using the Name
+                defined in the Module configuration. -->
+            <Module>custom-type-module</Module>
+        </MessageType>
+    </MessageTypes>
+
+    <Transports>
+        <Transport>
+            <Name>custom-type-tcp</Name>
+            <Type>tcp</Type>
+            <InetAddr>9008</InetAddr>
+        
+            <!-- The message type that this transport uses, using the Name defined in the
+                MessageType configuration. -->
+            <MessageType>custom-type</MessageType>
+            <Protocol>amps</Protocol>
+        </Transport>
+    </Transports>
+
+Once a message type has been declared, you can use it in exactly the
+same way you use the default message types.
+
+Notice, however, that custom-developed message types may only provide
+support for a subset of the features of AMPS. For example, the
+``binary`` message type provided with AMPS does not support features
+that require AMPS to parse or construct a message, as described above.
+The developer of the message type must provide information on what
+capabilities the message type provides.

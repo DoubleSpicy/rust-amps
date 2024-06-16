@@ -1,0 +1,59 @@
+.. index:: Transactions, Message Replay,
+
+.. _#ug-txlog:
+
+14. Transactional Messaging and Bookmark Subscriptions
+=======================================================
+
+AMPS includes support for transactional messaging, which includes
+persistence, consistency across restarts, and replay of messages
+published to AMPS. AMPS message queues use the transaction log
+to hold the messages in the queue. Transactional messaging is
+also the basis for replication, a key component of the
+high-availability capability in AMPS (as described in :ref:`#ug-ha`).
+
+AMPS message queues use the transaction log as a
+persistent record of the messages that have entered the queue, the order
+of those messages, and which messages have been acknowledged and removed
+from the queue. All of these capabilities rely on the AMPS *transaction
+log*. The transaction log maintains a record of messages. You can choose
+which messages are included in the transaction log by specifying the
+message types and topics you want to record.
+
+The AMPS transaction log differs from transaction logging in a
+conventional relational database system. Unlike transaction logs that
+are intended solely to maintain the consistency of data in the system,
+the AMPS transaction log is fully queryable through the AMPS client
+APIs. For applications that need access to historical information, or
+applications that need to be able to recover state in the event of a
+client restart, the transaction log allows you to do this, relying on
+AMPS as the definitive single version of the state of the application.
+There is no need for complex logic to handle reconciliation or state
+restoration in the client. AMPS handles the difficult parts of this
+process, and the transaction log guarantees consistency.
+
+Topics covered by a transaction log are able to provide reliable
+messaging with strict consistency guarantees.
+
+When a transaction log is enabled, topics covered by the transaction log
+provide *atomic broadcast* from that instance. This means that the
+instance enforces a repeatable ordering on the messages, and guarantees
+that all subscribers receive messages reliably, in a consistent order,
+and with no gaps or duplicates.
+
+Enabling a transaction log in an instance also enables the following
+behaviors:
+
+* When a transaction log is enabled, AMPS uses the client name provided
+  by each client to manage the sequencing and integrity of the message
+  stream, and to quickly detect and respond to reconnection. To allow this,
+  each connection to AMPS must have a unique client name. If a duplicate
+  client name is detected, one of the clients is assumed to be defunct and
+  is disconnected.
+
+* When a transaction log is enabled, persisted acknowledgments to a publish
+  are conflated, as described in :ref:`#ug-ack-conflation`.
+
+.. include:: ./transaction_log.inc
+
+.. include:: ./using-amps-grep-for-txlog.inc

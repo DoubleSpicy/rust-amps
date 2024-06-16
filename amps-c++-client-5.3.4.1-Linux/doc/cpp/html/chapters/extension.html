@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Appendix B. Extension Points &#8212; Advanced Message Processing System (AMPS) C++ Developer Guide develop
+ documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Appendix A: Exceptions" href="exceptions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Appendix B. Extension Points</a><ul>
+<li><a class="reference internal" href="#client-extension-points">Client Extension Points</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="exceptions.html" title="previous chapter">Appendix A: Exceptions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="appendix-b-extension-points">
+<span id="extension-appendix"></span><h1>Appendix B. Extension Points<a class="headerlink" href="#appendix-b-extension-points" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="client-extension-points">
+<h2>Client Extension Points<a class="headerlink" href="#client-extension-points" title="Permalink to this headline">¶</a></h2>
+<p>This table lists the extension points provided by the AMPS <code class="docutils literal"><span class="pre">Client</span></code>
+and <code class="docutils literal"><span class="pre">HAClient</span></code> to allow applications to customize behavior.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="31%" />
+<col width="24%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Purpose</th>
+<th class="head">Applies to</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Exception Listener</td>
+<td>Callback that receives
+exceptions thrown on the
+client receive thread.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">Client</span></code>, <code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last">Asynchronous message
+processing; event
+callbacks</p>
+</td>
+<td><p class="first">Recommended for
+application that
+uses asynchronous
+message processing.</p>
+<p class="last">Must be implemented
+by the application.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Failed Write Handler</td>
+<td>Callback that receives
+notification when a
+<code class="docutils literal"><span class="pre">publish</span></code> or <code class="docutils literal"><span class="pre">sow_delete</span></code>
+command fails and the Client
+has requested a <code class="docutils literal"><span class="pre">persisted</span></code>
+acknowledgement (this
+acknowledgement is requested
+by default when a publish
+store is present).</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">Client</span></code>, <code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last">Used for failure of
+operations that modify
+data in AMPS when
+set on the <code class="docutils literal"><span class="pre">Client</span></code>
+or <code class="docutils literal"><span class="pre">HAClient</span></code>.</p>
+</td>
+<td><p class="first">Recommended for
+any publisher that
+requires reliable
+publish.</p>
+<p class="last">Must be implemented
+by the application.</p>
+</td>
+</tr>
+<tr class="row-even"><td>Server Chooser</td>
+<td>Callback used to determine
+which AMPS server connection
+string to use to connect.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last">Used when connecting to
+AMPS. Must be explicitly
+set by the application.</p>
+</td>
+<td><p class="first">Recommended to be
+implemented by the
+application.</p>
+<p class="last">DefaultServerChooser
+not recommended for
+production use.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Authenticator</td>
+<td>Callback used to provide
+credentials to use for logon
+based on the connection
+string.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">Client</span></code>, <code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last">Used when logging on.
+A default authenticator
+is used if none is
+provided by the
+application.</p>
+</td>
+<td><p class="first">Default
+authenticator
+extracts password
+from standard URI
+format.</p>
+<p class="last">Application must
+implement for other
+behavior.</p>
+</td>
+</tr>
+<tr class="row-even"><td>Reconnect Delay
+Strategy</td>
+<td>Callback used to determine
+the delay between
+reconnection attempts. Used
+to prevent a &#8220;thundering
+herd&#8221; problem for sites
+with large numbers of
+connections.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last">Used when an
+<code class="docutils literal"><span class="pre">HAClient</span></code> is
+connecting or
+reconnecting. A default
+strategy is installed
+when an <code class="docutils literal"><span class="pre">HAClient</span></code>
+is constructed.</p>
+</td>
+<td><p class="first">Library provides
+a fixed delay and
+an exponential
+delay with jitter.</p>
+<p class="last">60East recommends
+using the provided
+implementations
+where possible.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Subscription Manager</td>
+<td>Used to store subscriptions
+for a Client, to be replayed
+on reconnection.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">Client</span></code>, <code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last"><code class="docutils literal"><span class="pre">HAClient</span></code>
+disconnect handler
+replays subscriptions
+on reconnect.</p>
+</td>
+<td><p class="first">Library provides
+an in-memory
+manager.</p>
+<p class="last">60East recommends
+using the provided
+implementation
+where possible.</p>
+</td>
+</tr>
+<tr class="row-even"><td>Bookmark Store</td>
+<td>Used to store information
+about messages received and
+processed to manage the
+recovery point for bookmark
+subscriptions.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">Client</span></code>, <code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p>Used to determine
+recovery point when a
+bookmark subscription is
+entered or restored.</p>
+<p class="last">Used when an application
+enters a bookmark
+subscription.</p>
+</td>
+<td><p class="first">Library provides
+implementations of
+Bookmark Store.</p>
+<p class="last">60East recommends
+using the provided
+implementation
+where possible.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Publish Store</td>
+<td>Used to store messages to be
+published to AMPS.</td>
+<td><p class="first"><code class="docutils literal"><span class="pre">Client</span></code>, <code class="docutils literal"><span class="pre">HAClient</span></code></p>
+<p class="last">Client replays messages
+to the AMPS server
+on reconnect as
+necessary.</p>
+</td>
+<td><p class="first">Library provides
+implementations of
+Publish Store.</p>
+<p class="last">60East recommends
+using the provided
+implementations
+where possible.</p>
+</td>
+</tr>
+<tr class="row-even"><td>Recovery Point
+Adapter</td>
+<td>Used by a Bookmark Store to
+save recovery points for
+bookmark subscriptions to
+persistence other than a
+local file system.</td>
+<td><p class="first">Bookmark Store</p>
+<p class="last">Used when an
+application enters a
+bookmark subscription.</p>
+</td>
+<td><p class="first">Library provides
+an implementation
+of the recovery
+point adapter that
+uses an AMPS SOW
+topic for storage
+and recovery.</p>
+<p class="last">Application must
+implement for other
+behavior.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2022, 60East Technologies, Inc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

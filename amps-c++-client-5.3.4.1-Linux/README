@@ -1,0 +1,69 @@
+===== AMPS C/C++ Client 5.3.4.1 =====
+
+This directory contains the C and C++ client library for AMPS.
+
+The doc/ directory contains the documentation for the library. Start with
+the index.html file in the doc directory.
+
+lib/ contains pre-built, optimized static libraries for Linux and Windows.
+   See the developers' guide for details on how to customize these.
+
+samples/ contains sample programs and binaries for them.  Review the source
+   code to learn more about how to write AMPS C/C++ programs.
+
+include/ contains header files you'll need to use to write AMPS C/C++ programs.
+
+src/ contains the source code for the AMPS C/C++ library.
+
+GNUmakefile is the root makefile for rebuilding the AMPS library and samples
+   on Linux or other UNIX-like systems.
+
+makefile is the root makefile for rebuilding the AMPS library on Windows
+   using Microsoft Visual C++ and Microsoft NMAKE.
+
+====== LINUX USERS =====
+
+To build the library or samples on Linux, you must first install
+gcc 4.4 or greater on your Linux distribution. Type "make" from
+the root of your AMPS C++ client installation to rebuild the AMPS
+C++ client static libraries.
+
+====== WINDOWS USERS ======
+
+To build the library or samples on Windows, you must first install
+a version of Microsoft Visual Studio with Mainstream Support from
+Microsoft (please refer to Microsoft product lifecycle policies).
+
+Once installed, your computer will have one or more new shortcuts to
+a "Command Prompt" pre-configured with the appropriate settings for 
+running Visual Studio or Windows SDK command-line tools for your
+desired platform (x86 or x64). Locate the appropriate "Command Prompt"
+shortcut and launch it. The exact name of this shortcut depends on the
+specific Visual Studio or Windows SDK version you have installed. For
+more information on locating the shortcut, visit:
+
+https://msdn.microsoft.com/en-us/library/f35ctcxw.aspx    (for VS users)
+https://msdn.microsoft.com/en-us/library/ff660764.aspx    (for SDK users)
+
+Inside this command prompt, navigate to the directory where the AMPS
+C++ client is installed, and type "nmake", for example:
+
+    +=================================================================+
+    | VS 2017 x64 Native Tools Command Prompt                         |
+    +-----------------------------------------------------------------+
+    |                                                                 |
+    |C:\Users\Pat>cd amps-c++-client-windows                          |
+    |                                                                 |
+    |C:\Users\Pat\amps-c++-client-windows>nmake                       |
+    |                                                                 |
+    |Microsoft (R) Program Maintenance Utility Version 14.16.27045.0  |
+    |Copyright (C) Microsoft Corporation.  All rights reserved.       |
+    |...                                                              |
+    +-----------------------------------------------------------------+
+
+If typing "nmake" results in an error that "'nmake' is not recognized as
+an internal or external command...", this means your Command Prompt is
+not properly configured to use the Visual Studio or Windows SDK. Visit
+the links above for more information on finding and starting a properly
+configured command prompt.
+

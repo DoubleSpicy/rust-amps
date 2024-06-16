@@ -1,0 +1,175 @@
+2. logon
+========================
+
+Description
+-----------
+
+To help identify clients and users, it is recommended that clients send
+a ``logon`` command to the AMPS engine and specify a client name.
+
+AMPS only allows a single ``logon`` command for each connection. The
+``logon`` command must be the first command sent over a new connection.
+Otherwise, AMPS performs an implicit ``logon``, causing any other
+``logon`` commands for the connection to be rejected.
+
+In AMPS configurations where authentication is enabled, all connecting
+clients must issue a ``logon`` message with the ``username`` and
+``password`` credentials specified in the command. Attempts to logon to
+an AMPS instance that do not contain the information required will be
+rejected and prohibited from issuing further commands until a successful
+``logon`` has been placed.
+
+If an AMPS client is connected to an instance that has a transaction log
+enabled, the ``ClientName`` specified *must* be unique for the instance.
+Only one client with the same name is allowed to connect to the instance at a
+given time. If an application  logs on with the same ``ClientName`` and
+authenticated user name as an existing connection, AMPS assumes that the new
+logon is a reconnection from the existing connection and disconnects the
+existing connection. If an application logs on with the same ``ClientName`` as
+an existing connection but a different authenticated user name, the new logon
+will fail.
+
+It is recommended that all ``logon`` commands request that a
+``processed`` acknowledgment message be requested in the ``AckType``
+header of the ``logon`` message. This will allow AMPS to communicate the
+result of the ``logon`` command to the client, allowing the client to
+determine how to best proceed.
+
+.. note::
+
+  The ``websocket`` protocol uses a different
+  mechanism that contains the same information
+  rather than sending a ``logon`` command.
+
+Header Fields
+-------------
+
+:ref:`Table 2.1 <#command-logon-headers>` 
+contains the header fields available to a ``logon`` command.
+
+.. _#command-logon-headers:
+
++-------------------+--------------------------------------------------+
+| **Field**         | **Description**                                  |
++===================+==================================================+
+| ::                | The command to be executed. Value: ``logon``.    |
+|                   |                                                  |
+|     Command       |                                                  |
++-------------------+--------------------------------------------------+
+| ::                | A string identifier used to give a client a      |
+|                   | unique id. AMPS does not limit the character set |
+|     ClientName    | used in this name. However, the specific         |
+|                   | protocol may have character set limitations.     |
+|                   | 60East recommends that the client name is        |
+|                   | meaningful, short, human readable, and avoids    |
+|                   | using control characters, newline characters, or |
+|                   | square brackets.                                 |
++-------------------+--------------------------------------------------+
+| ``AckType``       | Acknowledgment type for the given command. Value |
+|                   | is a comma separated list of one or more of the  |
+|                   | following: ``none``, ``received`` or             |
+|                   | ``processed`` .                                  |
++-------------------+--------------------------------------------------+
+| ``MessageType``   | The message type for the connection. Required    |
+|                   | if the Transport accepts any message type.       |
++-------------------+--------------------------------------------------+
+| ``UserId``        | The username passed into the AMPS authentication |
+|                   | and entitlement module.                          |
++-------------------+--------------------------------------------------+
+| ``Password``      | The password passed into the AMPS authentication |
+|                   | and entitlement module.                          |
++-------------------+--------------------------------------------------+
+| ``CorrelationId`` | A user-provided string that will be included in  |
+|                   | the log message recording this logon, and in the |
+|                   | information provided for the connection in the   |
+|                   | administration interface. AMPS does not          |
+|                   | interpret this string or use the string for any  |
+|                   | other purpose. If this header is not present,    |
+|                   | AMPS does not store a value for the              |
+|                   | ``CorrelationId`` for this connection. The       |
+|                   | contents of this header must consist of          |
+|                   | characters that are legal in Base64 encoding.    |
++-------------------+--------------------------------------------------+
+| ``Version``       | The client library version (typical includes     |
+|                   | the language and build number) of the client     |
+|                   | making the connection. This version number       |
+|                   | is logged for the connection, but does not       |
+|                   | otherwise affect the connection.                 |
++-------------------+--------------------------------------------------+
+
+**Table 2.1:** *Header fields supported by logon*
+
+Returns
+-------
+
+A ``logon`` message specifying an ``AckType`` of ``received`` or
+``processed`` will receive an ``ack`` message to acknowledge the message
+receipt. If a client requests an acknowledgment message, the header will
+also contain the ``ClientName`` which was part of the original ``logon``
+message.
+
+When requested, the ``logon`` command will result in a ``processed``
+acknowledgment message. This returned acknowledgment is used in
+determining if a client was successfully authenticated against a server
+which has an authentication module enabled.
+
+:ref:`Table 2.2 <#command-logon-acks>` 
+contains the acknowledgment messages that can be returned by a ``logon`` command.
+
+.. _#command-logon-acks:
+
++--------------------------+--------------------------------------------------+
+| **Acknowledgment**       | **Description**                                  |
++==========================+==================================================+
+| ``none``                 | No ``ack`` message is returned. This is the      |
+|                          | default behavior.                                |
++--------------------------+--------------------------------------------------+
+| ``completed``            | Not supported at this time.                      |
++--------------------------+--------------------------------------------------+
+| ``persisted``            | Not supported at this time.                      |
++--------------------------+--------------------------------------------------+
+| ``processed``            | AMPS has processed the ``logon`` message.        |
++--------------------------+--------------------------------------------------+
+| ``received``             | The ``logon`` command has been received.         |
++--------------------------+--------------------------------------------------+
+| ``stats``                | Not supported at this time.                      |
++--------------------------+--------------------------------------------------+
+
+**Table 2.2:** *Acknowledgment messages supported by logon*
+
+
+Options Field
+^^^^^^^^^^^^^^
+
+:ref:`Table 2.3<#command-logon-options>` 
+contains a list of the ``Options`` available and their definitions when used in the AMPS 
+``logon`` command.
+
+
+.. _#command-logon-options:
+
+
++--------------------------+--------------------------------------------------+
+| **Option**               | **Description**                                  |
++==========================+==================================================+
+| ``none``                 | This is the default ``Options`` type.            |
++--------------------------+--------------------------------------------------+
+| ``ack_conflation``       | When provided, the interval at which AMPS        |
+|                          | conflates ``persisted`` acknowledgement messages |
+|                          | for publishes sent on this connection.           |
+|                          |                                                  |
+|                          | AMPS conflates ``persisted`` acknowledgement     |
+|                          | messages when a transaction log is configured    |
+|                          | for the instance.                                |
+|                          |                                                  |
+|                          | Defaults to ``1s`` if no option is provided.     |
++--------------------------+--------------------------------------------------+
+| ``pretty``               | When provided and set to ``true``, AMPS returns  |
+|                          | a formatted representation of the contents of    |
+|                          | the built-in binary message types rather than    |
+|                          | the original data.                               |
++--------------------------+--------------------------------------------------+
+
+**Table 2.3:** *Options supported by logon*
+
+

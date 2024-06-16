@@ -1,0 +1,206 @@
+.. index:: ack,
+
+17. Command Acknowledgment
+===========================
+
+.. _AMPS Command Reference: ../../../command-reference/html/index.html
+
+AMPS command processing is designed to be asynchronous. The design of
+the server makes it possible for an application to send a command to
+AMPS, and receive the results of that command at a later time.
+Acknowledgment of commands is always optional: the server makes no
+requirement that an application request acknowledgment. The AMPS client
+libraries automatically request the acknowledgments required to
+maintain the guarantees the client API provides.
+
+The status and results of a command are returned to a client in the form
+of an acknowledgment, or ``ack``, message. AMPS can return status
+updates at various checkpoints throughout the command processing
+sequence.
+
+For many applications, it may not be necessary for the application to
+request message acknowledgments explicitly. The AMPS clients request a
+set of acknowledgments by default that balance performance with error
+detection.
+
+AMPS supports a variety of ``ack`` types, and allows you to request
+multiple ``ack`` types on each command. For example, the received ``ack``
+type requests that AMPS acknowledge when the command is received, while the
+completed ``ack`` type requests that AMPS acknowledge when it has completed
+the command (or the portion of the command that runs immediately). Each
+AMPS command supports a different set of types, and the precise meaning
+of the ``ack`` returned depends on the command that AMPS is
+acknowledging.
+
+AMPS commands are inherently *asynchronous*, and AMPS does not provide
+acknowledgment messages by default. A client must both explicitly
+request an acknowledgment and then receive and process that
+acknowledgment to know the results of a command. It is normal for time
+to elapse between the request and the acknowledgment, therefore AMPS
+acknowledgments provide a way to correlate the acknowledgment with the
+command that produced it. This is typically done with an identifier that
+the client assigns to a command, which is then returned in the
+acknowledgment for the command.
+
+AMPS supports the acknowledgment types listed in the following table:
+
++--------------------------+--------------------------------------------------+
+| **Acknowledgment Type**  | **Description**                                  |
++==========================+==================================================+
+| ``completed``            | The command (or a portion of the command) has    |
+|                          | completed.                                       |
++--------------------------+--------------------------------------------------+
+| ``persisted``            | The results of the command have been persisted   |
+|                          | to durable storage.                              |
++--------------------------+--------------------------------------------------+
+| ``processed``            | AMPS has processed the command.                  |
++--------------------------+--------------------------------------------------+
+| ``received``             | AMPS has received the command.                   |
++--------------------------+--------------------------------------------------+
+| ``stats``                | AMPS returns statistics associated with the      |
+|                          | command.                                         |
++--------------------------+--------------------------------------------------+
+
+**Table 17.1:** *AMPS Acknowledgment Messages*
+
+Acknowledgments for different commands may not arrive in the order that
+commands were submitted to AMPS. For example, a ``publish`` command to a
+topic that uses synchronous replication will not return a ``persisted``
+acknowledgment until the synchronous replication destinations have
+persisted the message. If the client issues a ``subscribe`` command in
+the meantime, the ``processed`` acknowledgment for the ``subscribe``
+command -- indicating that AMPS has processed the subscription request
+-- may well return before the ``persisted`` acknowledgment.
+
+Not all commands support all acknowledgment types, and the meaning of
+each acknowledgment may differ depending on the command submitted. The
+acknowledgments for different commands set different fields on an
+acknowledgment message. See the `AMPS Command Reference`_ for details.
+
+.. _#ug-ack-requesting:
+
+Requesting Acknowledgments
+---------------------------
+
+Acknowledgments from the AMPS server are always optional. The AMPS
+clients will request acknowledgments as necessary for processing and
+error reporting. In addition, an application can request acknowledgments
+as necessary to meet the requirements of an application.
+
+The *AMPS Command Reference* contains information on the acknowledgment types
+available for each command and the meaning of those acknowledgments.
+
+
+.. tip::
+
+  **Developer Tip**: The AMPS client libraries automatically request
+  and automatically process the acknowledgments needed for the
+  library itself to work as expected.
+
+  An application can also request acknowledgments explicitly.
+
+  When an application explicitly requests an acknowledgment that is
+  *not* conflated (see the section on :ref:`#ug-ack-conflation` below),
+  the AMPS clients deliver that acknowledgment to the message handler
+  provided on the command, if one was provided.
+
+  If the acknowledgment is conflated, the application must either
+  provide a last chance message handler, or provide a global command
+  type message handler to process acknowledgments.
+
+.. _#ug-ack-receiving:
+
+Receiving Acknowledgments
+---------------------------
+
+Acknowledgments for a specific command or subscription are delivered as a
+part of the message stream for that command. In an AMPS client, this means
+that whatever method an application is using to receive responses from AMPS
+will include acknowledgment messages.
+
+Acknowledgments from AMPS have a command type of ``ack``. This command type
+is reserved for responses from AMPS to a client. The ``CommandId`` of the
+acknowledgment message contains the ``CommandId`` provided by the client
+on the command that AMPS is responding to. The client uses this ``CommandId``
+to route the acknowledgment message to the correct message processor in
+the application.
+
+Notice that when acknowledgments are *conflated* -- that is, the
+acknowledgment refers to a number of publish commands -- AMPS does not include
+a command ID in the acknowledgment message. Further details are provided in the
+section on :ref:`#ug-ack-conflation`. 
+
+.. _#ug-ack-completed:
+
+Bookmark Subscriptions and Completed Acknowledgments
+-------------------------------------------------------
+
+When AMPS is processing a bookmark subscription, a ``completed``
+acknowledgment indicates that the subscription has completed replay from the
+transaction log. This means that the subscription has reached the point in
+the transaction log at which the subscribe command was received, and
+messages delivered on the subscription after the ``completed`` acknowledgment
+are from new publishes.
+
+Bookmark Subscriptions and Persisted Acknowledgments
+-------------------------------------------------------
+
+A bookmark subscription typically also requests the ``persisted``
+acknowledgment (the AMPS clients do this automatically). In this case,
+once the replay has reached the end of the transaction log,
+AMPS periodically returns an acknowledgment that includes the last
+bookmark written to the local transaction log. This information helps
+with application recovery, particularly in cases where publishers are
+intermittent or low-volume, and the last message for a subscription is
+significantly older than the last message evaluated for delivery to
+the subscription.
+
+
+.. _#ug-ack-conflation:
+
+Acknowledgment Conflation and Publish Acknowledgments
+-------------------------------------------------------
+
+For some commands, AMPS will *conflate* acknowledgments and return
+acknowledgments for multiple commands at one time. When AMPS conflates
+acknowledgments, AMPS provides an identifier other than the command
+identifier that describes which commands the acknowledgment applies to.
+
+For example, when a transaction log is configured (with at least one
+topic recorded), AMPS conflates ``persisted`` acknowledgments in
+response to ``publish`` commands and ``sow_delete`` commands. These conflated
+acknowledgments contain the last client sequence number that the
+acknowledgment applies to rather than the command identifiers or
+sequence numbers for all messages being acknowledged. For example, if an
+application publishes messages with sequence numbers ``1``, ``2``,
+``3``, ``4``, and ``5``, and message ``3`` fails due to entitlement
+restrictions, AMPS will return an ``ack`` indicating success for message
+``2``, an ``ack`` indicating failure for message ``3``, and an ``ack``
+indicating success for message ``5``.
+
+By default, AMPS produces conflated acknowledgments for a given connection
+approximately once a second.
+
+Starting with version 5.2.3.0, AMPS allows configuration of the
+conflation interval. To set a different conflation interval:
+
+* For an individual client, provide an ``ack_conflation`` option in
+  the options string for the logon for that client. This sets the
+  interval at which AMPS will provide acknowledgments to that client.
+
+* For replication acknowledgments, specify the ``AckConflationInterval`` 
+  in the replication ``Destination``. This sets the interval at which the 
+  downstream AMPS server will provide acknowledgments to this AMPS server. 
+
+Notice that when a publisher is publishing to a replicated topic, the
+``ack_conflation`` interval sets the interval at which AMPS acknowledges
+messages that have already been acknowledged by synchronous replication
+destinations, while the ``AckConflationInterval`` specifies how often
+those downstream destinations produce an acknowledgment. In a situation
+where it is important to reduce the default latency of an acknowledgment,
+**both** the server option and the client side option typically need to be set. 
+
+To see more information about the different commands and their supported
+acknowledgment types, please refer to the *AMPS Command Reference*,
+provided with 4.0 and greater versions of the AMPS clients and available from 
+the 60East documentation site at http://docs.crankuptheamps.com/.

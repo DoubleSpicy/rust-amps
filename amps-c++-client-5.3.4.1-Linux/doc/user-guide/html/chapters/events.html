@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>21. Event Topics &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="22. Utilities" href="utilities.html" />
+    <link rel="prev" title="20. Logging" href="logging.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">21. Event Topics</a><ul>
+<li><a class="reference internal" href="#client-status">Client Status</a></li>
+<li><a class="reference internal" href="#sow-statistics">SOW Statistics</a></li>
+<li><a class="reference internal" href="#persisting-event-topic-data">Persisting Event Topic Data</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="logging.html" title="previous chapter">20. Logging</a></li>
+      <li>Next: <a href="utilities.html" title="next chapter">22. Utilities</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="index-0"></span><div class="section" id="event-topics">
+<span id="ug-event-topics"></span><h1>21. Event Topics<a class="headerlink" href="#event-topics" title="Permalink to this headline">¶</a></h1>
+<p>AMPS publishes specific events to internal topics that begin with the
+<code class="docutils literal"><span class="pre">/AMPS/</span></code> prefix, which is reserved for AMPS only. For example, all
+client connectivity events are published to the internal
+<code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code> topic. This allows all clients to monitor for
+events that may be of interest.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">You can subscribe to an event topic using a content filter,
+just like any other topic within AMPS.</p>
+</div>
+<p>A client may subscribe to event topics on any connection with a message
+type that supports views. This includes all of the default message types
+and <code class="docutils literal"><span class="pre">bson</span></code>, but does not include the <code class="docutils literal"><span class="pre">binary</span></code> message type.</p>
+<p>Messages are delivered as the message type for the connection. For
+example, if the connection uses JSON messages, the event topic messages
+will be JSON. A connection that uses FIX will receive FIX messages from
+an event topic.</p>
+<div class="section" id="client-status">
+<span id="id1"></span><h2>Client Status<a class="headerlink" href="#client-status" title="Permalink to this headline">¶</a></h2>
+<p id="index-1">The AMPS engine will publish client status events to the internal
+<code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code> topic whenever a client connects, issues a <code class="docutils literal"><span class="pre">logon</span></code>
+command, disconnects, enters or removes a subscription, queries a SOW
+or issues a <code class="docutils literal"><span class="pre">sow_delete</span></code>. AMPS sends a message if a client fails
+authentication. In addition, upon a disconnect, a client status message
+will be published for each subscription that the client had registered
+at the time of the disconnect. This mechanism allows any client to
+monitor what other clients are doing and is especially useful for
+publishers to determine when clients subscribe to a topic of interest.</p>
+<p>To help identify clients, it is recommended that clients send a
+<code class="docutils literal"><span class="pre">logon</span></code> command to the AMPS engine and specify a meaningful client
+name. This client name is used to identify the client within client
+status event messages, logging output and information on clients within
+the monitoring console. The client name must be unique if a transaction
+log is configured for the AMPS instance.</p>
+<p>Each message published to the client status topic will contain an
+<code class="docutils literal"><span class="pre">event</span></code> and a <code class="docutils literal"><span class="pre">client_name</span></code>. Depending on the event type, the message
+will contain other relevant fields.</p>
+<p>For example, the following JSON document demonstrates the message for a SOW
+query:</p>
+<div class="highlight-JS"><div class="highlight"><pre><span></span><span class="p">{</span>
+ <span class="s2">&quot;ClientStatus&quot;</span><span class="o">:</span><span class="p">{</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="o">:</span><span class="s2">&quot;20160509T171919.976304Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;event&quot;</span><span class="o">:</span><span class="s2">&quot;sow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;client_name&quot;</span><span class="o">:</span><span class="s2">&quot;test_client&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;connection_name&quot;</span><span class="o">:</span><span class="s2">&quot;AMPS-Sample-any-tcp-9-242891694350073019&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation_id&quot;</span><span class="o">:</span><span class="kc">null</span><span class="p">,</span>
+    <span class="s2">&quot;query_id&quot;</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;topic&quot;</span><span class="o">:</span><span class="s2">&quot;order&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filter&quot;</span><span class="o">:</span><span class="s2">&quot;/item/qty &gt; 50&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;options&quot;</span><span class="o">:</span><span class="s2">&quot;send_empties&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sub_id&quot;</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;auth_id&quot;</span><span class="o">:</span><span class="kc">null</span><span class="p">,</span>
+    <span class="s2">&quot;entitlement_filter&quot;</span><span class="o">:</span><span class="kc">null</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The table below defines the header fields which may be returned as part of
+the subscription messages to the <code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code> topic.</p>
+<table border="1" class="docutils" id="logging-table-clientstatus-formats">
+<colgroup>
+<col width="10%" />
+<col width="26%" />
+<col width="27%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>FIX</strong></th>
+<th class="head"><strong>XML</strong></th>
+<th class="head"><strong>JSON/BSON/MsgPack</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>20062</td>
+<td><code class="docutils literal"><span class="pre">Reason</span></code></td>
+<td><code class="docutils literal"><span class="pre">reason</span></code></td>
+<td>Reason for the event
+(if applicable). This is
+present on client disconnect
+events to record the reason that
+the client disconnected.</td>
+</tr>
+<tr class="row-odd"><td>20065</td>
+<td><code class="docutils literal"><span class="pre">Timestamp</span></code></td>
+<td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>Timestamp at which AMPS
+processed the message</td>
+</tr>
+<tr class="row-even"><td>20066</td>
+<td><code class="docutils literal"><span class="pre">Event</span></code></td>
+<td><code class="docutils literal"><span class="pre">event</span></code></td>
+<td>Command executed by the client</td>
+</tr>
+<tr class="row-odd"><td>20067</td>
+<td><code class="docutils literal"><span class="pre">ClientName</span></code></td>
+<td><code class="docutils literal"><span class="pre">client_name</span></code></td>
+<td>Client Name</td>
+</tr>
+<tr class="row-even"><td>20068</td>
+<td><code class="docutils literal"><span class="pre">Tpc</span></code></td>
+<td><code class="docutils literal"><span class="pre">topic</span></code></td>
+<td>Topic for the event (if
+applicable)</td>
+</tr>
+<tr class="row-odd"><td>20069</td>
+<td><code class="docutils literal"><span class="pre">Filter</span></code></td>
+<td><code class="docutils literal"><span class="pre">filter</span></code></td>
+<td>Filter (if applicable)</td>
+</tr>
+<tr class="row-even"><td>20070</td>
+<td><code class="docutils literal"><span class="pre">SubId</span></code></td>
+<td><code class="docutils literal"><span class="pre">sub_id</span></code></td>
+<td>Subscription ID (if applicable)</td>
+</tr>
+<tr class="row-odd"><td>20071</td>
+<td><code class="docutils literal"><span class="pre">ConnName</span></code></td>
+<td><code class="docutils literal"><span class="pre">connection_name</span></code></td>
+<td>Internal AMPS connection name</td>
+</tr>
+<tr class="row-even"><td>20072</td>
+<td><code class="docutils literal"><span class="pre">Options</span></code></td>
+<td><code class="docutils literal"><span class="pre">options</span></code></td>
+<td>The options for the subscription
+(if applicable)</td>
+</tr>
+<tr class="row-odd"><td>20073</td>
+<td><code class="docutils literal"><span class="pre">QId</span></code></td>
+<td><code class="docutils literal"><span class="pre">query_id</span></code></td>
+<td>The identifier for the query (if
+applicable)</td>
+</tr>
+<tr class="row-even"><td>20074</td>
+<td><code class="docutils literal"><span class="pre">CorrelationID</span></code></td>
+<td><code class="docutils literal"><span class="pre">correlation_id</span></code></td>
+<td>The correlation ID of the
+command (if applicable)</td>
+</tr>
+<tr class="row-odd"><td>20080</td>
+<td><code class="docutils literal"><span class="pre">ClientAddr</span></code></td>
+<td><code class="docutils literal"><span class="pre">client_address</span></code></td>
+<td>The remote address of the client</td>
+</tr>
+<tr class="row-even"><td>20081</td>
+<td><code class="docutils literal"><span class="pre">AuthId</span></code></td>
+<td><code class="docutils literal"><span class="pre">auth_id</span></code></td>
+<td>The authenticated identity of
+the client (if applicable)</td>
+</tr>
+<tr class="row-odd"><td>20082</td>
+<td><code class="docutils literal"><span class="pre">EntitlementFilter</span></code></td>
+<td><code class="docutils literal"><span class="pre">entitlement_filter</span></code></td>
+<td>The entitlement filter for the
+command (if applicable)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 20.1:</strong> <em>/AMPS/ClientStatus Event Message Fields</em></p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The <code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code> topic is not available for <code class="docutils literal"><span class="pre">protobuf</span></code>, composite,
+<code class="docutils literal"><span class="pre">binary</span></code>, or <code class="docutils literal"><span class="pre">struct</span></code> message types.</p>
+</div>
+</div>
+<div class="section" id="sow-statistics">
+<span id="events-sow-stats"></span><h2>SOW Statistics<a class="headerlink" href="#sow-statistics" title="Permalink to this headline">¶</a></h2>
+<p id="index-2">AMPS can publish SOW statistics for each SOW topic which has been
+configured. To enable this functionality, specify the
+<code class="docutils literal"><span class="pre">SOWStatsInterval</span></code> in the configuration file. The value provided in
+<code class="docutils literal"><span class="pre">SOWStatsInterval</span></code> is the time between updates to the
+<code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code> topic.</p>
+<p>For example, the following would be a configuration that would publish
+<code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code> event messages every 5 seconds.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;AMPSConfig&gt;</span>
+    ...
+    <span class="nt">&lt;SOWStatsInterval&gt;</span>5s<span class="nt">&lt;/SOWStatsInterval&gt;</span>
+    ...
+<span class="nt">&lt;/AMPSConfig&gt;</span>
+</pre></div>
+</div>
+<p>When a <code class="docutils literal"><span class="pre">SOWStatsInterval</span></code> is provided, AMPS publishes a message for each
+topic defined in the SOW at the requested interval. These messages contain
+basic information about the topic. The format of the <code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code>
+messages matches the message type of the connection that has requested the
+messages.</p>
+<p>For example, the following message provides information in JSON format
+about a topic named <code class="docutils literal"><span class="pre">a-sample-topic</span></code>. That topic is of message type <code class="docutils literal"><span class="pre">bflat</span></code>.</p>
+<div class="highlight-JS"><div class="highlight"><pre><span></span><span class="p">{</span>
+ <span class="s2">&quot;SOWStats&quot;</span><span class="o">:</span><span class="p">{</span>
+    <span class="s2">&quot;message_type&quot;</span><span class="o">:</span><span class="s2">&quot;bflat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;topic&quot;</span><span class="o">:</span><span class="s2">&quot;a-sample-topic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;record_count&quot;</span><span class="o">:</span><span class="mf">15021</span><span class="p">,</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="o">:</span><span class="s2">&quot;20161108T225452.280650Z&quot;</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal"><span class="pre">SOWStats</span></code> message above, <code class="docutils literal"><span class="pre">message_type</span></code> provides the name of the
+message type, <code class="docutils literal"><span class="pre">topic</span></code> specifies the name of the topic, <code class="docutils literal"><span class="pre">record_count</span></code> shows
+the number of records currently in the topic and <code class="docutils literal"><span class="pre">timestamp</span></code> includes the
+time the event was generated.</p>
+<p>The table below defines the header fields which may be returned as part of
+the subscription messages to the <code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code> topic.</p>
+<table border="1" class="docutils" id="events-table-clientstatus-fix-formats">
+<colgroup>
+<col width="10%" />
+<col width="19%" />
+<col width="32%" />
+<col width="39%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>FIX</strong></th>
+<th class="head"><strong>XML</strong></th>
+<th class="head"><strong>JSON/BSON/MsgPack</strong></th>
+<th class="head"><strong>Definition</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>20007</td>
+<td><code class="docutils literal"><span class="pre">MessageType</span></code></td>
+<td><code class="docutils literal"><span class="pre">message_type</span></code></td>
+<td>The message type of the topic</td>
+</tr>
+<tr class="row-odd"><td>20065</td>
+<td><code class="docutils literal"><span class="pre">Timestamp</span></code></td>
+<td><code class="docutils literal"><span class="pre">timestamp</span></code></td>
+<td>Timestamp in which AMPS sent the
+message</td>
+</tr>
+<tr class="row-even"><td>20066</td>
+<td><code class="docutils literal"><span class="pre">Topic</span></code></td>
+<td><code class="docutils literal"><span class="pre">topic</span></code></td>
+<td>Topic that statistics are being
+reported on</td>
+</tr>
+<tr class="row-odd"><td>20067</td>
+<td><code class="docutils literal"><span class="pre">Records</span></code></td>
+<td><code class="docutils literal"><span class="pre">record_count</span></code></td>
+<td>Number of records in the SOW
+topic</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 20.2:</strong> <em>/AMPS/SOWStats Event Message Default Fields</em></p>
+<p>For compatibility with systems that expect a consistent set of FIX tags
+across messages, AMPS provides a set of FIX tags that are unified with
+the tags used in the <code class="docutils literal"><span class="pre">/AMPS/ClientStatus</span></code> topic. To use the unified
+FIX tags, set the <code class="docutils literal"><span class="pre">AMPSVersionCompliance</span></code> configuration element to
+<code class="docutils literal"><span class="pre">5</span></code>. The following table lists the unified FIX tags:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">FIX</th>
+<th class="head">Definition</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>20007</td>
+<td>The message type of the topic</td>
+</tr>
+<tr class="row-odd"><td>20065</td>
+<td>Timestamp in which AMPS sent the message</td>
+</tr>
+<tr class="row-even"><td>20068</td>
+<td>Topic that statistics are being reported on</td>
+</tr>
+<tr class="row-odd"><td>20075</td>
+<td>Number of records in the SOW topic</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 20.3:</strong> <em>/AMPS/SOWStats Event Message Unified Fields (Version 5)</em></p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The <code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code> topic is not available for <code class="docutils literal"><span class="pre">protobuf</span></code>,
+composite, <code class="docutils literal"><span class="pre">binary</span></code> or <code class="docutils literal"><span class="pre">struct</span></code> message types. (AMPS will
+report statistics for topics of those types, but the format for
+the messages that AMPS generates must be a message type that can accept
+arbitrary fields, not a message type that requires a single
+schema.)</p>
+</div>
+</div>
+<div class="section" id="persisting-event-topic-data">
+<span id="events-persistence"></span><span id="index-3"></span><h2>Persisting Event Topic Data<a class="headerlink" href="#persisting-event-topic-data" title="Permalink to this headline">¶</a></h2>
+<p>By default, AMPS event topics are not persisted to the SOW. However,
+because AMPS event topic messages are treated the same as all other
+messages, the event topics can be persisted to the SOW. Providing a
+topic definition with the appropriate <code class="docutils literal"><span class="pre">Key</span></code> definition can resolve
+that issue by instructing AMPS to persist the messages.</p>
+<p>The <code class="docutils literal"><span class="pre">Key</span></code> definition you specify must match the field name used for
+the message type specified in the SOW topic. That is, to track distinct
+records by client name for a SOW that uses <code class="docutils literal"><span class="pre">json</span></code>, you would use the
+following key:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Key&gt;</span>/client_name<span class="nt">&lt;/Key&gt;</span>
+</pre></div>
+</div>
+<p>While to track distinct records by client name for a SOW that uses
+<code class="docutils literal"><span class="pre">fix</span></code>, you would use the following key:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;Key&gt;</span>/20067<span class="nt">&lt;/Key&gt;</span>
+</pre></div>
+</div>
+<p>For example, to persist the last <code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code> message for each
+topic in <code class="docutils literal"><span class="pre">fix</span></code>, <code class="docutils literal"><span class="pre">xml</span></code> and <code class="docutils literal"><span class="pre">json</span></code> format, the following <code class="docutils literal"><span class="pre">Topic</span></code>
+sections could be added to the <code class="docutils literal"><span class="pre">SOW</span></code> section of the AMPS configuration
+file:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="c">&lt;!-- Persist /AMPS/SOWStats in FIX format --&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>/AMPS/SOWStats<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/sowstats.fix.sow<span class="nt">&lt;/FileName&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>fix<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="c">&lt;!-- use FIX field for the key --&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/20066<span class="nt">&lt;/Key&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+
+    <span class="c">&lt;!-- Persist /AMPS/SOWStats in JSON format --&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>/AMPS/SOWStats<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/sowstats.json.sow<span class="nt">&lt;/FileName&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>json<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="c">&lt;!-- use the JSON field for the key --&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/topic<span class="nt">&lt;/Key&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+
+    <span class="c">&lt;!-- Persist /AMPS/SOWStats in XML format --&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>/AMPS/SOWStats<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;FileName&gt;</span>./sow/sowstats.xml.sow<span class="nt">&lt;/FileName&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>xml<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="c">&lt;!-- use the XML field for the key --&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/Topic<span class="nt">&lt;/Key&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p>Every time an update occurs, AMPS will persist the <code class="docutils literal"><span class="pre">/AMPS/SOWStats</span></code>
+message and it will be stored three times, once to the <code class="docutils literal"><span class="pre">fix</span></code> SOW
+topic, once to the <code class="docutils literal"><span class="pre">xml</span></code> SOW topic, and once to the <code class="docutils literal"><span class="pre">json</span></code> SOW
+topic. Each update to the respective SOW topic will overwrite the record
+with the same <code class="docutils literal"><span class="pre">Topic</span></code>, <code class="docutils literal"><span class="pre">topic</span></code> or <code class="docutils literal"><span class="pre">20066</span></code> tag value. Doing this
+allows clients to now query the <code class="docutils literal"><span class="pre">SOWStats</span></code> topic instead of actively
+listening to live updates.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

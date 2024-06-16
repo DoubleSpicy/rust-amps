@@ -1,0 +1,57 @@
+.. index:: AMPS; Conflated Topic, Conflated Topic, Topic Replicas,
+   conflation,
+
+.. _#ug-topic_replicas:
+
+12. Conflated Topics
+====================
+
+AMPS provides the ability to conflate messages for an individual
+subscription, as described in :ref:`#ug-pub-sub-conflation`. 
+When a single subscriber requires
+conflation, requesting conflation for that subscription is a reasonable
+approach to take. In cases where all instances of an application can
+benefit from conflation, *conflated topics* are a more efficient and
+scalable approach. A conflated topic is a copy of one SOW topic into
+another with the ability to control the update interval. In this case,
+AMPS maintains conflation for the entire topic. There is no need for
+subscribers to independently request conflation, and AMPS does not need
+to spend resources processing conflation for each subscriber
+individually.
+
+The underlying topic for a conflated topic can be a ``Topic``, a
+``View``, or another ``ConflatedTopic``.
+
+To better see the value in a conflated topic, imagine a SOW topic called
+``ORDER_STATE`` exists in an AMPS instance. ``ORDER_STATE`` messages are
+published frequently to the topic. Meanwhile, there are several
+subscribing clients that are watching updates to this topic and
+displaying the latest state in a GUI front-end.
+
+If this GUI front-end only needs updates in five second intervals from
+the ``ORDER_STATE`` topic, then more frequent updates would be wasteful
+of network and client-side processing resources. To reduce network
+congestion, a conflated topic for the ``ORDER_STATE`` topic can be
+created which will contain a copy of ``ORDER_STATE`` updated in five
+second intervals. Only the changed records from ``ORDER_STATE`` will be
+copied to the conflated topic and then sent to the subscribing clients.
+Those records with multiple updates within the time interval will have
+their latest updated values copied to the conflated topic, and only
+those conflated values are sent to the clients. This results in
+substantial savings in bandwidth for records with high update rates.
+This can also result in substantial savings in processing overhead for a
+client.
+
+AMPS treats the conflated topic as a conflated version of the underlying
+topic. Applications cannot publish directly to the conflated topic.
+Likewise, AMPS does not recalculate the SowKey for messages delivered
+from the conflated topic: these messages have the same SOW key as the
+corresponding message in the underlying topic.
+
+AMPS indexes conflated topics in the same way that it indexes the
+underlying topic in the State of the World. When a query uses a given
+field, AMPS will automatically create a memo index for that field. A
+configuration can also declare one or more ``HashIndex`` indexes for
+a conflated topic.
+
+.. include:: ./conflatedtopic.inc

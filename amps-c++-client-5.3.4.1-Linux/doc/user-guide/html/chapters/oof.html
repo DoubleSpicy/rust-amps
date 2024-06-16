@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>9. Out-of-Focus Messages (OOF) &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="10. State of the World Message Enrichment" href="enrichment.html" />
+    <link rel="prev" title="8. SOW Queries" href="sow_queries.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9. Out-of-Focus Messages (OOF)</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#example">Example</a><ul>
+<li><a class="reference internal" href="#client-side-filtering-in-a-sow-and-subscribe-command">Client-Side Filtering in a sow_and_subscribe Command</a></li>
+<li><a class="reference internal" href="#amps-filtering-in-a-sow-and-subscribe-command">AMPS Filtering in a sow_and_subscribe command</a></li>
+<li><a class="reference internal" href="#oof-processing-in-a-sow-and-subscribe-command">OOF Processing in a sow_and_subscribe command</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="sow_queries.html" title="previous chapter">8. SOW Queries</a></li>
+      <li>Next: <a href="enrichment.html" title="next chapter">10. State of the World Message Enrichment</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="out-of-focus-messages-oof">
+<span id="ug-oof"></span><span id="index-0"></span><h1>9. Out-of-Focus Messages (OOF)<a class="headerlink" href="#out-of-focus-messages-oof" title="Permalink to this headline">¶</a></h1>
+<p>One of the more difficult problems in messaging is knowing when a record
+that previously matched a subscription has been updated so that the
+record no longer matches the subscription. AMPS solves this problem by
+providing an out-of-focus, or <em>OOF</em>, message to let subscribers know
+that a record they have previously received no longer matches the
+subscription. The OOF messages help subscribers easily maintain state
+and remove records that are no longer relevant.</p>
+<p>OOF notification is optional. A subscriber must explicitly request that
+AMPS provide out-of-focus messages for a subscription.</p>
+<p>When OOF notification has been requested, AMPS produces an <code class="docutils literal"><span class="pre">oof</span></code>
+message for any record that has previously been received by the
+subscription at the point at which:</p>
+<ul class="simple">
+<li>The record is deleted,</li>
+<li>The record expires,</li>
+<li>The record no longer matches the filter criteria, <em>or</em></li>
+<li>The subscriber is no longer entitled to view the new state of the
+record</li>
+</ul>
+<p>AMPS produces an <code class="docutils literal"><span class="pre">oof</span></code> message for each record that no longer matches
+the subscription. The <code class="docutils literal"><span class="pre">oof</span></code> message is sent as part of processing the
+update that caused the record to no longer match. Each <code class="docutils literal"><span class="pre">oof</span></code> message
+contains information the subscriber can use to identify the record that
+has gone out of focus and the reason that the record is now out of
+focus.</p>
+<p>Because AMPS must maintain the current state of a record to know when to
+produce an <code class="docutils literal"><span class="pre">oof</span></code> message, these messages are only supported for SOW
+topics, conflated topics, and views. The <code class="docutils literal"><span class="pre">oof</span></code> option is not supported
+for subscriptions that do not include a SOW query or bookmark replays.</p>
+<p>When AMPS returns an OOF message, the data contained in the body of the
+message represents the updated state of the message (except as
+described below). This will allow the client to make a determination as
+to how to handle the data, be it to remove the data from the client view
+or to change their query to broaden the filter thresholds. This enables
+a client to take a different action depending on why the message no
+longer matches. For example, an application may present a different icon
+for an order that moves to a status of <code class="docutils literal"><span class="pre">completed</span></code> than it would
+present for an order that moves to a status of <code class="docutils literal"><span class="pre">cancelled</span></code>.</p>
+<p>When a <code class="docutils literal"><span class="pre">delta_publish</span></code> message causes the SOW record to go out of
+focus, AMPS returns the merged record.</p>
+<p>When there is no updated message to send, AMPS sends the state of the
+record before the change that produced the <code class="docutils literal"><span class="pre">oof</span></code>. This can occur when the
+message had been deleted, when the message has expired, or when an
+update causes the client to no longer have permission to receive the
+record.</p>
+<p id="index-1">For a conflated view or a subscription that uses conflation, the data included
+in the <code class="docutils literal"><span class="pre">oof</span></code> message will be the last data that the subscriber received. When
+both an update to a message and a change that would cause the message to go
+out of focus happen in the same conflation interval, the subscriber receives
+an <code class="docutils literal"><span class="pre">oof</span></code> notification with the previously-received state of the message.
+Likewise, if a change that causes a message to go out of focus and a change
+that causes the message to come back into focus occur within the same
+conflation interval, the subscriber receives the state of the message at the
+end of the conflation interval, and does not receive an indication that the
+message had gone out of focus during the conflation interval.</p>
+<div class="section" id="usage">
+<span id="oof-usage"></span><h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Consider the following scenario where AMPS is configured with the
+following SOW key for the buyer topic:</p>
+<div class="highlight-XML" id="oof-configuration-example"><div class="highlight"><pre><span></span><span class="nt">&lt;SOW&gt;</span>
+    <span class="nt">&lt;Topic&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>buyer<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;MessageType&gt;</span>xml<span class="nt">&lt;/MessageType&gt;</span>
+        <span class="nt">&lt;Key&gt;</span>/buyer/id<span class="nt">&lt;/Key&gt;</span>
+    <span class="nt">&lt;/Topic&gt;</span>
+<span class="nt">&lt;/SOW&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 9.1:</strong> <em>Topic Configuration</em></p>
+<p>When the following message is published, it is persisted in the SOW
+topic:</p>
+<div class="highlight-XML" id="oof-example-1"><div class="highlight"><pre><span></span><span class="nt">&lt;buyer&gt;</span>
+    <span class="nt">&lt;id&gt;</span>100<span class="nt">&lt;/id&gt;</span>
+    <span class="nt">&lt;loc&gt;</span>NY<span class="nt">&lt;/loc&gt;</span>
+<span class="nt">&lt;/buyer&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 9.2:</strong> <em>First Publish Message</em></p>
+<p>A client issues a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> request for the topic <code class="docutils literal"><span class="pre">buyer</span></code>
+with the filter <code class="docutils literal"><span class="pre">/buyer/loc=&quot;NY&quot;</span></code> and the <code class="docutils literal"><span class="pre">oof</span></code> option set on the
+request. The client will be sent the messages as part of the SOW query
+result.</p>
+<p>Subsequently, the following message is published to update the <code class="docutils literal"><span class="pre">loc</span></code>
+tag to LN:</p>
+<div class="highlight-XML" id="oof-example-2"><div class="highlight"><pre><span></span><span class="nt">&lt;buyer&gt;</span>
+    <span class="nt">&lt;id&gt;</span>100<span class="nt">&lt;/id&gt;</span>
+    <span class="nt">&lt;loc&gt;</span>LN<span class="nt">&lt;/loc&gt;</span>
+<span class="nt">&lt;/buyer&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 9.3:</strong> <em>Second Publish Message</em></p>
+<p>The original message in the SOW cache is updated. The client does not
+receive the second publish message, because that message does not match
+the filter (<code class="docutils literal"><span class="pre">/buyer/loc=&quot;NY&quot;</span></code>). This is problematic. The client has a
+message that is no longer in the SOW cache and that no longer matches
+the current state of the record. Because the <code class="docutils literal"><span class="pre">oof</span></code> option was set on
+the subscription, however, the AMPS engine sends an <code class="docutils literal"><span class="pre">oof</span></code> message to
+let these clients know that the message that they hold is no longer in
+the SOW cache. The following is an example of what&#8217;s returned:</p>
+<div class="highlight-XML"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot;?&gt;</span>
+<span class="nt">&lt;SOAP-ENV:Envelope&gt;</span>
+    <span class="nt">&lt;SOAP-ENV:Header&gt;</span>
+        <span class="nt">&lt;Reason&gt;</span>match<span class="nt">&lt;/Reason&gt;</span>
+        <span class="nt">&lt;Tpc&gt;</span>buyer<span class="nt">&lt;/Tpc&gt;</span>
+        <span class="nt">&lt;Cmd&gt;</span>oof<span class="nt">&lt;/Cmd&gt;</span>
+        <span class="nt">&lt;MsgTyp&gt;</span>xml<span class="nt">&lt;/MsgTyp&gt;</span>
+        <span class="nt">&lt;SowKey&gt;</span>6387219447538349146<span class="nt">&lt;/SowKey&gt;</span>
+        <span class="nt">&lt;SubIds&gt;</span>SAMPS-1214725701_1<span class="nt">&lt;/SubIds&gt;</span>
+    <span class="nt">&lt;/SOAP-ENV:Header&gt;</span>
+    <span class="nt">&lt;SOAP-ENV:Body&gt;</span>
+        <span class="nt">&lt;client&gt;</span>
+            <span class="nt">&lt;id&gt;</span>100<span class="nt">&lt;/id&gt;</span>
+            <span class="nt">&lt;loc&gt;</span>LN<span class="nt">&lt;/loc&gt;</span>
+        <span class="nt">&lt;/client&gt;</span>
+    <span class="nt">&lt;/SOAP-ENV:Body&gt;</span>
+<span class="nt">&lt;/SOAP-ENV:Envelope&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example 9.4:</strong> <em>oof XML Example Message</em></p>
+<p>An easy way to think about the situations where AMPS sends an OOF
+notification is to consider what would happen if the client re-issued
+the original <code class="docutils literal"><span class="pre">sow</span></code> request after the above message was published. The
+<code class="docutils literal"><span class="pre">/client/loc=&quot;NY&quot;</span></code> expression no longer matches the message in the SOW
+cache and as a result, this message would not be returned.</p>
+</div>
+<div class="section" id="example">
+<span id="oof-ex1"></span><h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>To help reinforce the concept of OOF messages, and how OOF messaging can
+be used in AMPS, consider a scenario where there is a GUI application
+whose requirement is to display all open orders of a client. There are
+several possible solutions to ensure that the GUI client data is
+constantly updated as information changes, some of which are examined
+below; however, the goal of this section is to build up a
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> message to demonstrate the power that OOF
+notifications add to AMPS.</p>
+<div class="section" id="client-side-filtering-in-a-sow-and-subscribe-command">
+<h3>Client-Side Filtering in a sow_and_subscribe Command<a class="headerlink" href="#client-side-filtering-in-a-sow-and-subscribe-command" title="Permalink to this headline">¶</a></h3>
+<p>First, consider an approach that sends a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> message
+on the topic <code class="docutils literal"><span class="pre">orders</span></code> using the filter <code class="docutils literal"><span class="pre">/Client=&quot;Adam&quot;</span></code>:</p>
+<p>AMPS completes the <code class="docutils literal"><span class="pre">sow</span></code> portion of this call by sending all matching
+messages from the <code class="docutils literal"><span class="pre">orders</span></code> SOW topic. AMPS then places a subscription
+whereby all future messages that match the filter get sent to the
+subscribing GUI client.</p>
+<div class="figure" id="oof-figure-oof1">
+<a class="reference internal image-reference" href="../_images/OOF5.svg"><img alt="``sow_and_subscribe`` example" src="../_images/OOF5.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 9.1:</strong> <em>sow_and_subscribe example</em></p>
+<p>As the messages come in, the GUI client will be responsible for
+determining the state of the order. It does this by examining the
+<code class="docutils literal"><span class="pre">State</span></code> field and determining if the state is equal to “Open” or not,
+and then updating the GUI based on the information returned.</p>
+<p>This approach puts the burden of work on the GUI and, in a high volume
+environment, has the potential to make the client GUI unresponsive due
+to the potential load that this filtering can place on a CPU. If a
+client GUI becomes unresponsive, AMPS will queue the messages to ensure
+that the client is given the opportunity to catch up. The specifics of
+how AMPS handles slow clients is covered in the section called
+<a class="reference internal" href="operation.html#operations-and-deployment-best-practices-slow-clients"><span class="std std-ref">Slow Clients</span></a>.</p>
+</div>
+<div class="section" id="amps-filtering-in-a-sow-and-subscribe-command">
+<h3>AMPS Filtering in a sow_and_subscribe command<a class="headerlink" href="#amps-filtering-in-a-sow-and-subscribe-command" title="Permalink to this headline">¶</a></h3>
+<p>The next step is to add an additional ’AND’ clause to the filter. In
+this scenario we can let AMPS do the filtering work that was previously
+handled on the client. This is accomplished by modifying our original
+<code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> to use the following filter:</p>
+<div class="code XML highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Client</span> <span class="o">=</span> <span class="s2">&quot;Adam&quot;</span> <span class="n">AND</span> <span class="o">/</span><span class="n">State</span> <span class="o">=</span> <span class="s2">&quot;Open&quot;</span>
+</pre></div>
+</div>
+<p>Similar to the above case, this <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> will first send
+all messages from the <code class="docutils literal"><span class="pre">orders</span></code> SOW topic that have a <code class="docutils literal"><span class="pre">Client</span></code> field
+matching &#8220;Adam&#8221; and a <code class="docutils literal"><span class="pre">State</span></code> field matching &#8220;Open&#8221;. Once all of the
+SOW topic messages have been sent to the client, the subscription will
+ensure that all future messages matching the filter will be sent to the
+client.</p>
+<div class="figure" id="off-figure-oof2">
+<a class="reference internal image-reference" href="../_images/OOF6.svg"><img alt="State Filter in a sow_and_subscribe" src="../_images/OOF6.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 9.2:</strong> <em>State Filter in a sow_and_subscribe</em></p>
+<p>There is a less obvious issue with this approach to maintaining the
+client state. The problem with this solution is that, while it initially
+will yield all open orders for client &#8220;Adam&#8221;, this scenario is unable to
+stay in sync with the server. For example, when the order for Adam is
+filled, the <code class="docutils literal"><span class="pre">State</span></code> changes to <code class="docutils literal"><span class="pre">State=Filled</span></code>. This means that,
+inside AMPS, the order on the client will no longer match the initial
+filter criteria. The client will continue to display and maintain these
+out-of-sync records. Since the client is not subscribed to messages with
+a <code class="docutils literal"><span class="pre">State</span></code> of “Filled,” the GUI client would never be updated to
+reflect this change.</p>
+</div>
+<div class="section" id="oof-processing-in-a-sow-and-subscribe-command">
+<h3>OOF Processing in a sow_and_subscribe command<a class="headerlink" href="#oof-processing-in-a-sow-and-subscribe-command" title="Permalink to this headline">¶</a></h3>
+<p>The final solution is to implement the same <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> query
+which was used in the first scenario. This time, we use the filter
+requests only for the State that we&#8217;re interested in, but we add the <code class="docutils literal"><span class="pre">oof</span></code>
+option to the command so the subscriber receives OOF messages.</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Client</span> <span class="o">=</span> <span class="s2">&quot;Adam&quot;</span> <span class="n">AND</span> <span class="o">/</span><span class="n">State</span> <span class="o">=</span> <span class="s2">&quot;Open&quot;</span>
+</pre></div>
+</div>
+<p>AMPS will respond immediately with the query results, in a similar
+manner to a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> (<a class="reference internal" href="#oof-figure-oof3"><span class="std std-ref">Figure 9.3</span></a>) command.</p>
+<div class="figure" id="oof-figure-oof3">
+<a class="reference internal image-reference" href="../_images/OOF7.svg"><img alt="sow_and_subscribe with oof enabled" src="../_images/OOF7.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 9.3:</strong> <em>sow_and_subscribe with</em> <code class="docutils literal"><span class="pre">oof</span></code> <em>enabled</em></p>
+<p>This approach provides the following advantage: for all future messages
+in which the same <code class="docutils literal"><span class="pre">Open</span></code> order is updated, such that its status is no
+longer <code class="docutils literal"><span class="pre">Open</span></code>, AMPS will send the client an <code class="docutils literal"><span class="pre">OOF</span></code> message specifying
+that the record which previously matched the filter criteria has fallen
+out of focus. AMPS will not send any further information about the
+message unless another incoming AMPS message causes that message to come
+back into focus.</p>
+<p>In <a class="reference internal" href="#oof-figure-oof4"><span class="std std-ref">Figure 9.4</span></a> the Publisher publishes a message stating that
+Adam’s order for MSFT has been fulfilled. When AMPS processes this
+message, it will notify the GUI client with an <code class="docutils literal"><span class="pre">OOF</span></code> message that the
+original record no longer matches the filter criteria. The <code class="docutils literal"><span class="pre">OOF</span></code>
+message will include a <code class="docutils literal"><span class="pre">Reason</span></code> field with it in the message header,
+defining the reason for the message to lose focus. In this case the
+<code class="docutils literal"><span class="pre">Reason</span></code> field will state <code class="docutils literal"><span class="pre">match</span></code> since the record no longer matches
+the filter</p>
+<div class="figure" id="oof-figure-oof4">
+<a class="reference internal image-reference" href="../_images/OOF8.svg"><img alt="OOF message" src="../_images/OOF8.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 9.4:</strong> <em>OOF message</em></p>
+<p>AMPS will also send <code class="docutils literal"><span class="pre">OOF</span></code> messages when a message is deleted or has
+expired from the SOW topic.</p>
+<p>We see the power of the <code class="docutils literal"><span class="pre">OOF</span></code> message when a client application wants
+to have a local cache that is a subset of the SOW. This is best managed
+by first issuing a query filter <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> which populates
+the GUI, and enabling the <code class="docutils literal"><span class="pre">oof</span></code> option. AMPS informs our application
+when those records which originally matched no longer do, at which time
+the program can remove them.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

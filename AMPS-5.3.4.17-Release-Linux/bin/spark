@@ -1,0 +1,27 @@
+#! /bin/bash
+self=`readlink -e "${0#./}"`
+mypath=`dirname $self`
+
+# Look for java in our $PATH
+java_check=`which java`
+if [ -x "$java_check" ]
+then
+  java_bin=$java_check
+fi
+
+# If JAVA_HOME is set, let's use it instead
+if [ -x "$JAVA_HOME/bin/java" ]
+then
+  java_bin="$JAVA_HOME/bin/java"
+fi
+if [ -z "$java_bin" ]; then
+  echo "ERROR: Java was not found in your \$PATH or \$JAVA_HOME."
+  exit 1
+fi
+"$java_bin" -Xmx10240m -Xms1024m $AMPS_SPARK_OPTS -jar "${mypath}/lib/amps_spark.jar" "$@"
+
+# Debugging Alternatives:
+#"$java" -XX:+PrintGCDetails  -jar "${mypath}/lib/amps_spark.jar" "$@"
+#"$java" -agentlib:hprof=cpu=times,depth=12,lineno=y -jar "${mypath}/lib/amps_spark.jar" "$@"
+#"$java" -agentlib:hprof=heap=sites,depth=12,lineno=y -jar "${mypath}/lib/amps_spark.jar" "$@"
+#"$java" -agentlib:hprof=cpu=samples,interval=1,depth=12,lineno=y -jar "${mypath}/lib/amps_spark.jar" "$@"

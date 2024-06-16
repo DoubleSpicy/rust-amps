@@ -1,0 +1,532 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>1. Introduction to 60East Technologies AMPS &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Getting Started" href="getting_started.html" />
+    <link rel="prev" title="Advanced Message Processing System (AMPS) User Guide" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">1. Introduction to 60East Technologies AMPS</a><ul>
+<li><a class="reference internal" href="#product-overview">Product Overview</a></li>
+<li><a class="reference internal" href="#software-requirements">Software Requirements</a></li>
+<li><a class="reference internal" href="#organization-of-this-manual">Organization of this Manual</a></li>
+<li><a class="reference internal" href="#document-conventions">Document Conventions</a></li>
+<li><a class="reference internal" href="#obtaining-support">Obtaining Support</a><ul>
+<li><a class="reference internal" href="#support-steps">Support Steps</a></li>
+<li><a class="reference internal" href="#amps-versioning-and-certification">AMPS Versioning and Certification</a></li>
+<li><a class="reference internal" href="#contacting-60east-technologies-support">Contacting 60East Technologies Support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Advanced Message Processing System (AMPS) User Guide</a></li>
+      <li>Next: <a href="getting_started.html" title="next chapter">2. Getting Started</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="introduction-to-60east-technologies-amps">
+<h1>1. Introduction to 60East Technologies AMPS<a class="headerlink" href="#introduction-to-60east-technologies-amps" title="Permalink to this headline">¶</a></h1>
+<p>Thank you for choosing the Advanced Message Processing System (AMPS)
+from 60East Technologies. AMPS is a feature-rich message processing
+system that delivers previously unattainable low-latency and
+high-throughput performance to users. AMPS provides both
+publish-and-subscribe messaging and high-performance message queuing.</p>
+<div class="section" id="product-overview">
+<h2>Product Overview<a class="headerlink" href="#product-overview" title="Permalink to this headline">¶</a></h2>
+<p id="index-0">AMPS, the Advanced Message Processing System, is built around an
+incredibly fast messaging engine that supports both publish-subscribe
+messaging and queuing. AMPS combines the capabilities necessary for
+scalable high-throughput, low-latency messaging in realtime deployments
+such as in financial services. AMPS goes beyond basic messaging to
+include advanced features such as high availability, historical replay,
+aggregation and analytics, content filtering and continuous query, last
+value caching, focus tracking, and more.</p>
+<p>Furthermore, AMPS is designed and engineered specifically for next
+generation computing environments. The architecture, design and
+implementation of AMPS allows the exploitation of parallelism inherent
+in emerging multi-socket, multi-core commodity systems and the
+low-latency, high-bandwidth of 10Gb Ethernet and faster networks. AMPS
+is designed to detect and take advantage of the capabilities of the
+hardware of the system on which it runs.</p>
+<p>AMPS does more than just route and deliver messages. AMPS was designed
+to lower the latency in real-world messaging deployments by focusing on
+the entire lifetime of a message from the message&#8217;s origin to the time
+at which a subscriber takes action on the message. AMPS considers the
+full message lifetime, rather than just the &#8220;in flight&#8221; time, and allows
+you to optimize your applications to conserve network bandwidth and
+subscriber CPU utilization &#8211; typically the first elements of a system
+to reach the saturation point in real messaging systems.</p>
+<p id="index-1">AMPS offers both topic and content based subscription semantics, which
+makes it different than most other messaging platforms. Some
+of the highlights of AMPS include:</p>
+<ul class="simple">
+<li>Topic and content based publish and subscribe</li>
+<li>Message queuing, including content-based filtering and configurable
+strategies for delivery fairness</li>
+<li>Client development kits for popular programming languages such as
+Java, C#, C++, C, Python, and JavaScript</li>
+<li>Built in support for FIX, NVFIX, JSON, BSON, MessagePack, BFlat,
+Google Protocol Buffer and XML messages. AMPS also supports
+uninterpreted binary messages, and allows you to create composite
+message types from existing message types.</li>
+<li>State-of-the-World queries</li>
+<li>Historical State-of-the-World queries</li>
+<li>Easy to use command interface</li>
+<li>Full Perl-compatible regular expression matching</li>
+<li>Content filters with SQL92 <code class="docutils literal"><span class="pre">WHERE</span></code> clause semantics</li>
+<li>Built-in latency statistics and client status monitoring</li>
+<li>Advanced subscription management, including delta publish and
+subscriptions and out-of-focus notifications</li>
+<li>Basic CEP capabilities for real-time computation and analysis</li>
+<li>Aggregation within topics and joins between topics, including joins
+between different message types</li>
+<li>Replication for high availability</li>
+<li>Fully queryable transaction log</li>
+<li>Message replay functionality</li>
+<li>Fully-integrated authentication and entitlement system, including
+content-based entitlement for fine-grained control</li>
+<li>Optional encryption (SSL) between client and server</li>
+<li>Extensibility API for adding message types, user-defined functions,
+user-specified actions, authentication, and entitlement functionality</li>
+</ul>
+</div>
+<div class="section" id="software-requirements">
+<h2>Software Requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h2>
+<p id="index-2">The AMPS server is supported on the following platforms:</p>
+<ul class="simple">
+<li>Linux 64-bit (2.6 kernel or later) on x86 compatible processors</li>
+</ul>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">While 2.6 is the minimum kernel version supported, AMPS will
+select the most efficient mechanisms available to it and thus
+reaps greater benefit from more recent kernel and CPU versions.</p>
+</div>
+<p>The AMPS distribution contains all of the supporting libraries
+and dependencies needed to run on a typical Linux server installation:
+no further software is required.</p>
+<p>Some utilities provided with the AMPS server have additional
+dependencies. These utilities are not required to run
+the server, but can make it easier to troubleshoot
+and test on the system that hosts the AMPS instance:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">spark</span></code>, a basic command line client that supports a subset
+of AMPS functionality, requires Java 1.7 or later.</li>
+<li>The utilities for inspecting AMPS files (<code class="docutils literal"><span class="pre">amps_sow_dump</span></code>,
+<code class="docutils literal"><span class="pre">amps_clients_ack_dump</span></code>, and so on) require a
+Python installation.</li>
+<li><code class="docutils literal"><span class="pre">amps-grep</span></code> requires a Python installation.</li>
+<li><code class="docutils literal"><span class="pre">amps-sqlite3</span></code> requires a Python installation
+and the sqlite3 package for your distribution
+(often, but not always, installed by default).</li>
+</ul>
+</div>
+<div class="section" id="organization-of-this-manual">
+<span id="index-3"></span><h2>Organization of this Manual<a class="headerlink" href="#organization-of-this-manual" title="Permalink to this headline">¶</a></h2>
+<p>This manual is divided into the following parts:</p>
+<ul>
+<li><p class="first">Part One presents introductory material and a brief
+overview of AMPS</p>
+</li>
+<li><p class="first">Part Two explains the features of AMPS, including
+information on the following features:</p>
+<ul>
+<li><p class="first"><a class="reference internal" href="pub_sub.html#ug-pub-sub"><span class="std std-ref">Publish and Subscribe</span></a></p>
+</li>
+<li><p class="first"><a class="reference internal" href="txlog.html#ug-txlog"><span class="std std-ref">Transactional Messaging and Bookmark Subscriptions</span></a></p>
+</li>
+<li><p class="first"><a class="reference internal" href="queues.html#ug-queues"><span class="std std-ref">Message Queues</span></a></p>
+</li>
+<li><p class="first"><a class="reference internal" href="messageTypes.html#ug-messagetypes"><span class="std std-ref">Message Types</span></a></p>
+</li>
+<li><p class="first"><a class="reference internal" href="sow.html#ug-sow"><span class="std std-ref">State of the World (SOW)</span></a></p>
+<p>State of the World topics enable many of the other advanced
+features in AMPS, such as:</p>
+<ul class="simple">
+<li><a class="reference internal" href="views.html#ug-views"><span class="std std-ref">Aggregating Data with View Topics</span></a></li>
+<li><a class="reference internal" href="conflated_topics.html#ug-topic-replicas"><span class="std std-ref">Conflated Topics</span></a></li>
+<li><a class="reference internal" href="delta.html#ug-delta"><span class="std std-ref">Delta Messaging</span></a></li>
+<li><a class="reference internal" href="oof.html#ug-oof"><span class="std std-ref">Out-of-Focus Messages (OOF)</span></a></li>
+<li><a class="reference internal" href="sow.html#ug-regular-expression-sow"><span class="std std-ref">Regular Expression SOW Topics</span></a></li>
+</ul>
+<p>This section also contains detailed chapters on specific topics,
+such as the AMPS filter language. Both application developers and
+administrators should become familiar with this section.</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Part Three discusses AMPS deployment and
+operations, including:</p>
+<ul class="simple">
+<li><a class="reference internal" href="daemon.html#ug-daemon"><span class="std std-ref">Running AMPS as a Linux Service</span></a></li>
+<li><a class="reference internal" href="logging.html#ug-logging"><span class="std std-ref">Logging</span></a></li>
+<li><a class="reference internal" href="events.html#ug-event-topics"><span class="std std-ref">Event Topics</span></a></li>
+<li><a class="reference internal" href="monitoring.html#ug-monitoring"><span class="std std-ref">Monitoring Interface</span></a></li>
+<li><a class="reference internal" href="actions.html#ug-actions"><span class="std std-ref">Automating AMPS with Actions</span></a></li>
+<li><a class="reference internal" href="ha.html#ug-ha"><span class="std std-ref">Replication and High-Availability</span></a></li>
+<li><a class="reference internal" href="operation.html#ug-operation"><span class="std std-ref">Operation and Deployment</span></a></li>
+<li><a class="reference internal" href="securing.html#ug-securing"><span class="std std-ref">Securing AMPS</span></a></li>
+<li><a class="reference internal" href="troubleshooting.html#ug-troubleshooting"><span class="std std-ref">Troubleshooting AMPS</span></a></li>
+</ul>
+<p>This section is most useful for those with a focus on AMPS
+operations, although the information presented here is helpful for
+developers who want to design high-performance, high-availability
+applications that are easy to deploy and maintain.</p>
+</li>
+<li><p class="first">Part Four presents information about using AMPS to
+build applications including:</p>
+<ul class="simple">
+<li><a class="reference internal" href="usecases.html#ug-usecases"><span class="std std-ref">Sample Use Cases</span></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="document-conventions">
+<h2>Document Conventions<a class="headerlink" href="#document-conventions" title="Permalink to this headline">¶</a></h2>
+<p>This manual is an introduction to the 60East Technologies AMPS product.
+It assumes that you have a working knowledge of Linux, and uses the
+following conventions.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Construct</strong></th>
+<th class="head"><strong>Usage</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>text</td>
+<td>standard document text</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">code</span></code></td>
+<td>inline code fragment</td>
+</tr>
+<tr class="row-even"><td><em>variable</em></td>
+<td>variables within commands or configuration</td>
+</tr>
+<tr class="row-odd"><td><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="n">required</span>
+</pre></div>
+</div>
+</td>
+<td>required parameters in parameter tables</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">optional</span></code></td>
+<td>optional parameters in parameter tables</td>
+</tr>
+</tbody>
+</table>
+<p>The AMPS documentation also includes the following types of notes:</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Inside the tip box you will find usage tips or extra information.</p>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Inside the important box you will find information that&#8217;s important
+to keep in mind when working with AMPS. These are typically
+recommendations that should generally be followed, but may not
+be applicable in special cases.</p>
+</div>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">Inside the caution box you will find important information and
+guidelines that require special consideration or caution
+when using AMPS to ensure the proper functioning of the system
+and to avoid any potential issues or risks.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Inside the warning box you will find usage warnings or information that
+is critical for ensuring that AMPS functions correctly.</p>
+</div>
+<p><strong>Table 1.1:</strong> <em>Documentation Conventions</em></p>
+<p>Additionally, here are the constructs used for displaying content
+filters, XML, code, command line, and script fragments.</p>
+<p><code class="docutils literal"><span class="pre">(expr1</span> <span class="pre">=</span> <span class="pre">1)</span> <span class="pre">OR</span> <span class="pre">(expr2</span> <span class="pre">=</span> <span class="pre">2)</span> <span class="pre">OR</span> <span class="pre">(expr3</span> <span class="pre">=</span> <span class="pre">3)</span> <span class="pre">OR</span> <span class="pre">(expr4</span> <span class="pre">=</span> <span class="pre">4)</span> <span class="pre">OR</span> <span class="pre">(expr5</span> <span class="pre">=</span> <span class="pre">5)</span> <span class="pre">OR</span> <span class="pre">(expr6</span> <span class="pre">=</span> <span class="pre">6)</span> <span class="pre">OR</span> <span class="pre">(expr7</span> <span class="pre">=</span> <span class="pre">7)</span> <span class="pre">OR</span> <span class="pre">(expr8</span> <span class="pre">=</span> <span class="pre">8)</span></code></p>
+<p>Command lines will be formatted as in the following example:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="o">*.</span><span class="n">java</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="obtaining-support">
+<h2>Obtaining Support<a class="headerlink" href="#obtaining-support" title="Permalink to this headline">¶</a></h2>
+<p id="index-4">For an outline of your specific support policies, please see your 60East
+Technologies License Agreement. Support contracts can be purchased
+through your 60East Technologies account representative.</p>
+<div class="section" id="support-steps">
+<h3>Support Steps<a class="headerlink" href="#support-steps" title="Permalink to this headline">¶</a></h3>
+<p>You can save time if you complete the following steps before you contact
+60East Technologies Support:</p>
+<ol class="arabic">
+<li><p class="first">Check the documentation. The problem may already be solved and
+documented in the <em>User’s Guide</em> or reference guide for the product.
+60East Technologies also provides answers to frequently asked support
+questions on the support web site at
+<a class="reference external" href="http://support.crankuptheamps.com">http://support.crankuptheamps.com</a></p>
+</li>
+<li><p class="first">Isolate the problem.</p>
+<p>If you require Support Services, please isolate the problem to the
+smallest test case possible. Capture erroneous output into a text
+file along with the commands used to generate the errors.</p>
+</li>
+<li><p class="first">Collect your information.</p>
+<ul class="simple">
+<li>Your product version number.</li>
+<li>Your operating system and its kernel version number.</li>
+<li>The expected behavior, observed behavior and all input used to
+reproduce the problem.</li>
+<li>Submit your request.</li>
+<li>If you have a minidump file, be sure to include that in your email
+to <a class="reference external" href="mailto:crash&#37;&#52;&#48;crankuptheamps&#46;com">crash<span>&#64;</span>crankuptheamps<span>&#46;</span>com</a>.</li>
+</ul>
+</li>
+</ol>
+<p>The AMPS version number used when reporting your product version number
+follows a format listed below. The version number is composed of the
+following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">MAJOR</span><span class="o">.</span><span class="n">MINOR</span><span class="o">.</span><span class="n">PREVIEW</span><span class="o">.</span><span class="n">HOTFIX</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="o">.</span><span class="n">TAG</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="amps-versioning-and-certification">
+<h3>AMPS Versioning and Certification<a class="headerlink" href="#amps-versioning-and-certification" title="Permalink to this headline">¶</a></h3>
+<p id="index-5">Each AMPS version number component has the following breakdown:</p>
+<table border="1" class="docutils" id="table-version-number-info">
+<colgroup>
+<col width="21%" />
+<col width="59%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Component</strong></th>
+<th class="head"><strong>Description</strong></th>
+<th class="head"><strong>Minimum
+Verification</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">MAJOR</span></code></td>
+<td>Increments when there are any
+backward-incompatible changes in
+functionality, file formats, client network
+formats or configuration; or when deprecated
+functionality is removed. May introduce major
+new functionality or include internal
+improvements that introduce major behavioral
+changes.</td>
+<td>Megacert</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">MINOR</span></code></td>
+<td>Increments when functionality is added in a
+backwards-compatible way, or when
+functionality is deprecated. May include
+internal improvements, including internal
+improvements that introduce minor behavioral
+changes or changes to network formats used
+only by the AMPS server (such as replication).</td>
+<td>Megacert</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">PREVIEW</span></code></td>
+<td>Increments for previews of new features.
+May introduce behavioral changes to fix
+incorrect behavior, enable new functionality
+or to enhance performance.
+May include internal enhancements
+that do not introduce behavioral changes.</td>
+<td>Kilocert</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">HOTFIX</span></code></td>
+<td>A release for a critical defect impacting a
+customer. A hotfix release is designed to be
+100% compatible with the release it fixes
+(that is, a release with same
+MAJOR.MINOR.MAINTENANCE version). May
+introduce behavioral changes to fix incorrect
+behavior. May document previously undocumented
+features or extend surface area to improve
+usability for existing features.</td>
+<td>Cert</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">TIMESTAMP</span></code></td>
+<td>Proprietary build timestamp.</td>
+<td>(does not
+affect
+verification
+level)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TAG</span></code></td>
+<td>Identifier that corresponds to precise code
+used in the release.</td>
+<td>(does not
+affect
+verification
+level)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1.2:</strong> <em>Version Number Components</em></p>
+<p>The certification levels are defined in the following table. Notice
+that, in all cases, 60East will certify at a higher level if time
+permits or if a change involves a critical part of AMPS (such as
+replication or internal utility classes that are widely used).</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="56%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Certification
+Level</strong></th>
+<th class="head"><strong>Description</strong></th>
+<th class="head"><strong>Time to
+Certify</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Megacert</td>
+<td><p class="first">Performance and long-haul testing.</p>
+<p>Full regression suite and
+stress-testing suite, including
+replication testing and application
+scenario tests.</p>
+<p class="last">Full unit testing suite, including new
+unit tests to verify correct behavior
+of bugfixes in this release.</p>
+</td>
+<td>less than
+2 weeks</td>
+</tr>
+<tr class="row-odd"><td>Kilocert</td>
+<td><p class="first">Full regression suite and
+stress-testing suite, including
+replication testing and application
+scenario tests.</p>
+<p class="last">Full unit testing suite, including new
+unit tests to verify correct behavior
+of bugfixes in this release.</p>
+</td>
+<td>less than
+1 week</td>
+</tr>
+<tr class="row-even"><td>Cert</td>
+<td>Full unit testing suite, including new
+unit tests to verify correct behavior
+of bugfixes in this release.
+Replication testing suite if release
+affects replication code.</td>
+<td>4 hours</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1.3:</strong> <em>Certification Level Definitions</em></p>
+</div>
+<div class="section" id="contacting-60east-technologies-support">
+<h3>Contacting 60East Technologies Support<a class="headerlink" href="#contacting-60east-technologies-support" title="Permalink to this headline">¶</a></h3>
+<p id="index-6">Please contact 60East Technologies Support Services according to the
+terms of your 60East Technologies License Agreement.</p>
+<p>Support is offered through the United States:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Web:</td>
+<td><a class="reference external" href="http://www.crankuptheamps.com">http://www.crankuptheamps.com</a></td>
+</tr>
+<tr class="row-even"><td>E-Mail:</td>
+<td><a class="reference external" href="mailto:sales&#37;&#52;&#48;crankuptheamps&#46;com">sales<span>&#64;</span>crankuptheamps<span>&#46;</span>com</a></td>
+</tr>
+<tr class="row-odd"><td>Support:</td>
+<td><a class="reference external" href="http://support.crankuptheamps.com">http://support.crankuptheamps.com</a></td>
+</tr>
+</tbody>
+</table>
+<p>Other support options (such as support via phone) may be available, depending on the terms of your support agreement.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

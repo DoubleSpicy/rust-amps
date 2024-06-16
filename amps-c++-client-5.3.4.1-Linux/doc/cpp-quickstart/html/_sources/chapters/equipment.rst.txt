@@ -1,0 +1,17 @@
+Get the Equipment
+=================
+
+To get the most out of your evaluation, you will need:
+
+1. An installation of AMPS on a Linux host
+
+   * An Linux installation and a local installation of AMPS.
+
+     * If you do not already have a Linux installation, you can use a virtual machine, for example, VirtualBox available at http://virtualbox.org
+     * Make sure that Virtualization Technology is enabled on your development machine, as described at http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1003944
+     * Create a Virtual Machine with enough memory and disk space to hold the data you intend to use with your AMPS evaluation
+     * Install the Linux distribution of your choice 
+     * Download the AMPS Linux distribution at http://crankuptheamps.com/evaluation
+
+
+2. The AMPS C++ client (which this file is part of). Visit crankuptheamps.com to download the latest client distributions, server distributions, and documentation.

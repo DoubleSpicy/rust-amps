@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>30. AMPS Distribution Layout &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="31. Configuration File Shortcuts" href="config-file-shortcuts.html" />
+    <link rel="prev" title="29. Sample Use Cases" href="usecases.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">30. AMPS Distribution Layout</a><ul>
+<li><a class="reference internal" href="#bin-directory">/bin directory</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="usecases.html" title="previous chapter">29. Sample Use Cases</a></li>
+      <li>Next: <a href="config-file-shortcuts.html" title="next chapter">31. Configuration File Shortcuts</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="amps-distribution-layout">
+<span id="index-0"></span><h1>30. AMPS Distribution Layout<a class="headerlink" href="#amps-distribution-layout" title="Permalink to this headline">¶</a></h1>
+<p>This appendix lists layout of the AMPS distribution, with special focus
+on the binaries present in the layout. Use this appendix to plan your
+AMPS deployment.</p>
+<p>60East recommends that all AMPS deployments contain the full contents of
+the <code class="docutils literal"><span class="pre">/bin</span></code> and <code class="docutils literal"><span class="pre">/lib</span></code> directories. For development installations
+that are extending the AMPS server, your installation should contain the
+<code class="docutils literal"><span class="pre">/api</span></code> and <code class="docutils literal"><span class="pre">/sdk</span></code> directories (as well as the <em>AMPS Server SDK</em>,
+available as a separate download from the 60East web site).</p>
+<p>The AMPS distribution contains the following items at the top level:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Item</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/bin</span></code></td>
+<td>AMPS binaries: the AMPS server,
+daemon deployment scripts, AMPS
+utilities, and <code class="docutils literal"><span class="pre">spark</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/docs</span></code></td>
+<td>AMPS base documentation. Current
+versions of the documentation and
+additional guides are available from
+the 60East website.</td>
+</tr>
+<tr class="row-even"><td>HISTORY</td>
+<td>Revision history for AMPS releases,
+containing information on changes
+for each version of AMPS.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/lib</span></code></td>
+<td>Libraries used by the AMPS binary.</td>
+</tr>
+<tr class="row-even"><td>LICENSE</td>
+<td>The AMPS license.</td>
+</tr>
+<tr class="row-odd"><td>README</td>
+<td>The README file for AMPS.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">/sdk</span></code></td>
+<td>Headers used for modules that extend
+AMPS.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 30.1:</strong> <em>AMPS Distribution Contents</em></p>
+<div class="section" id="bin-directory">
+<h2>/bin directory<a class="headerlink" href="#bin-directory" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Item</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_bio_perf_test</span></code></td>
+<td>Diagnostic tool for testing the
+performance of I/O systems.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_client_ack_dump</span></code></td>
+<td>Utility for showing the contents of
+the AMPS client.ack file, containing
+persistent per-client information.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ampserr</span></code></td>
+<td>Utility for looking up details on
+AMPS log file items.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ampServer</span></code></td>
+<td>The AMPS server binary.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ampServer-compat</span></code></td>
+<td>The downward compatible version of
+the AMPS server binary. This version
+avoids using some of the hardware
+capabilities present in newer CPU
+architectures.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_file</span></code></td>
+<td>A utility for identifying the type
+of AMPS files and the file format
+that the file uses.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps-init-script</span></code></td>
+<td>Part of the AMPS service
+installation. This script is
+installed into the init.d directory
+when the AMPS service is installed.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_journal_dump</span></code></td>
+<td>Utility for extracting the contents
+of AMPS transaction log journal
+files.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps_mt_perf_test</span></code></td>
+<td>Diagnostic tool for performance
+testing of the AMPS engine parsing
+infrastructure.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_sow_dump</span></code></td>
+<td>Utility for extracting the contents
+of AMPS SOW files.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">amps-sqlite3</span></code></td>
+<td>Convenience wrapper for querying an
+AMPS statistics database.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">amps_upgrade</span></code></td>
+<td>Utility for upgrading data files
+from previous versions of AMPS to
+the current version.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">install-amps-daemon.sh</span></code></td>
+<td>Installation script for installing
+AMPS as a Linux service.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">/lib</span></code></td>
+<td>Directory containing the libraries
+used by the <code class="docutils literal"><span class="pre">spark</span></code> utility.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spark</span></code></td>
+<td>Utility that provides a command-line
+interface to AMPS.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">uninstall-amps-daemon.sh</span></code></td>
+<td>Installation script for removing the
+AMPS Linux service from the system.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 30.2:</strong> <em>AMPS /bin directory Contents</em></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

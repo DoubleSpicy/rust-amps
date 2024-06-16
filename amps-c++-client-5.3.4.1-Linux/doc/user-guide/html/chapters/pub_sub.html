@@ -1,0 +1,913 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3. Publish and Subscribe &#8212; AMPS User Guide develop documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'develop',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. AMPS Expressions" href="amps_expressions.html" />
+    <link rel="prev" title="2. Getting Started" href="getting_started.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flag_logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">3. Publish and Subscribe</a><ul>
+<li><a class="reference internal" href="#topics">Topics</a><ul>
+<li><a class="reference internal" href="#ad-hoc-topics">Ad Hoc Topics</a></li>
+<li><a class="reference internal" href="#regular-expressions">Regular Expressions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#filtering-subscriptions-by-content">Filtering Subscriptions By Content</a><ul>
+<li><a class="reference internal" href="#example-filter-for-a-json-message">Example Filter for a JSON message:</a></li>
+<li><a class="reference internal" href="#example-filter-for-an-xml-message">Example Filter for an XML Message:</a></li>
+<li><a class="reference internal" href="#example-filter-for-a-fix-message">Example Filter for a FIX Message:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conflated-subscriptions">Conflated Subscriptions</a><ul>
+<li><a class="reference internal" href="#when-to-use-conflated-subscriptions">When to Use Conflated Subscriptions</a></li>
+<li><a class="reference internal" href="#requesting-conflation-on-a-subscription">Requesting Conflation on a Subscription</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#replacing-subscriptions">Replacing Subscriptions</a><ul>
+<li><a class="reference internal" href="#replacing-the-content-filter-on-a-subscription">Replacing the Content Filter on a Subscription</a></li>
+<li><a class="reference internal" href="#replacing-the-topic-on-a-subscription">Replacing the Topic on a Subscription</a></li>
+<li><a class="reference internal" href="#replacing-the-options-on-a-subscription">Replacing the Options on a Subscription</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#messages-in-amps">Messages in AMPS</a><ul>
+<li><a class="reference internal" href="#introduction-to-amps-headers">Introduction to AMPS Headers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#retrieving-part-of-a-message-with-a-select-list">Retrieving Part of a Message with A Select List</a><ul>
+<li><a class="reference internal" href="#creating-select-lists">Creating Select Lists</a></li>
+<li><a class="reference internal" href="#select-list-examples">Select List Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#message-ordering">Message Ordering</a><ul>
+<li><a class="reference internal" href="#replicated-message-ordering">Replicated Message Ordering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="getting_started.html" title="previous chapter">2. Getting Started</a></li>
+      <li>Next: <a href="amps_expressions.html" title="next chapter">4. AMPS Expressions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="publish-and-subscribe">
+<span id="ug-pub-sub"></span><span id="index-0"></span><h1>3. Publish and Subscribe<a class="headerlink" href="#publish-and-subscribe" title="Permalink to this headline">¶</a></h1>
+<p>AMPS is a rich message delivery system. At the core of the system, the
+AMPS engine is highly-optimized for publish and subscribe delivery. In
+this style of messaging, publishers send messages to a message broker
+(such as AMPS) which then routes and delivers messages to the
+subscribers. &#8220;Pub/Sub&#8221; systems, as they are often called, are a key part
+of most enterprise message buses, where publishers broadcast messages
+without necessarily knowing all of the subscribers that will receive
+them. This decoupling of the publishers from the subscribers allows
+maximum flexibility when adding new data sources or consumers.</p>
+<div class="figure" id="pub-sub-fig1">
+<a class="reference internal image-reference" href="../_images/PubSub1.svg"><img alt="Publish and Subscribe" src="../_images/PubSub1.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 3.1:</strong> <em>Publish and Subscribe</em></p>
+<p>AMPS can route messages from publishers to subscribers using a topic
+identifier and/or content within the message&#8217;s payload. For example, in
+<a class="reference internal" href="#pub-sub-fig1"><span class="std std-ref">Figure 3.1</span></a>,
+there is a Publisher sending AMPS a message pertaining to the <code class="docutils literal"><span class="pre">LN_ORDERS</span></code> topic. The
+message being sent contains information on Ticker &#8220;IBM&#8221; with a Price of 125, both of these
+properties are contained within the message payload itself (i.e., the
+message content). AMPS routes the message to Subscriber 1 because it is
+subscribing to all messages on the <code class="docutils literal"><span class="pre">LN_ORDERS</span></code> topic. Similarly, AMPS
+routes the message to Subscriber 2 because it is subscribed to any
+messages having the Ticker equal to &#8220;IBM&#8221;. Subscriber 3 is looking for a
+different Ticker value and is not sent the message.</p>
+<div class="section" id="topics">
+<h2>Topics<a class="headerlink" href="#topics" title="Permalink to this headline">¶</a></h2>
+<p id="index-1">A topic is a string that is used to declare a subject of interest for
+purposes of routing messages between publishers and subscribers.
+Topic-based Publish and-Subscribe (e.g., Pub/Sub) is the simplest form
+of Pub/Sub filtering. All messages are published with a topic
+designation to the AMPS engine, and subscribers will receive messages
+for topics to which they have subscribed.</p>
+<div class="figure" id="pub-sub-fig2">
+<a class="reference internal image-reference" href="../_images/PubSub2.svg"><img alt="Topic Based Pub/Sub" src="../_images/PubSub2.svg" width="75.0%" /></a>
+</div>
+<p><strong>Figure 3.2:</strong> <em>Topic Based Pub/Sub</em></p>
+<p>For example, in <a class="reference internal" href="#pub-sub-fig2"><span class="std std-ref">Figure 3.2</span></a>, there are two publishers: Publisher
+1 and Publisher 2 which publish to the topics <code class="docutils literal"><span class="pre">LN_ORDERS</span></code> and
+<code class="docutils literal"><span class="pre">NY_ORDERS</span></code>, respectively. Messages published to AMPS are filtered and
+routed to the subscribers of a respective topic. For example, Subscriber
+1, which is subscribed to all messages for the <code class="docutils literal"><span class="pre">LN_ORDERS</span></code> topic will
+receive everything published by Publisher 1. Subscriber 2, which is
+subscribed to the regular expression topic <code class="docutils literal"><span class="pre">&quot;.*_ORDERS&quot;</span></code> will receive
+all orders published by Publisher 1 and 2.</p>
+<p>Regular expression matching makes it easy to create topic paths in AMPS.
+Some messaging systems require a specific delimiter for paths. AMPS
+allows you the flexibility to use any delimiter. However, 60East
+recommends using characters that do not have significance in regular
+expressions, such as forward slashes. For example, rather than using
+<code class="docutils literal"><span class="pre">northamerica.orders</span></code> as a path, use <code class="docutils literal"><span class="pre">northamerica/orders</span></code>.</p>
+<p>AMPS does not restrict the characters that can be present in a topic
+name. However, notice that topic names that contain regular expression
+characters (such as <code class="docutils literal"><span class="pre">.</span></code> or <code class="docutils literal"><span class="pre">*</span></code>) will be interpreted as regular
+expressions by default, which may cause unexpected behavior.</p>
+<p>Topics that begin with <code class="docutils literal"><span class="pre">/AMPS</span></code> are reserved. The AMPS server publishes
+messages to topics that begin with <code class="docutils literal"><span class="pre">/AMPS</span></code> as described in
+<a class="reference internal" href="events.html#ug-event-topics"><span class="std std-ref">Chapter 20 Event topics</span></a>. Some versions of the AMPS client libraries
+may internally publish to <code class="docutils literal"><span class="pre">/AMPS/devnull</span></code>. Your applications should
+not publish to topics that begin with <code class="docutils literal"><span class="pre">/AMPS</span></code>, and publishes to those
+topics may fail.</p>
+<p>Each topic has an associated message type. Each client connection to
+AMPS also has an associated message type. A given client connection
+can only publish to topics with the same message type, and can only
+receive messages from topics with the same message type.</p>
+<div class="section" id="ad-hoc-topics">
+<h3>Ad Hoc Topics<a class="headerlink" href="#ad-hoc-topics" title="Permalink to this headline">¶</a></h3>
+<p>AMPS does not require explicit configuration of a topic for publishers
+to send messages to the topic and subscribers to receive messages from
+the topic. However, if there is no configuration for the topic, AMPS
+does not persist messages to the topic, so no features that depend
+on having persisted message state (for example, replay, aggregation,
+State of the World, and so on) are available for that topic. The
+message will be delivered to subscriptions that are active when the
+message is published, but the message will not be persisted or
+retained. These &#8220;ad hoc&#8221; topics are useful for low-latency delivery
+of messages that are only useful at the time that they are published.</p>
+</div>
+<div class="section" id="regular-expressions">
+<h3>Regular Expressions<a class="headerlink" href="#regular-expressions" title="Permalink to this headline">¶</a></h3>
+<p id="index-2">With AMPS, a subscriber can use a regular expression to simultaneously
+subscribe to multiple topics that match the given pattern. This feature
+can be used to effectively subscribe to topics without knowing the topic
+names in advance. Note that the messages themselves have no notion of a
+topic pattern. The topic for a given message is unambiguously specified
+using a literal string. From the publisher’s point of view, it is
+publishing a message to a topic; it is never publishing to a topic
+pattern.</p>
+<p>Subscription topics are interpreted as regular expressions if they
+include special regular expression characters. Otherwise, they must be
+an exact match. Some examples of regular expressions within topics are
+included in <a class="reference internal" href="#table-pub-sub-regex"><span class="std std-ref">Table 3.1</span></a>.</p>
+<table border="1" class="docutils" id="table-pub-sub-regex">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Topic</strong></th>
+<th class="head"><strong>Behavior</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">^trade$</span></code></td>
+<td>matches only &#8220;trade&#8221;.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">^client.*</span></code></td>
+<td>matches &#8220;client&#8221;, &#8220;clients&#8221;, &#8220;client001&#8221;, etc.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">.*trade.*</span></code></td>
+<td>matches &#8220;NYSEtrades&#8221;, &#8220;ICEtrade&#8221;, etc.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 3.1:</strong> <em>Topic Regular Expression Examples</em></p>
+<p>For more information regarding the regular expression syntax supported
+within AMPS, please see the <em>Regular Expression</em> chapter in the <em>AMPS
+User Guide</em>.</p>
+<p>AMPS can be configured to disallow regular expression topic matching for
+subscriptions. See the <em>AMPS Configuration Guide</em> for details.</p>
+</div>
+</div>
+<div class="section" id="filtering-subscriptions-by-content">
+<span id="pub-sub-content"></span><h2>Filtering Subscriptions By Content<a class="headerlink" href="#filtering-subscriptions-by-content" title="Permalink to this headline">¶</a></h2>
+<p>One thing that differentiates AMPS from classic messaging systems is its
+ability to route messages based on message content. Instead of a
+publisher declaring metadata describing the message for downstream
+consumers, the publisher can simply publish the message content to AMPS
+and let AMPS examine the native message content to determine how best to
+deliver the message.</p>
+<p>The ability to use content filters greatly reduces the problem of
+oversubscription that occurs when topics are the only facility for
+subscribing to message content. The topic space can be kept simple and
+content filters used to deliver only the desired messages. The topic
+space can reflect broad categories of messages and does not have to be
+polluted with metadata that is usually found in the content of the
+message. In addition, many of the advanced features of AMPS such as
+out-of-focus messaging, aggregation, views, and SOW topics rely on the
+ability to filter content.</p>
+<p>Content-based messaging is somewhat analogous to database queries that
+include a <code class="docutils literal"><span class="pre">WHERE</span></code> clause. Topics can be considered tables into which
+rows are inserted (or updated). A subscription is similar to issuing a
+<code class="docutils literal"><span class="pre">SELECT</span></code> from the topic table with a <code class="docutils literal"><span class="pre">WHERE</span></code> clause to limit the
+rows which are returned. Topic-based messaging is analogous to a
+<code class="docutils literal"><span class="pre">SELECT</span></code> on a table with no limiting <code class="docutils literal"><span class="pre">WHERE</span></code> clause.</p>
+<p>AMPS uses a combination of XPath-based identifiers and SQL-92 operators
+for content filtering. Some examples are shown below:</p>
+<div class="section" id="example-filter-for-a-json-message">
+<h3>Example Filter for a JSON message:<a class="headerlink" href="#example-filter-for-a-json-message" title="Permalink to this headline">¶</a></h3>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrument</span><span class="o">/</span><span class="n">Symbol</span> <span class="o">==</span> <span class="s1">&#39;IBM&#39;</span><span class="p">)</span> <span class="n">AND</span>
+<span class="p">(</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Px</span> <span class="o">&gt;=</span> <span class="mf">90.00</span> <span class="n">AND</span> <span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Px</span> <span class="o">&lt;</span> <span class="mf">91.00</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-filter-for-an-xml-message">
+<h3>Example Filter for an XML Message:<a class="headerlink" href="#example-filter-for-an-xml-message" title="Permalink to this headline">¶</a></h3>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="n">Instrmt</span><span class="o">/</span><span class="nd">@Sym</span> <span class="o">==</span> <span class="s1">&#39;IBM&#39;</span><span class="p">)</span> <span class="n">AND</span>
+<span class="p">(</span><span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="nd">@Px</span> <span class="o">&gt;=</span> <span class="mf">90.00</span> <span class="n">AND</span> <span class="o">/</span><span class="n">FIXML</span><span class="o">/</span><span class="n">Order</span><span class="o">/</span><span class="nd">@Px</span> <span class="o">&lt;</span> <span class="mf">91.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-filter-for-a-fix-message">
+<h3>Example Filter for a FIX Message:<a class="headerlink" href="#example-filter-for-a-fix-message" title="Permalink to this headline">¶</a></h3>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="mi">35</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="n">AND</span> <span class="o">/</span><span class="mi">34</span> <span class="o">==</span> <span class="o">/</span><span class="mi">9</span>
+</pre></div>
+</div>
+<p>For more information about how content is handled within AMPS and the
+syntax of AMPS filters, check out <a class="reference external" href="amps_expressions.html">AMPS Expressions</a>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Unlike some other messaging systems, AMPS lets you use a
+relatively small set of topics to categorize messages at a high
+level and use content filters to retrieve specific data
+published to those topics. Examples of good, broad topic
+choices:</p>
+<p><code class="docutils literal"><span class="pre">trades</span></code>, <code class="docutils literal"><span class="pre">positions</span></code>, <code class="docutils literal"><span class="pre">MarketData</span></code>, <code class="docutils literal"><span class="pre">Europe</span></code>, <code class="docutils literal"><span class="pre">alerts</span></code></p>
+<p class="last">This approach makes it easier to administer AMPS, easier for
+publishers to decide which topics to publish to, and easier for
+subscribers to be sure that they&#8217;ve subscribed to all relevant
+topics.</p>
+</div>
+</div>
+</div>
+<div class="section" id="conflated-subscriptions">
+<span id="ug-pub-sub-conflation"></span><h2>Conflated Subscriptions<a class="headerlink" href="#conflated-subscriptions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides the ability for the server to <em>conflate</em> messages to a
+subscription. When a subscription requests conflation, the server will
+retain messages for that subscription for a certain period of time, the
+<em>conflation interval</em>, and provide the latest update to that message
+once a message has been retained for that interval. Conflated
+subscriptions provide a way to reduce the bandwidth and processing for a
+subscriber in cases where a subscriber needs periodic updates with the
+current state of a message, rather than the complete message stream.
+AMPS provides per-subscription conflation for cases where only a small
+number of subscribers require conflation, or if conflation is required
+only in unusual cases. If multiple subscribers will have the same
+conflation needs, consider using <a class="reference internal" href="conflated_topics.html#ug-topic-replicas"><span class="std std-ref">Conflated Topics</span></a>.</p>
+<p>For example, imagine an application that monitors selected stocks and
+displays the current prices on a large screen, which refreshes every few
+seconds. This application may use the same topics as a trading desk, but
+has very different needs for data freshness and completeness. Since
+updates to each symbol will only be displayed every few seconds, the
+application only needs point in time updates of the prices, rather than
+the full stream of price changes. To meet this need, the application
+could specify that the subscription conflates price updates by
+<code class="docutils literal"><span class="pre">tickerId</span></code> with a conflation interval of two seconds. For each
+distinct value of the <code class="docutils literal"><span class="pre">tickerId</span></code> field, AMPS will retain messages for
+two seconds. If another message with the same <code class="docutils literal"><span class="pre">tickerId</span></code> is processed
+for the subscription during the conflation interval, that message
+completely replaces the previous message. At the end of the two second
+conflation interval, the message is delivered to the application. This
+lets the application receive an up-to-date price at most every two
+seconds, without having to process a large number of updates that will
+never be displayed. This approach also ensures that the price is never
+more than two seconds out of date, which means that each time the screen
+is refreshed, the price is current.</p>
+<p>For example, if subscription uses <code class="docutils literal"><span class="pre">tickerId</span></code> for conflation and the
+following sequence of messages arrive during a conflation interval:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">150.34</span> <span class="p">}</span>
+<span class="p">{</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">149.76</span> <span class="p">}</span>
+<span class="p">{</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">149.32</span> <span class="p">}</span>
+<span class="p">{</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">151.10</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>AMPS delivers only the last message for that <code class="docutils literal"><span class="pre">tickerId</span></code>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;tickerId&quot;</span> <span class="o">:</span> <span class="s2">&quot;IBM&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span> <span class="o">:</span> <span class="mf">151.10</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice that when a subscription is conflated, AMPS does not guarantee
+that messages are delivered precisely in order in which they arrived at
+AMPS, since the latest update is delivered based on the conflation
+interval.</p>
+<p>When the <code class="docutils literal"><span class="pre">timestamp</span></code> option is used with conflated subscriptions, AMPS
+provides the timestamp for the first message conflated.</p>
+<div class="section" id="when-to-use-conflated-subscriptions">
+<h3>When to Use Conflated Subscriptions<a class="headerlink" href="#when-to-use-conflated-subscriptions" title="Permalink to this headline">¶</a></h3>
+<p>Conflated subscriptions reduce the bandwidth for a subscription, and may
+reduce the processing resources required for a subscription. However,
+rather than immediately delivering messages, AMPS retains messages in
+memory for the conflation interval. This can increase the memory
+required for the subscription.</p>
+<p>AMPS contains other features for conflating messages and reducing
+bandwidth. Conflated subscriptions are most appropriate when:</p>
+<ul class="simple">
+<li><strong>Network bandwidth is at a premium</strong>, and you would like AMPS to
+spend slightly more processing time and potentially more memory to
+reduce the bandwidth needs of the application.</li>
+<li>Each subscription has <strong>different conflation needs</strong>. For example, if
+each subscription has a dramatically different conflation interval,
+or needs to conflate by different fields. If most subscribers will
+use a similar conflation interval and use the same fields for
+conflation, using a <em>Conflated Topic</em> can provide equivalent results
+with lower overhead.</li>
+<li>The conflation needs are <strong>relatively predictable and consistent</strong>
+for the subscription. If you need the application to conflate
+messages <em>only</em> when processing is slow or there are bursts of
+message traffic, <em>client-side conflation</em> provides that ability and
+may be a better choice than a conflated subscription. See the
+developer guide for your programming language of choice for details.</li>
+</ul>
+<p>The considerations above are general guidance to help you consider
+options and choose a conflation strategy.</p>
+<p>You can also combine approaches as necessary. For example, if most of
+your subscriptions require a 3 second conflation interval by
+<code class="docutils literal"><span class="pre">tickerId</span></code>, while a few subscriptions require a 15 second interval,
+you could create a <em>Conflated Topic</em> with a 3 second interval. Those
+subscriptions that require a 15 second interval could subscribe with
+that interval. This provides both sets of subscriptions with the
+intervals that they need.</p>
+</div>
+<div class="section" id="requesting-conflation-on-a-subscription">
+<h3>Requesting Conflation on a Subscription<a class="headerlink" href="#requesting-conflation-on-a-subscription" title="Permalink to this headline">¶</a></h3>
+<p>To request conflation on a subscription, set the following options on
+the subscription:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">conflation=n</span></code></td>
+<td><p class="first">Specifies whether to conflate this
+subscription.The value provided can be a
+time interval, <code class="docutils literal"><span class="pre">auto</span></code>, or <code class="docutils literal"><span class="pre">none</span></code></p>
+<p>When present and set to a value other
+than none, enables conflation for the
+subscription.</p>
+<p>Can also be set to <code class="docutils literal"><span class="pre">auto</span></code>, which
+requests that AMPS attempt to determine
+an appropriate conflation interval based
+on client consumption.</p>
+<p>Recognizes the same time specifiers used
+in the AMPS configuration file (for
+example, <code class="docutils literal"><span class="pre">100ms</span></code> or <code class="docutils literal"><span class="pre">1s</span></code> or <code class="docutils literal"><span class="pre">1m</span></code>).</p>
+<p class="last">Defaults to <code class="docutils literal"><span class="pre">none</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">conflation_key=[keys]</span></code></td>
+<td><p class="first">When conflation is enabled, specifies the
+fields to use to determine message
+uniqueness. The format of this option is
+a comma-delimited list of XPath
+identifiers within brackets. For example,
+to conflate based on the value of the
+<code class="docutils literal"><span class="pre">/tickerId</span></code> and <code class="docutils literal"><span class="pre">/customerId</span></code> within
+a message the value of this option would
+be <code class="docutils literal"><span class="pre">[/tickerId,/customerId]</span></code>.</p>
+<p>Defaults to the SOW key fields for SOW
+topics. No default for non-SOW topics.
+This option is required for non-SOW
+topics.</p>
+<p class="last">This option is not valid with the <code class="docutils literal"><span class="pre">oof</span></code>
+option unless the keys provided are
+identical to the keys for the topic.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 3.2:</strong> Conflated Subscription options</p>
+<p>For example, to request a 10 second conflation interval with messages
+conflated on the <code class="docutils literal"><span class="pre">[/orderId]</span></code> field, you would use the following
+options string:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">conflation</span><span class="o">=</span><span class="mi">10</span><span class="n">s</span><span class="p">,</span><span class="n">conflation_key</span><span class="o">=</span><span class="p">[</span><span class="o">/</span><span class="n">orderId</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="replacing-subscriptions">
+<span id="ug-pub-sub-replace"></span><h2>Replacing Subscriptions<a class="headerlink" href="#replacing-subscriptions" title="Permalink to this headline">¶</a></h2>
+<p>AMPS provides the ability to perform atomic subscription replacement.
+This allows you to replace the filter, change the topic, or update the
+options for a subscription.</p>
+<p>The most common use for this capability is for an application to change
+the filter for a subscription. For example, a GUI that is providing a
+view of a set of orders may need to add or remove an order from the set
+of orders being displayed. By replacing the content filter with a filter
+that tracks the updated set of orders, the application can do this
+without missing messages, getting duplicate messages, or having to
+manage more than one subscription.</p>
+<p>Replacing a filter is an atomic operation. That is, the application is
+guaranteed not to miss messages that are in both the original and
+replacement subscription, and is guaranteed to receive all messages for
+the new subscription as of the point at which the replacement happens.</p>
+<p>When replacing a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command (described later in the
+guide), AMPS runs the SOW command again and provides any messages that
+were not previously in the result set to the application. See the section called
+<a class="reference internal" href="sow_queries.html#ug-sow-and-subscribe-replace"><span class="std std-ref">Replacing Subscriptions with SOW and Subscribe</span></a>
+for details.</p>
+<p>Notice that some options on an initial subscription limit the support
+for <code class="docutils literal"><span class="pre">replace</span></code> on a subscription. In those cases, the limitation is
+described when the option is described.</p>
+<div class="section" id="replacing-the-content-filter-on-a-subscription">
+<h3>Replacing the Content Filter on a Subscription<a class="headerlink" href="#replacing-the-content-filter-on-a-subscription" title="Permalink to this headline">¶</a></h3>
+<p id="index-3">AMPS allows you to replace the content filter on an
+existing subscription. When this happens, AMPS begins sending messages
+on the subscription that match the new filter. When an application needs
+to bring more messages into scope, this can be more efficient than
+creating another subscription.</p>
+<p>For example, an application might start off with a filter such as the
+following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">region</span> <span class="o">=</span> <span class="s1">&#39;WesternUS&#39;</span>
+</pre></div>
+</div>
+<p>The application might then need to bring other regions into scope, for
+example:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">region</span> <span class="n">IN</span> <span class="p">(</span><span class="s1">&#39;WesternUS&#39;</span><span class="p">,</span> <span class="s1">&#39;Alaska&#39;</span><span class="p">,</span> <span class="s1">&#39;Hawaii&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="replacing-the-topic-on-a-subscription">
+<h3>Replacing the Topic on a Subscription<a class="headerlink" href="#replacing-the-topic-on-a-subscription" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows a subscription to replace the topic on a subscription. When
+the topic is replaced, AMPS re-evaluates the subscription as it does
+when a filter is replaced. If the subscription is updated to include a
+topic that the user does not have permission to subscribe to, the
+<code class="docutils literal"><span class="pre">replace</span></code> operation succeeds, but no messages will be delivered on
+that topic.</p>
+</div>
+<div class="section" id="replacing-the-options-on-a-subscription">
+<h3>Replacing the Options on a Subscription<a class="headerlink" href="#replacing-the-options-on-a-subscription" title="Permalink to this headline">¶</a></h3>
+<p>AMPS allows a subscription to replace some of the options on the
+subscription. In this case, the subscription is evaluated as though the
+topic or filter has been replaced. Any new messages generated after the
+point of the subscription being replaced use the new options. However,
+AMPS does not replay or re-query previous messages to apply the options.
+For example, if a <code class="docutils literal"><span class="pre">sow_and_subscribe</span></code> command did not previously
+specify Out-of-Focus tracking and adds this option, AMPS generates the
+appropriate Out-of-Focus messages from the replace point forward. AMPS
+does not recreate Out-of-Focus messages that would have previously been
+generated by the subscription.</p>
+<p>If the subscription uses pagination (see <a class="reference internal" href="sow_queries.html#sow-query-results-sets"><span class="std std-ref">Configuring SOW Query Result Sets</span></a>),
+the replacement must contain the full set of pagination options
+provided on the original subscription. For a paginated subscription,
+the replacement <em>may not</em> change the topic of the subscription (instead,
+close the existing subscription and create a new subscription with a
+different topic).</p>
+</div>
+</div>
+<div class="section" id="messages-in-amps">
+<span id="index-4"></span><h2>Messages in AMPS<a class="headerlink" href="#messages-in-amps" title="Permalink to this headline">¶</a></h2>
+<p>Communication between applications and the AMPS server uses AMPS
+messages. AMPS Messages are received or sent for every operation in
+AMPS. Each AMPS message has a specific type, and consists of a set of
+headers and a payload. The headers are defined by AMPS and formatted
+according to the protocol specified for the connection. Typically,
+applications use the standard <code class="docutils literal"><span class="pre">amps</span></code> protocol which uses a JSON
+document for headers. The payload, if one is present, is the content of
+the message, and is in the format specified by the message type.</p>
+<p>Messages received from AMPS have the same format as messages to AMPS.
+These messages also have a specific type, with a header formatted
+according to the protocol and a payload of the specified message type.
+For example, AMPS uses <code class="docutils literal"><span class="pre">ack</span></code> messages, short for acknowledgment, to
+report the status of commands. AMPS uses <code class="docutils literal"><span class="pre">publish</span></code> messages to deliver
+messages on a subscription, and so on for other commands and other
+messages.</p>
+<p>As example of a complete interaction between an application and
+the AMPS server, when a client subscribes to a topic in AMPS, the client
+sends a <code class="docutils literal"><span class="pre">subscribe</span></code> message to AMPS that contains the information
+about the requested subscription and, by default, a request for an
+acknowledgment that the subscription has been processed. AMPS returns
+an <code class="docutils literal"><span class="pre">ack</span></code> message when the subscription is processed that indicates
+whether the subscription succeeded or failed, and then begins providing
+<code class="docutils literal"><span class="pre">publish</span></code> messages for new messages on the subscription. The
+<code class="docutils literal"><span class="pre">publish</span></code> messages continue as messages that match the subscription
+arrive at the AMPS server. If the application needs to stop the
+subscription, the application sends an <code class="docutils literal"><span class="pre">unsubscribe</span></code> message to
+the AMPS server, indicating the subscription to end. Once the AMPS
+server processes the unsubscribe message, the server will no longer
+send messages for that subscription to the application. Should
+the application disconnect, the AMPS server removes all subscriptions
+for that connection (whether or not the application sends an
+<code class="docutils literal"><span class="pre">unsubscribe</span></code> command first).</p>
+<p>Messages to and from AMPS are described in more detail in the <em>AMPS
+Command Reference</em>, available on the 60East website and included in the
+AMPS client SDKs.</p>
+<p>In this version of AMPS, the communication transports used by AMPS accept
+message sizes of up to 200MB in a single command to AMPS. Messages larger
+than 200MB may be rejected by the transport as invalid. Should your use
+of AMPS require larger message sizes, contact 60East support.</p>
+<div class="admonition tip" id="index-5">
+<p class="first admonition-title">Tip</p>
+<p class="last">This version of AMPS limits messages to 200MB in total size.</p>
+</div>
+<div class="section" id="introduction-to-amps-headers">
+<h3>Introduction to AMPS Headers<a class="headerlink" href="#introduction-to-amps-headers" title="Permalink to this headline">¶</a></h3>
+<p>The <em>AMPS Command Reference</em> contains a full list of headers for each
+command. The table below lists some commonly-used headers.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic</td>
+<td>The topic that the message applies
+to. For commands to AMPS, this is
+the topic that AMPS will apply the
+command to. For messages from AMPS,
+this is the topic from which the
+message originated.</td>
+</tr>
+<tr class="row-odd"><td>Command</td>
+<td>The command type of message. Each
+message has a specific command type.
+For example, messages that contain
+data from a query over a SOW topic
+have a command of <code class="docutils literal"><span class="pre">sow</span></code>, while
+messages that contain data from a
+publish command have a command of
+<code class="docutils literal"><span class="pre">publish</span></code>, and messages that
+acknowledge a command to AMPS have a
+command type of <code class="docutils literal"><span class="pre">ack</span></code>.</td>
+</tr>
+<tr class="row-even"><td>CommandId</td>
+<td>An identifier used to correlate
+responses from AMPS with an initial
+command. For example, <code class="docutils literal"><span class="pre">ack</span></code>
+messages returned by AMPS contain
+the CommandId provided with the
+command they acknowledge, and
+subscriptions can be updated or
+removed using the CommandId provided
+with the <code class="docutils literal"><span class="pre">subscribe</span></code> command.</td>
+</tr>
+<tr class="row-odd"><td>SowKey</td>
+<td>For messages received from a State
+of the World (or <em>SOW</em>) topic, an
+identifier that AMPS assigns to the
+record for this message. SOW topics
+are described in
+<a class="reference internal" href="sow.html#ug-sow"><span class="std std-ref">Chapter 6</span></a>.
+This header is included on messages
+from a SOW topic by default. AMPS
+will omit this header when the
+subscription or SOW query includes
+the <code class="docutils literal"><span class="pre">no_sowkey</span></code> option.</td>
+</tr>
+<tr class="row-even"><td>CorrelationId</td>
+<td>A user-specified identifier for the
+message. Publishers can set this
+identifier on messages. AMPS does
+not parse, change, or interpret this
+identifier in any way. This header
+is limited to characters used in
+Base64 encoding.</td>
+</tr>
+<tr class="row-odd"><td>Status</td>
+<td>Set on <code class="docutils literal"><span class="pre">ack</span></code> messages to indicate
+the results of the command, such as
+<code class="docutils literal"><span class="pre">Success</span></code> or <code class="docutils literal"><span class="pre">Failure</span></code>.</td>
+</tr>
+<tr class="row-even"><td>Reason</td>
+<td>Set on <code class="docutils literal"><span class="pre">ack</span></code> messages to indicate
+the reason for the Status
+acknowledgment.</td>
+</tr>
+<tr class="row-odd"><td>Timestamp</td>
+<td>Optionally set on <code class="docutils literal"><span class="pre">publish</span></code>
+messages and <code class="docutils literal"><span class="pre">sow</span></code> messages to
+indicate the time at which the local
+AMPS instance processed the message.
+To receive a timestamp, the SOW
+query or subscription must include
+the <code class="docutils literal"><span class="pre">timestamp</span></code> option on the
+command that creates the
+subscription or runs the query.
+The timestamp is returned in
+ISO-8601 format.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 3.3:</strong> <em>Basic AMPS Headers</em></p>
+<p>This section presents a few of the commonly-used headers. See the <em>AMPS
+Command Reference</em> for a full description of AMPS messages.</p>
+<p id="index-6">AMPS does not provide the ability to add custom
+header fields. However, AMPS composite message types provide an easy way
+to add an additional section to a message type that contains metadata
+for the message. Because composite message type parts fully support AMPS
+content filtering, this approach provides more flexibility and allows
+for more sophisticated metadata than simply adding a header field. See
+<a class="reference internal" href="messageTypes.html#ug-messagetypes-composite"><span class="std std-ref">Chapter 15 Composite Messages</span></a> for details.</p>
+</div>
+</div>
+<div class="section" id="retrieving-part-of-a-message-with-a-select-list">
+<span id="index-7"></span><h2>Retrieving Part of a Message with A Select List<a class="headerlink" href="#retrieving-part-of-a-message-with-a-select-list" title="Permalink to this headline">¶</a></h2>
+<p>AMPS has the ability to allow a subscriber to retrieve only the relevant parts
+of a message, in the same way that a SQL query can retrieve only specified
+fields from a table. For example, consider a topic that stores an event id,
+a short description, and a detailed event record. A UI that presents an overview
+of the contents of the topic might only need the event id and short description
+to present a high-level view of the topic contents, while retrieving the detailed
+event record when a user explicitly requests the details for a
+specific record.</p>
+<p>With <em>select lists</em>, AMPS allows an individual subscription to control
+which fields are retrieved from a subscription or query. In the example
+above, the subscription would include a <em>select list</em> that requests that
+AMPS provide the event id and description, while excluding any other field.
+To do this, the application would include the following option on the
+command used to retrieve data for the overview:
+<code class="docutils literal"><span class="pre">select=[-/,+/event_id,+/description]</span></code></p>
+<p>When provided by an application as a part of a command to AMPS,
+a select list is applied after any content filtering is applied.
+The select list specifies the contents of the subscription, but
+does not affect the underying messages, and the contents of the
+subscription select list do not affect filter evaluation or
+query results.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">To use a select list, the message type format must allow
+partial serialization of messages. Message formats that
+require a full message, or that interpret missing fields
+as having a specific value, cannot be used with
+select lists, since a partial message would either
+create an invalid message, or change the way the
+data in the message is interpreted.</p>
+</div>
+<div class="section" id="creating-select-lists">
+<h3>Creating Select Lists<a class="headerlink" href="#creating-select-lists" title="Permalink to this headline">¶</a></h3>
+<p>As mentioned above, to provide a select list on a command,
+add the keyword <code class="docutils literal"><span class="pre">select</span></code> and a comma-delimited list of <em>field directives</em>
+to the options for a subscription or query in AMPS.</p>
+<p>Each <em>field directive</em> is a combination of an <em>inclusion specifier</em> and
+an <em>AMPS identifier</em>.</p>
+<p>For example, the <em>field directive</em> <code class="docutils literal"><span class="pre">+/event_id</span></code> has an <em>inclusion_specifier</em>
+of <code class="docutils literal"><span class="pre">+</span></code> and the AMPS identifier of <code class="docutils literal"><span class="pre">/event_id</span></code>. This <em>field directive</em>
+specifies that the <code class="docutils literal"><span class="pre">/event_id</span></code> field is included in the message returned
+to the subscriber.</p>
+<p>AMPS recognizes the following <em>inclusion specifier</em> values:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>specifier</td>
+<td>meaning</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">+</span></code></td>
+<td>explicitly include the field for the identifier immediately following</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-</span></code></td>
+<td>explicitly exclude the field for the identifier immediately following</td>
+</tr>
+</tbody>
+</table>
+<p>Identifiers for individual fields follow the syntax described in <a class="reference internal" href="amps_expressions.html#ug-expression-identifiers"><span class="std std-ref">Identifiers</span></a>.</p>
+<p>For select lists, AMPS also recognizes the special field directive of <code class="docutils literal"><span class="pre">-/</span></code> to specify that all fields should
+be excluded and the special field directive of <code class="docutils literal"><span class="pre">+/</span></code> to specify that all fields should be included.</p>
+<p>If no field directive in the select list applies to a given field in a
+message, that field is included in the message.</p>
+<p>If a field is covered by multiple field directives, AMPS respects the most specific field directive. In
+other words, a select list that contains the field directives <code class="docutils literal"><span class="pre">+/,-/details</span></code> will include all fields except the
+details field. A select list that contains the field directives <code class="docutils literal"><span class="pre">-/event,+/event/description</span></code> will include the
+<code class="docutils literal"><span class="pre">/event/description</span></code> subfield, but no other contents of the <code class="docutils literal"><span class="pre">/event</span></code> field. (If an identifier is provided
+twice in the same select list, AMPS uses the first field specifier that contains the identifier.)</p>
+<p>With select lists, AMPS does not create fields that are not in the original message. This means that if the
+select list requests a field that does not exist in the original message, the message delivered to
+the subscriber will not contain that field.</p>
+<p>Notice that a select list only changes how a message is delivered to the
+subscriber that the select list applies to.  The original message is unaffected,
+and the complete message is delivered to any subscriber that does not specify
+a select list.</p>
+<p>AMPS contains related functionality that may be more appropriate for
+some applications:</p>
+<ul class="simple">
+<li>To modify a message as it is published to AMPS, use
+<em>Enrichment and Preprocessing</em>. With those features, the original publish
+message is modified and the modified message is stored in AMPS and
+sent to all subscribers.</li>
+<li>AMPS also offers the ability to create a view of a set of messages that
+aggregates data across a set of messages and produces a result (for
+example, the total value of all open orders for each customer). See
+the chapter on <em>Aggregating and Analyzing Data in AMPS</em> for more details.</li>
+</ul>
+</div>
+<div class="section" id="select-list-examples">
+<h3>Select List Examples<a class="headerlink" href="#select-list-examples" title="Permalink to this headline">¶</a></h3>
+<p>For example, consider an original message like the following JSON document</p>
+<div class="code javascript highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Arthur&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;day&quot;</span><span class="p">:</span><span class="s2">&quot;Thursday&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;complaint&quot;</span><span class="p">:</span><span class="s2">&quot;Unannounced construction in neighborhood.&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;pocket_contents&quot;</span><span class="p">:</span>
+        <span class="p">{</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span><span class="s2">&quot;twine&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;right&quot;</span><span class="p">:</span><span class="s2">&quot;towel&quot;</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>An application might only need to see the <code class="docutils literal"><span class="pre">id</span></code> and <code class="docutils literal"><span class="pre">complaint</span></code> description.
+To retrieve just those fields of a message, the application could add the
+following option to the command that retrieves the message:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">select</span><span class="o">=</span><span class="p">[</span><span class="o">-/</span><span class="p">,</span><span class="o">+/</span><span class="nb">id</span><span class="p">,</span><span class="o">+/</span><span class="n">complaint</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This select list tells AMPS to remove all fields from the message except for
+the <code class="docutils literal"><span class="pre">/id</span></code> field and the <code class="docutils literal"><span class="pre">/complaint</span></code> field.  With this select list,
+the message above will be delivered as:</p>
+<div class="code javascript highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+  <span class="s2">&quot;complaint&quot;</span><span class="p">:</span><span class="s2">&quot;Unannounced construction in neighborhood.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Likewise, an application could want to know the name of the person
+making the complaint and the contents of that person&#8217;s left pocket:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">select</span><span class="o">=</span><span class="p">[</span><span class="o">-/</span><span class="p">,</span><span class="o">+/</span><span class="n">name</span><span class="p">,</span><span class="o">+/</span><span class="n">pocket_contents</span><span class="o">/</span><span class="n">left</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For the original message, the result of providing this select list would be:</p>
+<div class="code javascript highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Arthur&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;pocket_contents&quot;</span><span class="p">:</span>
+        <span class="p">{</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span><span class="s2">&quot;twine&quot;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Last, consider an application that wants to see everything in the message
+except the <code class="docutils literal"><span class="pre">pocket_contents</span></code>.  That application could provide an option
+such as:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">select</span><span class="o">=</span><span class="p">[</span><span class="o">-/</span><span class="n">pocket_contents</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>With that specifier, AMPS provides any field in the message except the
+<code class="docutils literal"><span class="pre">pocket_contents</span></code>, producing the following result:</p>
+<div class="code javascript highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Arthur&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;day&quot;</span><span class="p">:</span><span class="s2">&quot;Thursday&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;complaint&quot;</span><span class="p">:</span><span class="s2">&quot;Unannounced construction in neighborhood.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Select lists are not available for <code class="docutils literal"><span class="pre">struct</span></code> message types,
+since these types represent a single, contiguous block of memory
+(and, therefore, cannot meaningfully have omitted fields).</p>
+</div>
+</div>
+</div>
+<div class="section" id="message-ordering">
+<span id="pub-sub-ordering"></span><span id="index-8"></span><h2>Message Ordering<a class="headerlink" href="#message-ordering" title="Permalink to this headline">¶</a></h2>
+<p>AMPS guarantees that, for each AMPS instance, all subscribers to a topic
+receive messages in the order in which AMPS received the messages (with
+the exception of messages that have been returned to a message queue for
+redelivery). Before a given message is delivered to a subscriber, all
+previous messages for that topic are delivered to the subscriber. AMPS
+does this by enforcing a total order across the instance for all
+messages received from publishers, including messages received via
+replication. When AMPS is using a transaction log, that order is
+preserved in the transaction log for the instance, and persists across
+instance restarts.</p>
+<p>This guarantee also applies across topics for subscriptions that involve
+multiple topics, for all topics <em>except</em> views, queues, and conflated
+topics. Views and queues guarantee that every message on the view or the
+queue appears in the order in which the message was published. However,
+the computation involved in producing messages for views and queues may
+introduce some amount of processing latency, and AMPS does not delay
+messages on other topics while performing these computations. For a
+queue that provides <code class="docutils literal"><span class="pre">at-least-once</span></code> delivery, if a processor fails and
+returns a message to the queue, that message will be redelivered (which
+means that the new processor may receive the message out of order).
+Likewise, when AMPS is providing conflation (either through a conflated
+topic or the conflation options on a subscription), AMPS does not
+provide ordering guarantees for conflated messages.</p>
+<p>Applications often use this guarantee to publish checkpoint messages,
+indicating some external state of the system, to a checkpoint topic. For
+example, you might publish messages marking the beginning of a business
+day to a checkpoint topic, <code class="docutils literal"><span class="pre">MARKERS</span></code>, while the <code class="docutils literal"><span class="pre">ORDERS</span></code> topic
+records the orders during that day. Subscribers to the regular
+expression <code class="docutils literal"><span class="pre">^(ORDERS|MARKERS)$</span></code> are guaranteed to receive the message
+that marks the business day before any of the messages published to the
+ORDERS topic for that day, since AMPS preserves the original order of
+the messages.</p>
+<p>For messages constructed by AMPS, such as the output of a view, AMPS
+processes messages for each topic in the order in which they arrive
+(unless conflation is requested), and delivers each calculated message
+to subscribers as soon as the calculation is finished and a message is
+produced. This keeps the latency low for each individual topic. However,
+this means that while AMPS guarantees the order in which messages are
+produced within each view, messages produced for views that do simple
+operations will generally take less time to be produced than messages
+for views that perform complex calculations or require more complicated
+serialization. This means that AMPS guarantees ordering within view
+topics, but does not guarantee that messages for separate view topics
+arrive in a particular order.</p>
+<p>The figure below shows a possible ordering for messages received on an
+underlying topic and two views that use the topic:</p>
+<img alt="../_images/MessageOrdering.svg" src="../_images/MessageOrdering.svg" /><p>Notice that within each topic, AMPS enforces an absolute order. However,
+the Simple View produces the results of Message 3 before the Complex
+View produces the results of Message 2.</p>
+<div class="section" id="replicated-message-ordering">
+<h3>Replicated Message Ordering<a class="headerlink" href="#replicated-message-ordering" title="Permalink to this headline">¶</a></h3>
+<p>When providing messages received via <em>replication</em> (see
+<a class="reference internal" href="ha.html#common-ha-overview"><span class="std std-ref">Chapter 24</span></a>), the principles on message ordering
+provided above still apply. AMPS records messages into the local
+transaction log in the order in which messages are received by the
+instance, and provides messages to subscribers in that order. AMPS uses
+the sequence of publishes assigned by the original publisher and the
+order assigned by the upstream instance to ensure that all replicated
+messages are received and recorded in order with no gaps or duplicates.
+AMPS does not enforce a global total ordering across a replication
+topology. This peer-to-peer approach means that an AMPS instance can
+continue accepting messages from publishers and providing messages to
+subscribers even when the remote side of a replication link is offline
+or if replication is delayed due to network congestion. However, if two
+messages are published to <em>different</em> instances at the same time by
+different publishers, the two instances may record a different <em>overall</em>
+message order for those messages, even though message order <em>from each
+publisher</em> is preserved.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2023 60East Technologies, Inc. (version develop).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

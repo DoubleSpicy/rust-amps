@@ -1,0 +1,395 @@
+#!/usr/bin/env python
+
+############################################################################
+##
+## Copyright (c) 2012-2024 60East Technologies Inc., All Rights Reserved.
+##
+## This computer software is owned by 60East Technologies Inc. and is
+## protected by U.S. copyright laws and other laws and by international
+## treaties.  This computer software is furnished by 60East Technologies
+## Inc. pursuant to a written license agreement and may be used, copied,
+## transmitted, and stored only in accordance with the terms of such
+## license agreement and with the inclusion of the above copyright notice.
+## This computer software or any other copies thereof may not be provided
+## or otherwise made available to any other person.
+##
+## U.S. Government Restricted Rights.  This computer software: (a) was
+## developed at private expense and is in all respects the proprietary
+## information of 60East Technologies Inc; (b) was not developed with
+## government funds; (c) is a trade secret of 60East Technologies Inc.
+## for all purposes of the Freedom of Information Act; and (d) is a
+## commercial item and thus, pursuant to Section 12.212 of the Federal
+## Acquisition Regulations (FAR) and DFAR Supplement Section 227.7202,
+## Government's use, duplication or disclosure of the computer software
+## is subject to the restrictions set forth by 60East Technologies Inc.
+##
+############################################################################
+
+"""
+Utility script to scrape AMPS logs for a search term and output the
+sets of AMPS log lines that contain the search term.  If your search term is
+found within a multi-line set of AMPS log lines, this util will include the
+starting log line (identified as lines that begin with a timestamp).
+"""
+from optparse import OptionParser
+import os
+import re
+from signal import signal, SIGINT, SIGPIPE, SIG_DFL
+import string
+import sys
+import gzip
+import json
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
+import amps_journal
+import amps_common
+
+def is_timestamped(line):
+    """
+    Check for a leading timestamp, and use as sentinel value in identifying
+    related groups of lines from the AMPS logs.
+    """
+    return line.startswith('20')
+
+def check_for_match(line, options):
+    if options.extended_regex is not None:
+        flags = 0
+        if options.ignore_case:
+            flags = re.IGNORECASE
+
+        return re.search(options.extended_regex, line, flags) is not None
+    else:
+        # Exit early on first match found
+        if options.ignore_case:
+            lower_function = str.casefold if sys.version_info[0] >= 3 else string.lower
+            for term in options.literal_terms:
+                if lower_function(term) in lower_function(line):
+                    return True
+        else:
+            for term in options.literal_terms:
+                if term in line:
+                    return True
+
+        return False
+
+def check_for_client_match(record, rep_paths, options, instance_names, client_name_hashes):
+    # If new replication paths are present, generate client name+instance
+    # hashes for all provided client names
+    if record['replicationPathLen']:
+        rep_path = record['replicationPath']
+        if rep_path not in rep_paths:
+            rep_paths[rep_path] = 1
+            repl_tokens = rep_path.split('>')
+            for instance in repl_tokens[0::2]:
+                if instance not in instance_names:
+                    instance_names[instance] = 1
+                    for client in options.clients:
+                        if not client.isdigit():
+                            hash = amps_common.client_name_hash(client, instance)
+                            if hash not in client_name_hashes:
+                                client_name_hashes.append(hash)
+
+    return record['clientNameHash'] in client_name_hashes
+
+def check_for_bookmark_match(record, options, bookmarks):
+    match_found = options.invert_match # Initial match state req'd for early-exit opportunities
+    for client_name_hash, client_sequence in bookmarks:
+        match_found = (str(record['clientSeq']) == client_sequence and str(record['clientNameHash']) == client_name_hash)
+        # Early exit opportunity
+        if match_found:
+            break
+
+    return match_found
+
+def check_for_field_match(record, options, client_match_found):
+    match_found = options.invert_match # Initial match state req'd for early-exit opportunities
+    if (options.literal_terms is not None or options.extended_regex is not None):
+        for key, value in record.items():
+            # No need to check "*Len" fields
+            if not key.endswith('Len'):
+                match_found = check_for_match(str(value), options)
+                # Early exit criteria
+                if match_found and client_match_found in [None, True]:
+                    break
+
+    return match_found
+
+def output_match(cache, prefix_base, options):
+    for line_number, line in cache:
+        prefix_copy = prefix_base
+        if options.line_number:
+            prefix_copy += str(line_number) + ':'
+        print(prefix_copy + line.rstrip())
+
+def convert_if_numeric(value):
+    try:
+        float_val = float(value)
+        if round(float_val) == float_val:
+            return int(float_val)
+        else:
+            return float_val
+    except ValueError:
+        return value
+
+def obj_ref(obj_id):
+    import _ctypes
+    return _ctypes.PyObj_FromPtr(obj_id)
+
+def count_leading_spaces(val):
+    return len(val) - len(val.lstrip(' '))
+
+def output_json(cache, prefix_copy, options):
+    doc = {}
+    subdoc = obj_ref(id(doc))
+    last_list = None
+    last_leading_spaces = -1
+    last_list_map = {}
+    for idx, (_, line) in enumerate(cache):
+        leading_spaces = count_leading_spaces(line)
+        line = line.strip()
+        if idx == 0:
+            tokens = line.split(None, 4)
+            subdoc['timestamp'] = tokens[0]
+            subdoc['thread id'] = tokens[1][1:-1] # Strip square-brackets
+            subdoc['log level'] = tokens[2][:-1]  # Strip trailing colon
+            subdoc['log id'] = tokens[3]
+            if len(tokens) > 4:
+                remainder = tokens[4]
+                doc[remainder] = [{}]
+                last_list_map[0] = obj_ref(id(doc[remainder]))
+                last_list = obj_ref(id(doc[remainder]))
+                subdoc = obj_ref(id(last_list_map[0][-1]))
+        elif '=' in line:
+            tokens = [x.strip() for x in line.split('=', 1)]
+            value_tokens = [x for x in tokens[1].split()] # Strip units; ie- seconds
+            if tokens[0] in subdoc:
+                last_list.append({})
+                subdoc = obj_ref(id(last_list[-1]))
+            subdoc[tokens[0]] = convert_if_numeric(value_tokens[0])
+        else:
+            # Skip final newline char
+            if len(line) == 0:
+                continue
+            if leading_spaces == 0:
+                # Back up a level or to the root
+                doc[line] = [{}]
+                last_list_map[leading_spaces] = obj_ref(id(doc[line]))
+                last_list = obj_ref(id(doc[line]))
+                subdoc = obj_ref(id(last_list_map[leading_spaces][-1]))
+            elif leading_spaces < last_leading_spaces:
+                # Un-indent: remove indentation refs deeper than current
+                keys_to_remove = [k for k in last_list_map if k >= leading_spaces]
+                for key in keys_to_remove:
+                    del last_list_map[key]
+                last_list_map[leading_spaces - 1].append({line: [{}]})
+                last_list = obj_ref(id(last_list_map[leading_spaces - 1][-1][line]))
+                subdoc = obj_ref(id(last_list[-1]))
+            elif leading_spaces >= last_leading_spaces:
+                # Populate any empty dict. If the dict is non-empty, apppend new empty dict
+                if len(subdoc):
+                    last_list.append({line: [{}]})
+                    last_list_map[leading_spaces] = obj_ref(id(last_list[-1]))
+                else:
+                    subdoc[line] = [{}]
+                    last_list_map[leading_spaces] = obj_ref(id(subdoc[line]))
+                last_list = obj_ref(id(last_list[-1][line]))
+                subdoc = obj_ref(id(last_list[-1]))
+        last_leading_spaces = leading_spaces
+    print(json.dumps(doc))
+
+def search_file(filename, log, options):
+    match_found = False
+
+    # Look-behind cache, so matches start with a timestamp-prefixed log entry
+    cache = []
+
+    # The prefix is used when the filename and/or line numbers are requested
+    prefix = ''
+    if options.with_filename:
+        prefix += filename + ':'
+
+    for line_num, line in enumerate(log, 1):
+        # Bool value of invert_match cmd-line option flip/flops conditional
+        # and conditionally enables/disables fall-through for when to
+        # reset match_found variable
+        if match_found == options.invert_match:
+            # This code block handles suppression of output
+            if is_timestamped(line):
+                # Only reset variable when matching is inverted
+                if options.invert_match:
+                    match_found = False
+                cache = []
+        else:
+            # This code block handles when output is generated
+            if is_timestamped(line):
+                # Only reset variable when normal matching is expected
+                if not options.invert_match:
+                    match_found = False
+                if options.output_text:
+                    # Output cache contents
+                    output_match(cache, prefix, options)
+                else:
+                    output_json(cache, prefix, options)
+                cache = []
+
+        if not match_found:
+            match_found = check_for_match(line, options)
+        cache.append((line_num, line))
+
+    # Do final check at EOF to see if we need to write out our cache
+    if match_found != options.invert_match:
+        if options.output_text:
+            output_match(cache, prefix, options)
+        else:
+            output_json(cache, prefix, options)
+
+def generate_client_hashes(filename, options, instance_names, client_name_hashes):
+    jnl_basename = os.path.basename(filename)
+    instance_name = jnl_basename.split('.')[0]
+    instance_names[instance_name] = 1
+
+    for client in options.clients:
+        # Fully-numeric identifiers might be literal client name hash values
+        if client.isdigit():
+            if client not in client_name_hashes:
+                client_name_hashes.append(int(client))
+
+        # Add hash for clients using a publish store
+        hash = amps_common.client_name_hash(client)
+        if hash not in client_name_hashes:
+            client_name_hashes.append(hash)
+        # Generate hashes for clients w/out publish stores for each instance name
+        for instance in instance_names:
+            hash = amps_common.client_name_hash(client, instance)
+            if hash not in client_name_hashes:
+                client_name_hashes.append(hash)
+
+def search_journal(filename, jnl_file, options, rep_paths, instance_names, client_name_hashes, entry):
+    # When filenames are explicitly requested, emit the journal extents metadata
+    if options.with_filename:
+        print(jnl_file.format_extents(True))
+
+    # Generate client name hashes, when required
+    if options.clients is not None:
+        generate_client_hashes(filename, options, instance_names, client_name_hashes)
+
+    # Check for bookmark search terms for publish record matches
+    bookmarks = []
+    if options.literal_terms is not None:
+        for search_term in options.literal_terms:
+            tokens = search_term.split('|', 2)
+            # Recognize bookmark formats that specify either 1 or 2 delimiters
+            if (((len(tokens) == 3 and len(tokens[2]) == 0) or len(tokens) == 2)
+                and tokens[0].isdigit() and tokens[1].isdigit()):
+                bookmarks.append(tokens[:2])
+
+    for record in jnl_file.records():
+        if not options.include_noops and record['typeStr'] == 'noop': # Skip no-op entries
+            continue
+        entry += 1
+        match_found = options.invert_match # Initial match state for record
+        client_match_found = None
+        if len(client_name_hashes):
+            client_match_found = check_for_client_match(record, rep_paths, options, instance_names, client_name_hashes)
+
+        match_found = check_for_bookmark_match(record, options, bookmarks) or check_for_field_match(record, options, client_match_found)
+
+        # Complex matching logic: if search terms were provided, they must be matched.
+        # If client(s) were specified, those much (also) match.
+        if (((options.literal_terms is not None or options.extended_regex is not None) and match_found != options.invert_match) \
+           or (options.literal_terms is None and options.extended_regex is None)) \
+           and client_match_found in [None, not options.invert_match]:
+            # Only relax data redaction from sow_delete_by_bookmark and transfer records
+            if options.omit_data and record['type'] not in [7, 8]:
+                record['is_redact_data'] = True
+            record['entryCount'] = entry
+            print(record)
+
+def main(argv):
+    # Ignore SIGPIPE signal for valid use cases such as piping output to "head"
+    signal(SIGPIPE, SIG_DFL)
+    signal(SIGINT, SIG_DFL)
+
+    usage = "%prog [options] [files]"
+    version = "%prog 1.0"
+    description = "This utility is intended to facilitate searching AMPS logs or journals for " + \
+                  "search terms (either literal terms or regular expressions).\n" + \
+                  "Search matches for log files are against entire multi-line blocks where " + \
+                  "a single multi-line block consists of an initial line that begins with a datestamp " + \
+                  "and continues with all consecutive lines that don't begin with a " + \
+                  "datestamp.\n" + \
+                  "Searches of (optionally compressed) journal files will output dumps of " + \
+                  "full matching journal records. This utility also supports piped AMPS log input, to search for " + \
+                  "multiple search terms within individual multi-line blocks."
+    parser = OptionParser(usage=usage, version=version, description=description,
+                          add_help_option=False)
+    parser.add_option(      "--help", action='help')
+    parser.add_option("-e", "--search-term", dest='literal_terms', action='append')
+    parser.add_option("-f", "--file", dest='literal_terms_file', action='store')
+    parser.add_option("-E", "--extended-regex", dest='extended_regex', action='store')
+    parser.add_option("-n", "--line-number", dest='line_number', action='store_true')
+    parser.add_option("-H", "--with-filename", dest='with_filename', action='store_true')
+    parser.add_option("-h", "--no-filename", dest='with_filename', action='store_false')
+    parser.add_option("-i", "--ignore-case", dest='ignore_case', action='store_true')
+    parser.add_option("-v", "--invert-match", dest='invert_match', action='store_true', default=False)
+    parser.add_option(      "--no-data", dest="omit_data", action="store_true", default=False,
+                      help="do not display data field when searching journals")
+    parser.add_option(      "--include-noops", dest="include_noops", action="store_true", default=False,
+                      help="include noops in the journal dump")
+    parser.add_option(      "--client", action="append", dest="clients", default=None,
+                      help="Search for records published by a given client. This " +
+                      "argument accepts either a client name or a client name hash. " +
+                      "This argument can be specified multiple times to search for multiple clients.")
+    parser.add_option(      "--json", dest="output_text", action="store_false", default=True,
+                      help="Output matches as json documents.")
+    (options, args) = parser.parse_args()
+
+    # Read search patterns from file
+    if options.literal_terms_file is not None and os.path.exists(options.literal_terms_file):
+        if options.literal_terms is None:
+            options.literal_terms = []
+        with open(options.literal_terms_file) as terms_file:
+            for expression in terms_file:
+                options.literal_terms.append(expression.rstrip('\r\n'))
+
+    # Provide usage message, when no search terms are provided
+    # or if clients are provided but no journal file(s)
+    if len(args) == 0 and ((options.literal_terms is None and options.extended_regex is None)
+                           or (options.clients is not None)):
+        parser.print_help()
+        sys.exit(1)
+
+    # If no search-term/regex option is specified, take 1st arg as search term
+    if len(args) and options.literal_terms is None and options.extended_regex is None and options.clients is None:
+        options.literal_terms = [args.pop(0)]
+
+    # Support reading from STDIN (piped inputs)
+    if len(args) == 0:
+        search_file('(standard input)', sys.stdin, options)
+    elif len(args) > 1 and options.with_filename is None:
+        # Emulate grep when multiple file args are provided
+        options.with_filename = True
+
+    # One or more file arguments were provided
+    rep_paths = {}
+    instance_names = {}
+    client_name_hashes = []
+    # Manage "entry" journal count to be consistent with amps_journal_dump output
+    entry = -1 # We pre-increment and want the first entry to be 0
+    for filename in args:
+        if not os.path.exists(filename):
+            parser.error("%s: No such file or path" % filename)
+        try:
+            if '.journal' not in os.path.basename(filename):
+               raise RuntimeError("Invalid journal file: %s" % filename) 
+            jnl_file = amps_journal.open_file(filename, mode='r')
+            search_journal(filename, jnl_file, options, rep_paths, instance_names, client_name_hashes, entry)
+        except Exception as e:
+            if not str(e).startswith('Invalid journal file:'):
+                sys.exit(e)
+            open_function = gzip.open if os.path.splitext(filename)[1].lower() == '.gz' else open
+            open_kwargs = {'encoding': 'iso-8859-1'} if sys.version_info[0] >= 3 else {}
+            with open_function(filename, 'rt', **open_kwargs) as log:
+                search_file(filename, log, options)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
