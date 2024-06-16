@@ -1,0 +1,12 @@
+[package]
+name = "rust_amps"
+version = "0.1.0"
+edition = "2021"
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    "-C", "link-arg=-fuse-ld=g++",
+]
+
+[dependencies]
+cc = "1.0"
