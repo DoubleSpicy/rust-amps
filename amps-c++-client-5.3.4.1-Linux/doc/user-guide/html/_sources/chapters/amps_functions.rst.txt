@@ -1,8 +1,0 @@
-.. index:: Content filtering, functions; functions; creating fields
-
-.. _#ug-amps-functions:
-
-5. AMPS Functions
-====================
-
-.. include:: ./builtin_functions.inc

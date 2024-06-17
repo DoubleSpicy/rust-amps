@@ -8,5 +8,5 @@ rustflags = [
     "-C", "link-arg=-fuse-ld=g++",
 ]
 
-[dependencies]
+[build-dependencies]
 cc = "1.0"

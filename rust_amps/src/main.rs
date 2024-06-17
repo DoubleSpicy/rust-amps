@@ -66,7 +66,7 @@ fn cast(v: FieldID) -> i32 {
 fn main() {
     println!("Hello, world!");
     // cc::Build::new().cpp(true).
-    let uri = CString::new("tcp://john@127.0.0.1:9007/amps/fix").expect("CString::new failed");
+    let uri = CString::new("tcp://127.0.0.1:9007/amps/fix").expect("CString::new failed");
     let name = CString::new("myApp").expect("CString::new failed");
     unsafe{
         let client = amps_client_create(name.as_ptr());
@@ -87,10 +87,10 @@ fn main() {
             amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Topic), CString::new("orders").expect("new cstr failed").as_ptr());
             amps_message_assign_data(pubMsg, data.as_ptr(), 8);
             result = amps_client_send(client, pubMsg);
-            println!("send result: {}", result);
+            // println!("send result: {}", result);
             
-            let ten_millis = time::Duration::from_millis(100);
-            thread::sleep(ten_millis);
+            // let ten_millis = time::Duration::from_millis(100);
+            // thread::sleep(ten_millis);
         }
     }
 

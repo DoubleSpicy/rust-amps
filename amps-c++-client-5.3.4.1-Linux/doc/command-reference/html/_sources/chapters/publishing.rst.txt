@@ -1,7 +1,0 @@
-.. _#ug-publishing:
-
-3. Publishing to AMPS
-======================
-
-.. include:: ./delta-publish.inc
-.. include:: ./publish.inc

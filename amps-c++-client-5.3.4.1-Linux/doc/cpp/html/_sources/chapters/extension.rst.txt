@@ -1,6 +1,0 @@
-.. _#extension-appendix:
-
-Appendix B. Extension Points
-===============================
-
-.. include:: ./extension-points.inc

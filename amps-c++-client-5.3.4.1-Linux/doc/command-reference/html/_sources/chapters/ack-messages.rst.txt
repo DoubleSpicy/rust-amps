@@ -1,8 +1,0 @@
-
-8. Ack Messages
-=================
-
-AMPS provides ``ack`` messages to report the status of commands
-delivered to AMPS.
-
-.. include:: ./ack.inc
