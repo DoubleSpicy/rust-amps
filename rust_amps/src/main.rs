@@ -84,37 +84,63 @@ pub struct AmpsClient {
     uri: CString,
     _logon_command: CString,
     _msg_type_json: CString,
+    _publish_command: CString,  
+    _msg: *mut c_void,
     // _logon_command_ptr: 
 }
 
 impl AmpsClient {
-    pub fn new(&mut self, name: &str, uri: &str) -> i32 {
-        self.name = Self::cast(name);
-        self.uri = Self::cast(uri);
-        self._logon_command = Self::cast("logon");
-        self._msg_type_json = Self::cast("json");
+    pub fn new(name: &str, uri: &str) -> Self {
+        let name_cstr = Self::cast(name);
         unsafe{
-            self._client = amps_client_create(self.name.as_ptr());
-            return 0;
+            let client_ptr = amps_client_create(name_cstr.as_ptr());
+            Self { _client: (client_ptr),
+                 name: (name_cstr), uri: (Self::cast(uri)),
+                  _logon_command: (Self::cast("logon")),
+                   _msg_type_json: (Self::cast("json")),
+                    _publish_command: (Self::cast("publish")),
+                     _msg: (amps_message_create(client_ptr)) }
         }
+        
     }
     pub fn connect(&self) -> i32 {
         unsafe{
             let mut result = amps_client_connect(self._client, self.uri.as_ptr());
-            if(result != 0){
-                result = amps_client_connect(self._client, self.uri.as_ptr());
-                let logon_command = amps_message_create(self._client);
-                amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_Command), self._logon_command.as_ptr());
-                amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_ClientName), self.name.as_ptr());
-                amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_MessageType), self._msg_type_json.as_ptr());
-                result = amps_client_send(self._client, logon_command);
+            if(result == 0){
+                // amps_client_connect(self._client, CString::new("tcp://127.0.0.1:9007/amps/fix").expect("CString::new failed").as_ptr());
+                println!("fn connect result: {}", result);
+                let logon = amps_message_create(self._client);
+                amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_Command), self._logon_command.as_ptr());
+                amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_ClientName), self.name.as_ptr());
+                amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_MessageType), self._msg_type_json.as_ptr());
+                result = amps_client_send(self._client, logon);
+                println!("fn logon result: {}", result);
             }
             return result;
         }
     }
 
-    pub fn publish(&self) -> i32 {
-        return 0;
+    pub fn publish(&self, topic: &str, data: &str) -> i32 {
+        unsafe {
+            amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Command), self._publish_command.as_ptr());
+            amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Topic), Self::cast(topic).as_ptr());
+            amps_message_assign_data(self._msg, Self::cast(data).as_ptr(), data.chars().count() as u64);
+            let result = amps_client_send(self._client, self._msg);
+            return result;
+        }
+        
+    }
+
+    pub fn publish2(&self) -> i32 {
+        unsafe {
+            let pubMsg = amps_message_create(self._client);
+            let data = CString::new("dataTest").expect("new cstr failed");
+            amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Command), CString::new("publish").expect("new cstr failed").as_ptr());
+            amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Topic), CString::new("orders").expect("new cstr failed").as_ptr());
+            amps_message_assign_data(pubMsg, data.as_ptr(), 8);
+            let result = amps_client_send(self._client, pubMsg);
+            return result;
+        }
     }
 
     pub fn subscribe(&self) -> i32{
@@ -130,36 +156,19 @@ impl AmpsClient {
 
 
 fn main() {
-    println!("Hello, world!");
-    // cc::Build::new().cpp(true).
-    let uri = CString::new("tcp://127.0.0.1:9007/amps/fix").expect("CString::new failed");
-    let name = CString::new("myApp").expect("CString::new failed");
+    println!("Rust FFI AMPS client!");
     unsafe{
-        // let test = String::from("TEST123");
-        // let testRaw = CString::new(test).expect("fail!");
-
-        let client = amps_client_create(name.as_ptr());
-        let mut result = amps_client_connect(client, uri.as_ptr());
-        println!("connection result enum: {}", result);
-
-        let logon_command = amps_message_create(client);
-        amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_Command), CString::new("logon").expect("new cstr failed").as_ptr());
-        amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_ClientName), CString::new("RustClient").expect("new cstr failed").as_ptr());
-        amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_MessageType), CString::new("json").expect("new cstr failed").as_ptr());
-        result = amps_client_send(client, logon_command);
-        println!("logon result: {}", result);
-
+        let uri = "tcp://127.0.0.1:9007/amps/fix";
+        let name = "rustClient";
+        let client = AmpsClient::new(name, uri);
+        let mut result = client.connect();
+        println!("connection result: {}", result);
+        let topic = "orders";
+        let data = "35=D; 22=5; 55=NVDA.O";
+        result = client.publish(topic, data);
+        println!("pub result: {}", result);
         while(true){
-            let pubMsg = amps_message_create(client);
-            let data = CString::new("dataTest").expect("new cstr failed");
-            amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Command), CString::new("publish").expect("new cstr failed").as_ptr());
-            amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Topic), CString::new("orders").expect("new cstr failed").as_ptr());
-            amps_message_assign_data(pubMsg, data.as_ptr(), 8);
-            result = amps_client_send(client, pubMsg);
-            // println!("send result: {}", result);
-            
-            // let ten_millis = time::Duration::from_millis(100);
-            // thread::sleep(ten_millis);
+            result = client.publish(topic, data);
         }
     }
 
