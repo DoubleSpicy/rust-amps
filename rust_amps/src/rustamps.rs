@@ -1,8 +1,8 @@
 pub mod rustamps{
     use core::ffi::{c_char};
     use std::ffi::{c_void, CString, c_int};
-    use std::ptr::{null, null_mut};
-    use std::{ptr, thread, time};
+    
+    
 
     extern "C" {
         pub fn amps_client_create(name: *const c_char) -> *mut c_void;
@@ -98,7 +98,7 @@ pub mod rustamps{
         pub fn connect(&self) -> i32 {
             unsafe{
                 let mut result = amps_client_connect(self._client, self.uri.as_ptr());
-                if(result == 0){
+                if result == 0 {
                     // amps_client_connect(self._client, CString::new("tcp://127.0.0.1:9007/amps/fix").expect("CString::new failed").as_ptr());
                     println!("fn connect result: {}", result);
                     let logon = amps_message_create(self._client);

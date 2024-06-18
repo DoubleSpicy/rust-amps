@@ -16,7 +16,7 @@ fn main() {
         let data = "35=D; 22=5; 55=NVDA.O";
         result = client.publish(topic, data);
         println!("pub result: {}", result);
-        while(true){
+        loop{
             result = client.publish(topic, data);
         }
     }

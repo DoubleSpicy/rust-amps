@@ -1,4 +1,5 @@
 use rust_amps::rustamps::rustamps::AmpsClient;
+use std::time::Instant;
 
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
@@ -16,16 +17,13 @@ mod tests {
             let data = "35=D; 22=5; 55=NVDA.O";
             result = client.publish(topic, data);
             println!("pub result: {}", result);
-            while(true){
+            let now = Instant::now();
+            for _ in 0..10000000{
                 result = client.publish(topic, data);
             }
+            let elapsed = now.elapsed();
+            println!("Elapsed: {:.2?}", elapsed);
+            assert!(elapsed.as_secs() <= 5);
         }
     }
-
-    // #[test]
-    // fn test_bad_add() {
-    //     // This assert would fire and test will fail.
-    //     // Please note, that private functions can be tested too!
-    //     assert_eq!(bad_add(1, 2), 3);
-    // }
 }
