@@ -3,9 +3,12 @@
 extern crate core;
 // extern crate cc;
 use core::ffi::{c_char};
-use std::ffi::{c_void, CString};
+use core::panic;
+use std::ffi::{c_void, CString, c_int};
 
-use std::{thread, time};
+// use std::os::raw::c_void;
+use std::ptr::{null, null_mut};
+use std::{ptr, thread, time};
 
 
 extern "C" {
@@ -15,6 +18,7 @@ extern "C" {
     fn amps_message_set_field_value_nts(msg: *mut c_void, field: i32, val: *const c_char) -> c_void;
     fn amps_message_assign_data(msg: *mut c_void, val: *const c_char, size: u64);
     fn amps_client_send(client:  *mut c_void, msg:  *mut c_void) -> i32;
+    fn createClient(name: *const c_char, ptr: *mut c_void);
 }
 
 #[derive(Copy, Clone)]
@@ -59,9 +63,71 @@ enum FieldID{
     , AMPS_Unknown_Field = -1
 }
 
+
+
 fn cast(v: FieldID) -> i32 {
     v as i32
 }
+
+
+
+fn getPtr() -> *mut c_void {
+    let mut val : c_int = 0;
+    let p_val = &mut val as *mut c_int as *mut c_void;
+    return p_val;
+}
+
+// wrapper class for amps client
+pub struct AmpsClient {
+    _client: *mut c_void, // pointer to raw client, do not touch
+    name: CString,
+    uri: CString,
+    _logon_command: CString,
+    _msg_type_json: CString,
+    // _logon_command_ptr: 
+}
+
+impl AmpsClient {
+    pub fn new(&mut self, name: &str, uri: &str) -> i32 {
+        self.name = Self::cast(name);
+        self.uri = Self::cast(uri);
+        self._logon_command = Self::cast("logon");
+        self._msg_type_json = Self::cast("json");
+        unsafe{
+            self._client = amps_client_create(self.name.as_ptr());
+            return 0;
+        }
+    }
+    pub fn connect(&self) -> i32 {
+        unsafe{
+            let mut result = amps_client_connect(self._client, self.uri.as_ptr());
+            if(result != 0){
+                result = amps_client_connect(self._client, self.uri.as_ptr());
+                let logon_command = amps_message_create(self._client);
+                amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_Command), self._logon_command.as_ptr());
+                amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_ClientName), self.name.as_ptr());
+                amps_message_set_field_value_nts(logon_command, cast(FieldID::AMPS_MessageType), self._msg_type_json.as_ptr());
+                result = amps_client_send(self._client, logon_command);
+            }
+            return result;
+        }
+    }
+
+    pub fn publish(&self) -> i32 {
+        return 0;
+    }
+
+    pub fn subscribe(&self) -> i32{
+        // TODO: add subscribe functionality, pass callback function to C code.
+        return 0;
+    }
+
+    fn cast(x: &str) -> CString {
+        return CString::new(x).expect("fail to cast String to CString!");
+    }
+}
+
+
 
 fn main() {
     println!("Hello, world!");
@@ -69,6 +135,9 @@ fn main() {
     let uri = CString::new("tcp://127.0.0.1:9007/amps/fix").expect("CString::new failed");
     let name = CString::new("myApp").expect("CString::new failed");
     unsafe{
+        // let test = String::from("TEST123");
+        // let testRaw = CString::new(test).expect("fail!");
+
         let client = amps_client_create(name.as_ptr());
         let mut result = amps_client_connect(client, uri.as_ptr());
         println!("connection result enum: {}", result);
