@@ -15,14 +15,11 @@ unsafe extern "C" fn recvCallback(msg: *mut c_void, _userdata: *mut c_void) {
     let size_ptr: *mut u64 = &mut size;
     unsafe {
         rustamps::rustamps::amps_message_get_data(msg, data_ptr, size_ptr);
-        let mut buf: Vec<c_char> = Vec::new();
-        for i in 0..size{
-            let c_str = CStr::from_ptr(data);
-            print!("{:?}", c_str);
-            buf.push(*(data.add(i as usize)));
-        }
+        // let mut buf: Vec<c_char> = Vec::new();
+        let c_str = CStr::from_ptr(data);
+        println!("CHECK: {:?}", c_str);
         // println!("||||end||||");
-        println!("\nOK: {:?}", buf);
+        // println!("\nOK: {:?}", buf);
     }
 }
 
@@ -49,7 +46,7 @@ fn main() {
         // client.subscribe(recvCallback);
         // println!("pub result: {}", result);
         for _ in 0..1000{
-            result = client.publish(topic, data);
+            // result = client.publish(topic, data);
             // println!("thread1: send result{}", result);
         }
     });

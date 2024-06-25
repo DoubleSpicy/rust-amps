@@ -118,7 +118,7 @@ pub mod rustamps{
             unsafe {
                 amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Command), self._publish_command.as_ptr());
                 amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Topic), Self::cast(topic).as_ptr());
-                amps_message_assign_data(self._msg, Self::cast(data).as_ptr() as *const c_char, data.chars().count() as u64); // TODO: fix val here
+                amps_message_assign_data(self._msg, Self::cast(data).as_ptr() as *const c_char, data.chars().count() as u64); // TODO: fix val here, wrong encoding?
                 let result = amps_client_send(self._client, self._msg);
                 return result;
             }

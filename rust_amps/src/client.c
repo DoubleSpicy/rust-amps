@@ -19,7 +19,7 @@
  
      int main()
      {
-       amps_handle client, m, logon;
+       amps_handle client, m, logon, m2;
        const char* uri="tcp://127.0.0.1:9007/amps/fix";
  
        client = amps_client_create("myApp");
@@ -44,6 +44,15 @@
        amps_client_set_message_handler(client, receiveMessage, NULL);
  
        amps_client_send(client, m);
+
+       for(int i = 0; i < 100; i++){
+        m2 = amps_message_create(client);
+       amps_message_set_field_value_nts(m2, AMPS_Command,
+         "publish");
+       amps_message_set_field_value_nts(m2, AMPS_Topic, "orders");
+       amps_message_assign_data(m2, "TEST123", 8);
+       amps_client_send(client, m2);
+       }
  
        sleep(10);
        return 0;
