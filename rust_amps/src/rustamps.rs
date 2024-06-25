@@ -11,6 +11,8 @@ pub mod rustamps{
         pub fn amps_message_set_field_value_nts(msg: *mut c_void, field: i32, val: *const c_char) -> c_void;
         pub fn amps_message_assign_data(msg: *mut c_void, val: *const c_char, size: u64);
         pub fn amps_client_send(client:  *mut c_void, msg:  *mut c_void) -> i32;
+        pub fn amps_message_get_data(msg: *mut c_void, data: *mut *mut c_char, size: *mut u64);
+        pub fn amps_client_set_message_handler(client:  *mut c_void, callback: unsafe extern "C" fn(*mut c_void, *mut c_void), _userdata:  *mut c_void);
     }
     
     #[derive(Copy, Clone)]
@@ -116,11 +118,10 @@ pub mod rustamps{
             unsafe {
                 amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Command), self._publish_command.as_ptr());
                 amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Topic), Self::cast(topic).as_ptr());
-                amps_message_assign_data(self._msg, Self::cast(data).as_ptr(), data.chars().count() as u64);
+                amps_message_assign_data(self._msg, Self::cast(data).as_ptr() as *const c_char, data.chars().count() as u64); // TODO: fix val here
                 let result = amps_client_send(self._client, self._msg);
                 return result;
             }
-            
         }
     
         pub fn publish2(&self) -> i32 {
@@ -135,9 +136,17 @@ pub mod rustamps{
             }
         }
     
-        pub fn subscribe(&self) -> i32{
+        pub fn subscribe(&self, callback: unsafe extern "C" fn(*mut c_void, *mut c_void)) -> i32{
             // TODO: add subscribe functionality, pass callback function to C code.
-            return 0;
+            unsafe {
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_QueryID), Self::cast("1").as_ptr());
+                // amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_CommandId), Self::cast("auto1").as_ptr());
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Command), Self::cast("subscribe").as_ptr());
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Topic), Self::cast("orders").as_ptr());
+                amps_client_set_message_handler(self._client, callback, std::ptr::null_mut());
+                let result = amps_client_send(self._client, self._msg);
+                return result;
+            }
         }
     
         fn cast(x: &str) -> CString {
