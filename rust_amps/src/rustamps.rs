@@ -1,6 +1,6 @@
 pub mod rustamps{
     use core::ffi::{c_char};
-    use std::ffi::{c_void, CString, c_int};
+    use std::ffi::{c_void, CStr, CString, c_int};
     
     
 
@@ -11,6 +11,8 @@ pub mod rustamps{
         pub fn amps_message_set_field_value_nts(msg: *mut c_void, field: i32, val: *const c_char) -> c_void;
         pub fn amps_message_assign_data(msg: *mut c_void, val: *const c_char, size: u64);
         pub fn amps_client_send(client:  *mut c_void, msg:  *mut c_void) -> i32;
+        pub fn amps_message_get_data(msg: *mut c_void, data: *mut *mut c_char, size: *mut u64);
+        pub fn amps_client_set_message_handler(client:  *mut c_void, callback: unsafe extern "C" fn(*mut c_void, *mut c_void), _userdata:  *mut c_void);
     }
     
     #[derive(Copy, Clone)]
@@ -75,8 +77,8 @@ pub mod rustamps{
         name: CString,
         uri: CString,
         _logon_command: CString,
-        _msg_type_json: CString,
-        _publish_command: CString,  
+        _publish_command: CString,
+        _msg_type: CString,  
         _msg: *mut c_void,
         // _logon_command_ptr: 
     }
@@ -89,8 +91,8 @@ pub mod rustamps{
                 Self { _client: (client_ptr),
                      name: (name_cstr), uri: (Self::cast(uri)),
                       _logon_command: (Self::cast("logon")),
-                       _msg_type_json: (Self::cast("json")),
                         _publish_command: (Self::cast("publish")),
+                        _msg_type: (Self::cast("json")),
                          _msg: (amps_message_create(client_ptr)) }
             }
             
@@ -99,12 +101,11 @@ pub mod rustamps{
             unsafe{
                 let mut result = amps_client_connect(self._client, self.uri.as_ptr());
                 if result == 0 {
-                    // amps_client_connect(self._client, CString::new("tcp://127.0.0.1:9007/amps/fix").expect("CString::new failed").as_ptr());
                     println!("fn connect result: {}", result);
                     let logon = amps_message_create(self._client);
                     amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_Command), self._logon_command.as_ptr());
                     amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_ClientName), self.name.as_ptr());
-                    amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_MessageType), self._msg_type_json.as_ptr());
+                    amps_message_set_field_value_nts(logon, cast(FieldID::AMPS_MessageType), self._msg_type.as_ptr());
                     result = amps_client_send(self._client, logon);
                     println!("fn logon result: {}", result);
                 }
@@ -113,31 +114,30 @@ pub mod rustamps{
         }
     
         pub fn publish(&self, topic: &str, data: &str) -> i32 {
+            let payload: CString = Self::cast(data);
+            let topic_cstr = Self::cast(topic);
             unsafe {
                 amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Command), self._publish_command.as_ptr());
                 amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Topic), Self::cast(topic).as_ptr());
-                amps_message_assign_data(self._msg, Self::cast(data).as_ptr(), data.chars().count() as u64);
+                amps_message_assign_data(self._msg, payload.as_ptr() as *const c_char, data.len() as u64); // TODO: fix val here, wrong encoding?
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_MessageType), self._msg_type.as_ptr());
                 let result = amps_client_send(self._client, self._msg);
                 return result;
             }
-            
         }
     
-        pub fn publish2(&self) -> i32 {
+        pub fn subscribe(&self, topic: &str, callback: unsafe extern "C" fn(*mut c_void, *mut c_void)) -> i32{
+            // TODO: add subscribe functionality, pass callback function to C code.
+            let sub = Self::cast("subscribe");
+            let topic_cstr = Self::cast(topic);
             unsafe {
-                let pubMsg = amps_message_create(self._client);
-                let data = CString::new("dataTest").expect("new cstr failed");
-                amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Command), CString::new("publish").expect("new cstr failed").as_ptr());
-                amps_message_set_field_value_nts(pubMsg, cast(FieldID::AMPS_Topic), CString::new("orders").expect("new cstr failed").as_ptr());
-                amps_message_assign_data(pubMsg, data.as_ptr(), 8);
-                let result = amps_client_send(self._client, pubMsg);
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Command), sub.as_ptr());
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_Topic), topic_cstr.as_ptr());
+                amps_client_set_message_handler(self._client, callback, std::ptr::null_mut());
+                amps_message_set_field_value_nts(self._msg, cast(FieldID::AMPS_MessageType), self._msg_type.as_ptr());
+                let result = amps_client_send(self._client, self._msg);
                 return result;
             }
-        }
-    
-        pub fn subscribe(&self) -> i32{
-            // TODO: add subscribe functionality, pass callback function to C code.
-            return 0;
         }
     
         fn cast(x: &str) -> CString {
@@ -145,4 +145,18 @@ pub mod rustamps{
         }
     }
     
+    pub fn get_payload(msg: *mut c_void) -> String {
+        let mut data: *mut c_char = std::ptr::null_mut();
+        let data_ptr: *mut *mut c_char = &mut data;
+        let mut size: u64 = 0;
+        let size_ptr: *mut u64 = &mut size;
+        let mut str_buf: String = "".to_string();
+        unsafe {
+            amps_message_get_data(msg, data_ptr, size_ptr);
+            let mut c_str: &CStr = CStr::from_ptr(data);
+            str_buf = c_str.to_str().unwrap().to_owned();
+        }
+        let slice = str_buf[0..size as usize].to_string();
+        return slice;
+    }
 }
